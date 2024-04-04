@@ -1,0 +1,27 @@
+<Project>
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <LangVersion>11</LangVersion>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+    <!--
+      TODO: enable this when we have fixed all warnings
+      <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    -->
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <NoDefaultLaunchSettingsFile>true</NoDefaultLaunchSettingsFile>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <OrchardVersion>1.8.1</OrchardVersion>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Resources/**/*" />
+  </ItemGroup>
+
+</Project>

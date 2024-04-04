@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <OutputType>Library</OutputType>
+  </PropertyGroup>
+
+	<ItemGroup>
+	  <ProjectReference Include="../../src/Enms.Data/Enms.Data.csproj" />
+	</ItemGroup>
+
+  <ItemGroup>
+		<PackageReference Include="OrchardCore.Users" Version="$(OrchardVersion)" />
+  </ItemGroup>
+
+</Project>

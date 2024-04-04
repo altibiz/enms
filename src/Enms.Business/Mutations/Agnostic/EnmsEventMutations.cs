@@ -1,0 +1,59 @@
+using System.ComponentModel.DataAnnotations;
+using Enms.Business.Conversion.Abstractions;
+using Enms.Business.Models.Abstractions;
+using Enms.Business.Mutations.Abstractions;
+using Enms.Data;
+
+namespace Enms.Business.Mutations.Agnostic;
+
+public class EnmsEventMutations : IEnmsMutations
+{
+  private readonly EnmsDbContext _context;
+
+  private readonly IServiceProvider _serviceProvider;
+
+  public EnmsEventMutations(
+    EnmsDbContext context,
+    IServiceProvider serviceProvider
+  )
+  {
+    _context = context;
+    _serviceProvider = serviceProvider;
+  }
+
+  public async ValueTask DisposeAsync()
+  {
+    await _context.SaveChangesAsync();
+    GC.SuppressFinalize(this);
+  }
+
+  public void Dispose()
+  {
+    _context.SaveChanges();
+    GC.SuppressFinalize(this);
+  }
+
+  public void ClearChanges()
+  {
+    _context.ChangeTracker.Clear();
+  }
+
+  public void Create(IEvent @event)
+  {
+    var validationResults = @event
+      .Validate(new ValidationContext(this))
+      .ToList();
+    if (validationResults.Count is not 0)
+    {
+      throw new ValidationException(validationResults.First().ErrorMessage);
+    }
+
+    var modelEntityConverter = _serviceProvider
+                                 .GetServices<IModelEntityConverter>()
+                                 .FirstOrDefault(converter => converter
+                                   .CanConvertToEntity(@event.GetType())) ??
+                               throw new InvalidOperationException(
+                                 $"No model entity converter found for {@event.GetType()}");
+    _context.Add(modelEntityConverter.ToEntity(@event));
+  }
+}

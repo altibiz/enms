@@ -1,0 +1,43 @@
+@page "/users"
+@attribute [Navigation(Title = "Users")]
+@attribute [Authorize]
+@inherits OwningComponentBase<EnmsRepresentativeQueries>
+
+<Loading Load="@(() => Service.MaybeRepresentingUsers(pageNumber: _page))">
+  <Found>
+    @foreach (var maybeRepresentingUser in context.Items)
+    {
+      var href = $"user/{maybeRepresentingUser.User.Id}";
+      var editHref = $"user/{maybeRepresentingUser.User.Id}/edit";
+
+      <MudCard>
+        <MudCardContent>
+          <MudText Typo="Typo.h6">
+            @maybeRepresentingUser.User.UserName
+          </MudText>
+          <MudText>
+            @maybeRepresentingUser.User.Email
+          </MudText>
+        </MudCardContent>
+        <MudCardActions>
+          <MudNavLink Href="@href">
+            Details
+          </MudNavLink>
+          <MudNavLink Href="@editHref">
+            Edit
+          </MudNavLink>
+        </MudCardActions>
+      </MudCard>
+    }
+
+    <MudPagination
+      class="mt-4"
+      @bind-Selected="_page"
+      PageSize="QueryConstants.DefaultPageSize"
+      TotalItems="context.TotalCount"/>
+  </Found>
+</Loading>
+
+@code {
+  private int _page = 1;
+}

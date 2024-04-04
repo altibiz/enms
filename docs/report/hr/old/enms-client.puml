@@ -1,0 +1,21 @@
+@startuml
+
+interface IEnmsClient {
+  AddEgaugeMeasurement()
+  AddEgaugeMeasurementAsync()
+
+  GetEgaugeMeasurements(source, fromDate, toDate)
+  GetEgaugeMeasurementsAsync(source, fromDate, toDate)
+}
+
+class EnmsClient implements IEnmsClient {
+  -_serviceProvider : IServiceProvider
+
+  AddEgaugeMeasurement(measurement)
+  AddEgaugeMeasurementAsync(measurement)
+
+  GetEgaugeMeasurements(source, fromDate, toDate)
+  GetEgaugeMeasurementsAsync(source, fromDate, toDate)
+}
+
+@enduml

@@ -1,0 +1,23 @@
+@startuml
+
+start
+
+:eGauge device pushes measurement;
+
+:EgaugePushHandler parses measurement;
+
+if (Measurement parsed successfully?) then (no)
+  stop
+else (yes)
+endif
+
+:EnmsClient stores parsed measurement;
+
+if (Measurement stored successfully?) then (no)
+  stop
+else (yes)
+endif
+
+stop
+
+@enduml
