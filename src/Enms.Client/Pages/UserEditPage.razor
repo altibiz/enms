@@ -1,0 +1,13 @@
+@page "/user/{id}/edit"
+@attribute [Navigation(RouteValue = "id", Parents = new[] { typeof(UsersPage) })]
+@attribute [Authorize]
+@attribute [StreamRendering]
+
+<MaybeRepresentingUserEdit Id="@Id"/>
+
+@code {
+
+  [Parameter]
+  public string? Id { get; set; }
+
+}

@@ -1,0 +1,48 @@
+@startuml
+
+left to right direction
+
+cloud "Cloud" {
+  package "Server" {
+    portin egaugePushEndpoint
+    portout enmsUiEndpoint
+
+    component EgaugePushHandler
+    component EnmsUi
+    component EnmsClient
+    
+    interface IEnmsClient
+  }
+
+  database "Database" {
+    port dbPort
+  }
+}
+
+node "eGauge1" as EG1
+node "eGauge2" as EG2
+node "eGauge3" as EG3
+
+node "Client1" as C1
+node "Client2" as C2
+node "Client3" as C3
+
+EG1 --> egaugePushEndpoint : pushes to
+EG2 --> egaugePushEndpoint : pushes to
+EG3 --> egaugePushEndpoint : pushes to
+
+enmsUiEndpoint <-- C1 : connects to
+enmsUiEndpoint <-- C2 : connects to
+enmsUiEndpoint <-- C3 : connects to
+
+EnmsClient -up-> dbPort : connects to
+
+egaugePushEndpoint --> EgaugePushHandler : listens to
+EgaugePushHandler .right.> IEnmsClient : uses
+
+EnmsUi <-- enmsUiEndpoint : listens to
+EnmsUi .left.> IEnmsClient : uses
+
+EnmsClient -left-> IEnmsClient : provides
+
+@enduml

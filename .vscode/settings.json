@@ -1,0 +1,60 @@
+{
+  "search.exclude": {
+    "**/bin": true,
+    "**/obj": true,
+    "src/Ozds.Server/Localization/": true,
+    ".direnv": true,
+    "docs/wiki/**/book": true,
+    "**/mdbook-plantuml-img": true,
+    "**/plantuml-images": true,
+    "artifacts": true,
+    "**/cache": true,
+    "**/.ruff_cache": true,
+    "**/__pycache__": true
+  },
+  "files.exclude": {
+    "**/bin": true,
+    "**/obj": true,
+    "src/Ozds.Server/Localization/": true,
+    ".direnv": true,
+    "docs/wiki/**/book": true,
+    "**/mdbook-plantuml-img": true,
+    "**/plantuml-images": true,
+    "artifacts": true,
+    "**/cache": true,
+    "**/.ruff_cache": true,
+    "**/__pycache__": true
+  },
+  "prettier.ignorePath": ".prettierignore",
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "[csharp]": {
+    "editor.defaultFormatter": "ms-dotnettools.csharp"
+  },
+  "[aspnetcorerazor]": {
+    "editor.defaultFormatter": "ms-dotnettools.csharp",
+    "editor.formatOnSave": false
+  },
+  "[python]": {
+    "editor.defaultFormatter": "eeyore.yapf"
+  },
+  "files.encoding": "utf8",
+  "files.eol": "\n",
+  "editor.tabSize": 2,
+  "editor.indentSize": "tabSize",
+  "editor.insertSpaces": true,
+  "editor.rulers": [
+    {
+      "column": 80,
+      "color": "#CCCCDD"
+    }
+  ],
+  "editor.wordWrap": "off",
+  "files.insertFinalNewline": true,
+  "files.trimTrailingWhitespace": true,
+  "editor.formatOnSave": true,
+  "files.associations": {
+    ".dvcignore": "ignore",
+    "Doxyfile": "ini",
+    "NLog.config": "xml"
+  }
+}

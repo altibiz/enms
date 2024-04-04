@@ -1,0 +1,13 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+	<ItemGroup>
+    <PackageReference Include="OrchardCore.Application.Cms.Targets" Version="$(OrchardVersion)" />
+    <PackageReference Include="OrchardCore.Logging.NLog" Version="$(OrchardVersion)" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <ProjectReference Include="../../src/Enms.Client/Enms.Client.csproj" />
+	  <ProjectReference Include="../../src/Enms.Business/Enms.Business.csproj" />
+	</ItemGroup>
+
+</Project>

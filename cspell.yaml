@@ -1,0 +1,64 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/streetsidesoftware/cspell/main/packages/cspell-types/cspell.schema.json
+
+useGitignore: true
+version: "0.2"
+language: en
+ignorePaths:
+  - "*.svg"
+  - "**/Migrations/**/*"
+  - "./src/Enms.Server/App_Data/**/*"
+  - "deps.nix"
+  - "justfile"
+  - "flake.nix"
+  - "docker-compose.yml"
+  - "omnisharp.json"
+  - ".github/workflows/*"
+  - "Doxyfile"
+  - "DoxygenLayout.xml"
+  - "doxygen-awesome.css"
+  - "doxygen-awesome-sidebar-only.css"
+  - "cspell.yaml"
+  - "./docs/schema.md"
+  # TODO: add dicrionary or use aspell/hunspell
+  - "./docs/wiki/hr/**/*"
+  - "./docs/wiki/**/book.toml"
+  # TODO: add dicrionary or use aspell/hunspell
+  - "src/Enms.Business/Assets/translations-*.json"
+  - "./docs/index.html"
+  - "./.config/dotnet-tools.json"
+  - "./scripts/*.*"
+  - "NLog.config"
+  - "pyproject.toml"
+  - "Directory.Build.props"
+words:
+  - enms
+  - egauge
+  - altibiz
+  - pwsh
+  - plantuml
+  - enduml
+  - pandoc
+  - roslynator
+  - portin
+  - portout
+  - blazor
+  - justfile
+  - mermerd
+  - upserter
+  - npgsql
+  - hypertable
+  - apexcharts
+  - roboto
+  - agnostibec
+  - timescaledb
+  - upsert
+  - stylesheet
+  - validatable
+  - rendermode
+  - startuml
+  - upserters
+  - helb
+  - typeparam
+  - appbar
+  - aspnetcore
+  - issetuprecipe

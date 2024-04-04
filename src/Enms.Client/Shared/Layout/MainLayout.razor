@@ -1,0 +1,40 @@
+@using Theme = Theme
+
+<main>
+  <MudThemeProvider Theme="_theme"/>
+  <MudDialogProvider/>
+  <MudSnackbarProvider/>
+
+  <Loading State="_userState">
+    <Found Context="user">
+      <CascadingValue Value="user">
+        <UserLayout>
+          <Body>
+          <Loading State="_representativeState">
+            <Found Context="representative">
+              <CascadingValue Value="representative">
+                <RepresentativeLayout>
+                  <Body>
+                  @Body
+                  </Body>
+                </RepresentativeLayout>
+              </CascadingValue>
+            </Found>
+            <NotFound>
+              @Body
+            </NotFound>
+          </Loading>
+          </Body>
+        </UserLayout>
+      </CascadingValue>
+    </Found>
+  </Loading>
+</main>
+
+@code {
+
+  [CascadingParameter]
+  private Task<AuthenticationState>? _authenticationStateTask { get; set; }
+
+  private readonly Theme _theme = new();
+}

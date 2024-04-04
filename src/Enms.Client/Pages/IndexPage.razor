@@ -1,0 +1,17 @@
+@page "/"
+@attribute [Navigation(Title = "Dashboard")]
+@attribute [Authorize]
+
+@if (user is null)
+{
+  return;
+}
+
+<p>Welcome, @(user.User.UserName)!</p>
+
+@code {
+
+  [CascadingParameter]
+  public UserState user { get; set; } = default!;
+
+}
