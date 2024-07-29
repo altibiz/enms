@@ -16,18 +16,15 @@ public abstract class
     return meterId.StartsWith(MeterIdPrefix);
   }
 
-  public abstract IMeasurement ToMeasurement(
+  public abstract IEnumerable<IMeasurement> ToMeasurements(
     XDocument request,
-    string meterId,
     DateTimeOffset timestamp);
 
-  public XDocument ToPushRequest(IMeasurement measurement)
+  public XDocument ToPushRequest(IEnumerable<IMeasurement> measurement)
   {
-    return ToPushRequest(
-      measurement as TMeasurement
-      ?? throw new ArgumentException(
-        "Measurement is not of the expected type."));
+    return ToPushRequest(measurement.Cast<TMeasurement>());
   }
 
-  protected abstract XDocument ToPushRequest(TMeasurement measurement);
+  protected abstract XDocument ToPushRequest(
+    IEnumerable<TMeasurement> measurement);
 }

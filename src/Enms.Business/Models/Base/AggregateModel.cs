@@ -7,7 +7,7 @@ namespace Enms.Business.Models.Base;
 public abstract class AggregateModel : IAggregate
 {
   [Required]
-  public required string MeterId { get; set; }
+  public required string LineId { get; set; }
 
   [Required]
   public required DateTimeOffset Timestamp { get; init; } =

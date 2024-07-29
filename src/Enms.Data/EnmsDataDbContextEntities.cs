@@ -10,6 +10,8 @@ public partial class EnmsDataDbContext : DbContext
 
   public DbSet<MeterEntity> Meters { get; set; } = default!;
 
+  public DbSet<LineEntity> Lines { get; set; } = default!;
+
   public DbSet<EgaugeMeasurementEntity> EgaugeMeasurements { get; set; } =
     default!;
 

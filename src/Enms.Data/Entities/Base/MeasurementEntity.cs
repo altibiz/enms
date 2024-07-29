@@ -9,13 +9,13 @@ public abstract class MeasurementEntity : IMeasurementEntity
 {
   public DateTimeOffset Timestamp { get; set; }
 
-  public string MeterId { get; set; } = default!;
+  public string LineId { get; set; } = default!;
 }
 
 public class MeasurementEntity<T> : MeasurementEntity
-  where T : MeterEntity
+  where T : LineEntity
 {
-  public virtual T Meter { get; set; } = default!;
+  public virtual T Line { get; set; } = default!;
 }
 
 public class
@@ -34,19 +34,19 @@ public class
 
     builder.HasKey(
       nameof(MeasurementEntity.Timestamp),
-      nameof(MeasurementEntity.MeterId)
+      nameof(MeasurementEntity.LineId)
     );
 
     builder.HasTimescaleHypertable(
       nameof(MeasurementEntity.Timestamp),
-      nameof(MeasurementEntity<MeterEntity>.MeterId),
+      nameof(MeasurementEntity<LineEntity>.LineId),
       "number_partitions => 2"
     );
 
     builder
-      .HasOne(nameof(MeasurementEntity<MeterEntity>.Meter))
+      .HasOne(nameof(MeasurementEntity<LineEntity>.Line))
       .WithMany()
-      .HasForeignKey(nameof(MeasurementEntity<MeterEntity>.MeterId));
+      .HasForeignKey(nameof(MeasurementEntity<LineEntity>.LineId));
 
     builder
       .Property<DateTimeOffset>(nameof(MeasurementEntity.Timestamp))

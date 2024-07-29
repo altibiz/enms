@@ -8,10 +8,10 @@ public abstract class MeasurementValidatorEntity : AuditableEntity
 {
 }
 
-public class MeasurementValidatorEntity<TMeter> : MeasurementValidatorEntity
-  where TMeter : MeterEntity
+public class MeasurementValidatorEntity<TLine> : MeasurementValidatorEntity
+  where TLine : LineEntity
 {
-  public virtual TMeter Meter { get; set; } = default!;
+  public virtual TLine Line { get; set; } = default!;
 }
 
 public class MeasurementValidatorEntityTypeHierarchyConfiguration :

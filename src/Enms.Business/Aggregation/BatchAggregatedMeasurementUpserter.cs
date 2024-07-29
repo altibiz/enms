@@ -76,7 +76,7 @@ public class BatchAggregatedMeasurementUpserter(
         aggregate => new
         {
           Type = aggregate.GetType(),
-          aggregate.MeterId,
+          aggregate.LineId,
           aggregate.Timestamp,
           aggregate.Interval
         })
@@ -175,7 +175,7 @@ public class BatchAggregatedMeasurementUpserter(
       .On(
         measurement => new
         {
-          measurement.MeterId,
+          measurement.LineId,
           measurement.Timestamp
         })
       .NoUpdate()
@@ -193,7 +193,7 @@ public class BatchAggregatedMeasurementUpserter(
       .On(
         aggregate => new
         {
-          aggregate.MeterId,
+          aggregate.LineId,
           aggregate.Timestamp,
           aggregate.Interval
         })

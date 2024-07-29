@@ -37,11 +37,11 @@ public class PushHostedService(
           .GetRequiredService<AgnosticMeasurementGenerator>();
 
         var measurements = new List<MessengerPushRequestMeasurement>();
-        foreach (var meterId in push.MeterIds)
+        foreach (var lineId in push.LineIds)
         {
           measurements.AddRange(
             await generator.GenerateMeasurements(
-              lastPush, now, meterId, stoppingToken));
+              lastPush, now, lineId, stoppingToken));
         }
 
         lastPush = now;

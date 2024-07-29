@@ -14,13 +14,13 @@ public abstract class AggregateEntity : IAggregateEntity
 
   public IntervalEntity Interval { get; set; }
 
-  public string MeterId { get; set; } = default!;
+  public string LineId { get; set; } = default!;
 }
 
 public class AggregateEntity<T> : AggregateEntity
-  where T : MeterEntity
+  where T : LineEntity
 {
-  public virtual T Meter { get; set; } = default!;
+  public virtual T Line { get; set; } = default!;
 }
 
 public class
@@ -39,19 +39,19 @@ public class
     builder.HasKey(
       nameof(AggregateEntity.Timestamp),
       nameof(AggregateEntity.Interval),
-      nameof(AggregateEntity.MeterId)
+      nameof(AggregateEntity.LineId)
     );
 
     builder.HasTimescaleHypertable(
       nameof(AggregateEntity.Timestamp),
-      nameof(AggregateEntity<MeterEntity>.MeterId),
+      nameof(AggregateEntity<LineEntity>.LineId),
       "number_partitions => 2"
     );
 
     builder
-      .HasOne(nameof(AggregateEntity<MeterEntity>.Meter))
+      .HasOne(nameof(AggregateEntity<LineEntity>.Line))
       .WithMany()
-      .HasForeignKey(nameof(AggregateEntity<MeterEntity>.MeterId));
+      .HasForeignKey(nameof(AggregateEntity<LineEntity>.LineId));
 
     builder
       .Property<DateTimeOffset>(nameof(AggregateEntity.Timestamp))

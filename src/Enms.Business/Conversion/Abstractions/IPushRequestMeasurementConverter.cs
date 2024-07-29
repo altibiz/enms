@@ -7,10 +7,9 @@ public interface IPushRequestMeasurementConverter
 {
   bool CanConvert(string meterId);
 
-  IMeasurement ToMeasurement(
+  IEnumerable<IMeasurement> ToMeasurements(
     XDocument request,
-    string meterId,
     DateTimeOffset timestamp);
 
-  XDocument ToPushRequest(IMeasurement measurement);
+  XDocument ToPushRequest(IEnumerable<IMeasurement> measurement);
 }

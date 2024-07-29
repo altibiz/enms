@@ -46,7 +46,7 @@ public static class IQueryableExtensions
     var parameter = Expression.Parameter(type);
     var hasStringId =
       type.IsAssignableTo(typeof(RepresentativeEntity))
-      || type.IsAssignableTo(typeof(MeterEntity));
+      || type.IsAssignableTo(typeof(LineEntity));
     var fieldName = hasStringId ? "_stringId" : "_id";
     var field = type
       .GetField(
@@ -75,7 +75,7 @@ public static class IQueryableExtensions
     var parameter = Expression.Parameter(type);
     var hasStringId =
       type.IsAssignableTo(typeof(RepresentativeEntity))
-      || type.IsAssignableTo(typeof(MeterEntity));
+      || type.IsAssignableTo(typeof(LineEntity));
     var fieldName = hasStringId ? "_stringId" : "_id";
     var field = type
 #pragma warning disable S3011 // Reflection should not be used to increase accessibility of classes, methods, or fields

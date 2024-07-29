@@ -7,7 +7,7 @@ namespace Enms.Data.Entities;
 
 public class
   EgaugeMeasurementValidatorEntity : MeasurementValidatorEntity<
-  EgaugeMeterEntity>
+  EgaugeLineEntity>
 {
 #pragma warning disable CA1707
 #pragma warning restore CA1707

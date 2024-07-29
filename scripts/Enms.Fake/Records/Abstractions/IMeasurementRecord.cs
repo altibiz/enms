@@ -4,7 +4,7 @@ namespace Enms.Fake.Records.Abstractions;
 
 public interface IMeasurementRecord
 {
-  public string MeterId { get; }
+  public string LineId { get; }
 
   public DateTimeOffset Timestamp { get; }
 

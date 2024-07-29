@@ -7,7 +7,7 @@ public abstract class MeasurementModel<T> : IMeasurement
   where T : class, IMeasurementValidator
 {
   [Required]
-  public required string MeterId { get; init; }
+  public required string LineId { get; init; }
 
   [Required]
   public required DateTimeOffset Timestamp { get; init; } =

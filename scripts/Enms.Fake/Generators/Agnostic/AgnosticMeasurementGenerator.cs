@@ -10,7 +10,7 @@ public class AgnosticMeasurementGenerator(IServiceProvider serviceProvider)
   public async Task<List<MessengerPushRequestMeasurement>> GenerateMeasurements(
     DateTimeOffset dateFrom,
     DateTimeOffset dateTo,
-    string meterId,
+    string lineId,
     CancellationToken cancellationToken = default
   )
   {
@@ -18,16 +18,16 @@ public class AgnosticMeasurementGenerator(IServiceProvider serviceProvider)
       .GetRequiredService<ILogger<AgnosticMeasurementGenerator>>();
     var generators = _serviceProvider.GetServices<IMeasurementGenerator>();
     var generator =
-      generators.FirstOrDefault(g => g.CanGenerateMeasurementsFor(meterId));
+      generators.FirstOrDefault(g => g.CanGenerateMeasurementsFor(lineId));
     var measurements =
       await (generator?.GenerateMeasurements(
-          dateFrom, dateTo, meterId, cancellationToken)
+          dateFrom, dateTo, lineId, cancellationToken)
         ?? throw new InvalidOperationException(
-          $"No generator found for meter {meterId}"));
+          $"No generator found for line {lineId}"));
     logger.LogInformation(
-      "Generated {Count} measurements for meter {MeterId} from {DateFrom} to {DateTo}",
+      "Generated {Count} measurements for line {LineId} from {DateFrom} to {DateTo}",
       measurements.Count,
-      meterId,
+      lineId,
       dateFrom,
       dateTo
     );

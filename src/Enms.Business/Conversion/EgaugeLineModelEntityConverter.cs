@@ -5,25 +5,25 @@ using Enms.Data.Entities;
 namespace Enms.Business.Conversion;
 
 public class
-  EgaugeMeterModelEntityConverter : ModelEntityConverter<EgaugeMeterModel,
-  EgaugeMeterEntity>
+  EgaugeLineModelEntityConverter : ModelEntityConverter<EgaugeLineModel,
+  EgaugeLineEntity>
 {
-  protected override EgaugeMeterEntity ToEntity(EgaugeMeterModel model)
+  protected override EgaugeLineEntity ToEntity(EgaugeLineModel model)
   {
     return model.ToEntity();
   }
 
-  protected override EgaugeMeterModel ToModel(EgaugeMeterEntity entity)
+  protected override EgaugeLineModel ToModel(EgaugeLineEntity entity)
   {
     return entity.ToModel();
   }
 }
 
-public static class EgaugeMeterModelEntityConverterExtensions
+public static class EgaugeLineModelEntityConverterExtensions
 {
-  public static EgaugeMeterEntity ToEntity(this EgaugeMeterModel model)
+  public static EgaugeLineEntity ToEntity(this EgaugeLineModel model)
   {
-    return new EgaugeMeterEntity
+    return new EgaugeLineEntity
     {
       Id = model.Id,
       Title = model.Title,
@@ -34,12 +34,15 @@ public static class EgaugeMeterModelEntityConverterExtensions
       IsDeleted = model.IsDeleted,
       DeletedOn = model.DeletedOn,
       DeletedById = model.DeletedById,
+      MeasurementValidatorId = model.MeasurementValidatorId,
+      ConnectionPower_W = model.ConnectionPower_W,
+      Phases = model.Phases.Select(p => p.ToEntity()).ToList()
     };
   }
 
-  public static EgaugeMeterModel ToModel(this EgaugeMeterEntity entity)
+  public static EgaugeLineModel ToModel(this EgaugeLineEntity entity)
   {
-    return new EgaugeMeterModel
+    return new EgaugeLineModel
     {
       Id = entity.Id,
       Title = entity.Title,
@@ -50,6 +53,9 @@ public static class EgaugeMeterModelEntityConverterExtensions
       IsDeleted = entity.IsDeleted,
       DeletedOn = entity.DeletedOn,
       DeletedById = entity.DeletedById,
+      MeasurementValidatorId = entity.MeasurementValidatorId,
+      ConnectionPower_W = entity.ConnectionPower_W,
+      Phases = entity.Phases.Select(p => p.ToModel()).ToList()
     };
   }
 }

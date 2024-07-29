@@ -53,7 +53,7 @@ public class
     if (entity.BaseType == typeof(AuditableEntity))
     {
       if (entity == typeof(RepresentativeEntity)
-        || entity == typeof(MeterEntity))
+        || entity == typeof(LineEntity))
       {
         builder.HasKey("_stringId");
       }
@@ -64,7 +64,7 @@ public class
     }
 
     if (entity == typeof(RepresentativeEntity) ||
-      entity.IsAssignableTo(typeof(MeterEntity)))
+      entity.IsAssignableTo(typeof(LineEntity)))
     {
       builder.Ignore("_id");
       builder.Ignore(nameof(AuditableEntity.Id));

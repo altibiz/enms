@@ -14,20 +14,20 @@ public class
     get { return "egauge"; }
   }
 
-  public override EgaugeMeasurementModel ToMeasurement(
+  public override IEnumerable<EgaugeMeasurementModel> ToMeasurements(
     XDocument request,
-    string meterId,
     DateTimeOffset timestamp)
   {
     return Parse(request);
   }
 
-  protected override XDocument ToPushRequest(EgaugeMeasurementModel measurement)
+  protected override XDocument ToPushRequest(
+    IEnumerable<EgaugeMeasurementModel> measurement)
   {
     throw new NotImplementedException();
   }
 
-  private static EgaugeMeasurementModel Parse(XDocument xml)
+  private static IEnumerable<EgaugeMeasurementModel> Parse(XDocument xml)
   {
     var result = new Dictionary<string, EgaugeRegister>();
 
@@ -52,20 +52,16 @@ public class
       result[registerName] = new EgaugeRegister(type, type.Unit(), value);
     }
 
-    var measurementRegisters = new EgaugeRegisterMap(
-      result,
-      "egauge",
-      timestamp
-    );
-
-    var measurement = new EgaugeMeasurementModel
+    var lines = result.Keys.Select(k => k.Split('-')[0]).Distinct();
+    foreach (var line in lines)
     {
-      MeterId = measurementRegisters.MeterId,
-      Timestamp = measurementRegisters.Timestamp,
-      Voltage_V = measurementRegisters.Voltage_V,
-      Power_W = measurementRegisters.Power_W
-    };
-
-    return measurement;
+      yield return new EgaugeMeasurementModel
+      {
+        LineId = measurementRegisters.LineId,
+        Timestamp = measurementRegisters.Timestamp,
+        Voltage_V = measurementRegisters.Voltage_V,
+        Power_W = measurementRegisters.Power_W
+      };
+    }
   }
 }

@@ -24,8 +24,8 @@ public class PushOptions
   [Option('m', "messenger-id", Required = false, HelpText = "Messenger ID.")]
   public string MessengerId { get; set; } = "messenger";
 
-  [Option('i', "meter-ids", Required = false, HelpText = "Meter IDs.")]
-  public IEnumerable<string> MeterIds { get; set; } = Array.Empty<string>();
+  [Option('i', "line-ids", Required = false, HelpText = "Line IDs.")]
+  public IEnumerable<string> LineIds { get; set; } = Array.Empty<string>();
 
   [Option('t', "timeout", Required = false, HelpText = "Timeout in seconds.")]
   public int Timeout_s { get; set; } = 3;
@@ -52,8 +52,8 @@ public class SeedOptions
   [Option('m', "messenger-id", Required = false, HelpText = "Messenger ID.")]
   public string MessengerId { get; set; } = "messenger";
 
-  [Option('i', "meter-ids", Required = false, HelpText = "Meter IDs.")]
-  public IEnumerable<string> MeterIds { get; set; } = Array.Empty<string>();
+  [Option('i', "line-ids", Required = false, HelpText = "Line IDs.")]
+  public IEnumerable<string> LineIds { get; set; } = Array.Empty<string>();
 
   [Option('t', "timeout", Required = false, HelpText = "Timeout in seconds.")]
   public int Timeout_s { get; set; } = 3;

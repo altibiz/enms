@@ -5,7 +5,7 @@ namespace Enms.Business.Models.Abstractions;
 
 public interface IAggregate : IValidatableObject, IReadonly
 {
-  public string MeterId { get; }
+  public string LineId { get; }
 
   public DateTimeOffset Timestamp { get; }
 

@@ -27,10 +27,20 @@ public static class EgaugeMeasurementModelExtensions
   {
     return new EgaugeMeasurementModel
     {
-      MeterId = entity.MeterId,
+      LineId = entity.LineId,
       Timestamp = entity.Timestamp,
-      Voltage_V = entity.Voltage_V,
-      Power_W = entity.Power_W
+      VoltageL1AnyT0_V = (decimal)entity.VoltageL1AnyT0_V,
+      VoltageL2AnyT0_V = (decimal)entity.VoltageL2AnyT0_V,
+      VoltageL3AnyT0_V = (decimal)entity.VoltageL3AnyT0_V,
+      CurrentL1AnyT0_A = (decimal)entity.CurrentL1AnyT0_A,
+      CurrentL2AnyT0_A = (decimal)entity.CurrentL2AnyT0_A,
+      CurrentL3AnyT0_A = (decimal)entity.CurrentL3AnyT0_A,
+      ActivePowerL1NetT0_W = (decimal)entity.ActivePowerL1NetT0_W,
+      ActivePowerL2NetT0_W = (decimal)entity.ActivePowerL2NetT0_W,
+      ActivePowerL3NetT0_W = (decimal)entity.ActivePowerL3NetT0_W,
+      ApparentPowerL1NetT0_W = (decimal)entity.ApparentPowerL1NetT0_W,
+      ApparentPowerL2NetT0_W = (decimal)entity.ApparentPowerL2NetT0_W,
+      ApparentPowerL3NetT0_W = (decimal)entity.ApparentPowerL3NetT0_W,
     };
   }
 
@@ -39,10 +49,20 @@ public static class EgaugeMeasurementModelExtensions
   {
     return new EgaugeMeasurementEntity
     {
-      MeterId = model.MeterId,
+      LineId = model.LineId,
       Timestamp = model.Timestamp,
-      Voltage_V = model.Voltage_V,
-      Power_W = model.Power_W
+      VoltageL1AnyT0_V = (float)model.VoltageL1AnyT0_V,
+      VoltageL2AnyT0_V = (float)model.VoltageL2AnyT0_V,
+      VoltageL3AnyT0_V = (float)model.VoltageL3AnyT0_V,
+      CurrentL1AnyT0_A = (float)model.CurrentL1AnyT0_A,
+      CurrentL2AnyT0_A = (float)model.CurrentL2AnyT0_A,
+      CurrentL3AnyT0_A = (float)model.CurrentL3AnyT0_A,
+      ActivePowerL1NetT0_W = (float)model.ActivePowerL1NetT0_W,
+      ActivePowerL2NetT0_W = (float)model.ActivePowerL2NetT0_W,
+      ActivePowerL3NetT0_W = (float)model.ActivePowerL3NetT0_W,
+      ApparentPowerL1NetT0_W = (float)model.ApparentPowerL1NetT0_W,
+      ApparentPowerL2NetT0_W = (float)model.ApparentPowerL2NetT0_W,
+      ApparentPowerL3NetT0_W = (float)model.ApparentPowerL3NetT0_W,
     };
   }
 }

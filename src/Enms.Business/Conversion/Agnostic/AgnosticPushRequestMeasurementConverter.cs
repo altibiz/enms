@@ -9,39 +9,40 @@ public class AgnosticPushRequestMeasurementConverter(
 {
   private readonly IServiceProvider _serviceProvider = serviceProvider;
 
-  public XDocument ToPushRequest(IMeasurement measurement)
+  public XDocument ToPushRequest(string meterId, IEnumerable<IMeasurement> measurement)
   {
     return _serviceProvider
         .GetServices<IPushRequestMeasurementConverter>()
         .FirstOrDefault(
           converter =>
-            converter.CanConvert(measurement.MeterId))
+            converter.CanConvert(meterId))
         ?.ToPushRequest(measurement)
       ?? throw new InvalidOperationException(
         $"No converter found for measurement {measurement.GetType()}.");
   }
 
-  public IMeasurement ToMeasurement(
-    XDocument request,
+  public IEnumerable<IMeasurement> ToMeasurements(
     string meterId,
+    XDocument request,
     DateTimeOffset timestamp)
   {
     return _serviceProvider
         .GetServices<IPushRequestMeasurementConverter>()
         .FirstOrDefault(converter => converter.CanConvert(meterId))
-        ?.ToMeasurement(request, meterId, timestamp)
+        ?.ToMeasurements(request, timestamp)
       ?? throw new InvalidOperationException(
         $"No converter found for meter {meterId}.");
   }
 
   public TMeasurement ToMeasurement<TMeasurement>(
-    XDocument request,
     string meterId,
+    XDocument request,
+    string lineId,
     DateTimeOffset timestamp)
     where TMeasurement : class, IMeasurement
   {
-    return ToMeasurement(request, meterId, timestamp) as TMeasurement
+    return ToMeasurements(meterId, request, timestamp) as TMeasurement
       ?? throw new InvalidOperationException(
-        $"No converter found for meter {meterId}.");
+        $"No converter found for line {lineId}.");
   }
 }

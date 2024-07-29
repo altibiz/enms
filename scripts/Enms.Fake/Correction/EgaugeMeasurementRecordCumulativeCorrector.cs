@@ -43,7 +43,7 @@ public class EgaugeMeasurementRecordCumulativeCorrector
   {
     return new EgaugeMeasurementRecord
     {
-      MeterId = record.MeterId,
+      LineId = record.LineId,
       Timestamp = record.Timestamp
     };
   }

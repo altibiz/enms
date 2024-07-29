@@ -29,17 +29,17 @@ public abstract class
 
   protected abstract string CsvResourceName { get; }
 
-  protected abstract string MeterIdPrefix { get; }
+  protected abstract string LineIdPrefix { get; }
 
-  public bool CanGenerateMeasurementsFor(string meterId)
+  public bool CanGenerateMeasurementsFor(string lineId)
   {
-    return meterId.StartsWith(MeterIdPrefix);
+    return lineId.StartsWith(LineIdPrefix);
   }
 
   public async Task<List<MessengerPushRequestMeasurement>> GenerateMeasurements(
     DateTimeOffset dateFrom,
     DateTimeOffset dateTo,
-    string meterId,
+    string lineId,
     CancellationToken cancellationToken = default
   )
   {
@@ -48,13 +48,13 @@ public abstract class
         CsvResourceName,
         cancellationToken);
     var pushRequestMeasurements =
-      ExpandRecords(records, meterId, dateFrom, dateTo).ToList();
+      ExpandRecords(records, lineId, dateFrom, dateTo).ToList();
     return pushRequestMeasurements;
   }
 
   private IEnumerable<MessengerPushRequestMeasurement> ExpandRecords(
     List<TMeasurement> records,
-    string meterId,
+    string lineId,
     DateTimeOffset dateFrom,
     DateTimeOffset dateTo
   )
@@ -99,7 +99,7 @@ public abstract class
         );
         var json = _converter.ConvertToPushRequest(withCorrectedCumulatives);
         yield return new MessengerPushRequestMeasurement(
-          meterId,
+          lineId,
           timestamp,
           json
         );

@@ -10,5 +10,5 @@ public interface IAggregateEntity : IReadonlyEntity
 
   public IntervalEntity Interval { get; }
 
-  public string MeterId { get; }
+  public string LineId { get; }
 }

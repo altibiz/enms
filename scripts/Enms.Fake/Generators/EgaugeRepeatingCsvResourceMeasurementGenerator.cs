@@ -13,7 +13,7 @@ public class EgaugeRepeatingCsvResourceMeasurementGenerator(
     get { return "egauge-measurements.csv"; }
   }
 
-  protected override string MeterIdPrefix
+  protected override string LineIdPrefix
   {
     get { return "egauge"; }
   }

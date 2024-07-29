@@ -41,11 +41,11 @@ public class SeedHostedService(
         : seedTimeBegin.AddDays(1);
 
       var measurements = new List<MessengerPushRequestMeasurement>();
-      foreach (var meterId in seed.MeterIds)
+      foreach (var lineId in seed.LineIds)
       {
         measurements.AddRange(
           await generator.GenerateMeasurements(
-            seedTimeBegin, seedTimeEnd, meterId, stoppingToken));
+            seedTimeBegin, seedTimeEnd, lineId, stoppingToken));
       }
 
       while (measurements.Count > 0)
