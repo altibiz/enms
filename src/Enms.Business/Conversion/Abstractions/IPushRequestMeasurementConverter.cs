@@ -8,6 +8,7 @@ public interface IPushRequestMeasurementConverter
   bool CanConvert(string meterId);
 
   IEnumerable<IMeasurement> ToMeasurements(
+    string meterId,
     XDocument request,
     DateTimeOffset timestamp);
 

@@ -6,11 +6,11 @@ namespace Enms.Fake.Conversion;
 
 public class EgaugeMeasurementRecordPushRequestConverter
   : MeasurementRecordPushRequestConverter<EgaugeMeasurementRecord,
-    EgaugePushRequest>
+    object>
 {
-  protected override EgaugePushRequest ConvertToPushRequest(
+  protected override object ConvertToPushRequest(
     EgaugeMeasurementRecord record)
   {
-    return new EgaugePushRequest();
+    return new object();
   }
 }

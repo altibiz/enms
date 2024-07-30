@@ -1,3 +1,4 @@
+using System.Xml.Linq;
 using Enms.Business.Iot;
 using Enms.Fake.Conversion.Agnostic;
 using Enms.Fake.Correction.Agnostic;
@@ -36,7 +37,7 @@ public abstract class
     return lineId.StartsWith(LineIdPrefix);
   }
 
-  public async Task<List<MessengerPushRequestMeasurement>> GenerateMeasurements(
+  public async Task<List<XDocument>> GenerateMeasurements(
     DateTimeOffset dateFrom,
     DateTimeOffset dateTo,
     string lineId,
@@ -52,7 +53,7 @@ public abstract class
     return pushRequestMeasurements;
   }
 
-  private IEnumerable<MessengerPushRequestMeasurement> ExpandRecords(
+  private IEnumerable<XDocument> ExpandRecords(
     List<TMeasurement> records,
     string lineId,
     DateTimeOffset dateFrom,

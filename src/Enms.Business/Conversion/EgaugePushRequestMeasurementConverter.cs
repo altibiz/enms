@@ -5,7 +5,7 @@ using Enms.Business.Models;
 
 namespace Enms.Business.Conversion;
 
-public class
+public sealed class
   EgaugePushRequestMeasurementConverter : PushRequestMeasurementConverter<
   EgaugeMeasurementModel>
 {
@@ -15,10 +15,11 @@ public class
   }
 
   public override IEnumerable<EgaugeMeasurementModel> ToMeasurements(
+    string meterId,
     XDocument request,
     DateTimeOffset timestamp)
   {
-    return Parse(request);
+    return Parse(meterId, request);
   }
 
   protected override XDocument ToPushRequest(
@@ -27,7 +28,9 @@ public class
     throw new NotImplementedException();
   }
 
-  private static IEnumerable<EgaugeMeasurementModel> Parse(XDocument xml)
+  private static IEnumerable<EgaugeMeasurementModel> Parse(
+    string meterId,
+    XDocument xml)
   {
     var result = new Dictionary<string, EgaugeRegister>();
 
@@ -57,10 +60,20 @@ public class
     {
       yield return new EgaugeMeasurementModel
       {
-        LineId = measurementRegisters.LineId,
-        Timestamp = measurementRegisters.Timestamp,
-        Voltage_V = measurementRegisters.Voltage_V,
-        Power_W = measurementRegisters.Power_W
+        LineId = $"{meterId}-{line}",
+        Timestamp = timestamp,
+        VoltageL1AnyT0_V = result[line + "-VoltageL1AnyT0_V"].Value,
+        VoltageL2AnyT0_V = result[line + "-VoltageL2AnyT0_V"].Value,
+        VoltageL3AnyT0_V = result[line + "-VoltageL3AnyT0_V"].Value,
+        CurrentL1AnyT0_A = result[line + "-CurrentL1AnyT0_A"].Value,
+        CurrentL2AnyT0_A = result[line + "-CurrentL2AnyT0_A"].Value,
+        CurrentL3AnyT0_A = result[line + "-CurrentL3AnyT0_A"].Value,
+        ActivePowerL1NetT0_W = result[line + "-ActivePowerL1NetT0_W"].Value,
+        ActivePowerL2NetT0_W = result[line + "-ActivePowerL2NetT0_W"].Value,
+        ActivePowerL3NetT0_W = result[line + "-ActivePowerL3NetT0_W"].Value,
+        ApparentPowerL1NetT0_W = result[line + "-ApparentPowerL1NetT0_W"].Value,
+        ApparentPowerL2NetT0_W = result[line + "-ApparentPowerL2NetT0_W"].Value,
+        ApparentPowerL3NetT0_W = result[line + "-ApparentPowerL3NetT0_W"].Value,
       };
     }
   }

@@ -29,20 +29,8 @@ public class AgnosticPushRequestMeasurementConverter(
     return _serviceProvider
         .GetServices<IPushRequestMeasurementConverter>()
         .FirstOrDefault(converter => converter.CanConvert(meterId))
-        ?.ToMeasurements(request, timestamp)
+        ?.ToMeasurements(meterId, request, timestamp)
       ?? throw new InvalidOperationException(
         $"No converter found for meter {meterId}.");
-  }
-
-  public TMeasurement ToMeasurement<TMeasurement>(
-    string meterId,
-    XDocument request,
-    string lineId,
-    DateTimeOffset timestamp)
-    where TMeasurement : class, IMeasurement
-  {
-    return ToMeasurements(meterId, request, timestamp) as TMeasurement
-      ?? throw new InvalidOperationException(
-        $"No converter found for line {lineId}.");
   }
 }

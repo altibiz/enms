@@ -17,6 +17,7 @@ public abstract class
   }
 
   public abstract IEnumerable<IMeasurement> ToMeasurements(
+    string meterId,
     XDocument request,
     DateTimeOffset timestamp);
 
