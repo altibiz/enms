@@ -14,15 +14,13 @@ public class LineEntity : AuditableEntity
     init { _stringId = value; }
   }
 
-  public string MessengerId { get; set; } = default!;
-
   public float ConnectionPower_W { get; set; } = default!;
 
   public List<PhaseEntity> Phases { get; set; } = default!;
 
-  public string? MeterId { get; set; } = default!;
+  public string MeterId { get; set; } = default!;
 
-  public virtual MeterEntity? Meter { get; set; } = default!;
+  public virtual MeterEntity Meter { get; set; } = default!;
 }
 
 public class LineEntity<
@@ -82,7 +80,6 @@ public class
         .WithOne(nameof(MeasurementEntity<LineEntity>.Line));
 
       builder
-
         .HasMany(
           nameof(LineEntity<MeasurementEntity, AggregateEntity,
             MeasurementValidatorEntity>.Aggregates))

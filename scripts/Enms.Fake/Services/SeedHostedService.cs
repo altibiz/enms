@@ -1,4 +1,4 @@
-using Enms.Business.Iot;
+using System.Xml.Linq;
 using Enms.Fake.Client;
 using Enms.Fake.Generators.Agnostic;
 
@@ -40,7 +40,7 @@ public class SeedHostedService(
         ? now
         : seedTimeBegin.AddDays(1);
 
-      var measurements = new List<MessengerPushRequestMeasurement>();
+      var measurements = new List<XDocument>();
       foreach (var lineId in seed.LineIds)
       {
         measurements.AddRange(
@@ -50,18 +50,15 @@ public class SeedHostedService(
 
       while (measurements.Count > 0)
       {
-        var batch = measurements.Take(seed.BatchSize).ToList();
-        measurements.RemoveRange(0, batch.Count);
+        var batch = measurements.First();
+        measurements.RemoveRange(0, 1);
 
-        var request = new MessengerPushRequest(
-          now,
-          [.. batch]
-        );
+        var request = batch;
 
         var pushClient =
           scope.ServiceProvider.GetRequiredService<EnmsPushClient>();
         await pushClient.Push(
-          seed.MessengerId,
+          seed.MeterId,
           seed.ApiKey,
           request,
           stoppingToken

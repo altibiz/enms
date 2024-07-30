@@ -4,12 +4,12 @@ namespace Enms.Fake.Generators.Abstractions;
 
 public interface IMeasurementGenerator
 {
-  bool CanGenerateMeasurementsFor(string lineId);
+  bool CanGenerateMeasurementsFor(string meterId);
 
   Task<List<XDocument>> GenerateMeasurements(
     DateTimeOffset dateFrom,
     DateTimeOffset dateTo,
-    string lineId,
+    string meterId,
     CancellationToken cancellationToken = default
   );
 }

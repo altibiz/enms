@@ -1,16 +1,21 @@
-using Enms.Business.Iot;
+using System.Xml.Linq;
 using Enms.Fake.Conversion.Base;
 using Enms.Fake.Records;
 
 namespace Enms.Fake.Conversion;
 
 public class EgaugeMeasurementRecordPushRequestConverter
-  : MeasurementRecordPushRequestConverter<EgaugeMeasurementRecord,
-    object>
+  : MeasurementRecordPushRequestConverter<EgaugeMeasurementRecord>
 {
-  protected override object ConvertToPushRequest(
-    EgaugeMeasurementRecord record)
+  protected override string MeterIdPrefix
   {
-    return new object();
+    get { return "egauge"; }
+  }
+
+  protected override XDocument ConvertToPushRequestConcrete(
+    string meterId,
+    IEnumerable<EgaugeMeasurementRecord> record)
+  {
+    throw new NotImplementedException();
   }
 }

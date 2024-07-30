@@ -1,7 +1,7 @@
 using Enms.Data.Extensions;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-// TODO: settings for the messenger
+// TODO: settings for the meter
 
 namespace Enms.Data.Entities.Base;
 

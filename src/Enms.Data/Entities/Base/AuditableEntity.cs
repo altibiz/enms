@@ -53,7 +53,8 @@ public class
     if (entity.BaseType == typeof(AuditableEntity))
     {
       if (entity == typeof(RepresentativeEntity)
-        || entity == typeof(LineEntity))
+        || entity == typeof(LineEntity)
+        || entity == typeof(MeterEntity))
       {
         builder.HasKey("_stringId");
       }

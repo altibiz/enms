@@ -1,4 +1,4 @@
-using Enms.Business.Iot;
+using System.Xml.Linq;
 using Enms.Fake.Generators.Abstractions;
 
 namespace Enms.Fake.Generators.Agnostic;
@@ -7,10 +7,10 @@ public class AgnosticMeasurementGenerator(IServiceProvider serviceProvider)
 {
   private readonly IServiceProvider _serviceProvider = serviceProvider;
 
-  public async Task<List<MessengerPushRequestMeasurement>> GenerateMeasurements(
+  public async Task<List<XDocument>> GenerateMeasurements(
     DateTimeOffset dateFrom,
     DateTimeOffset dateTo,
-    string lineId,
+    string meterId,
     CancellationToken cancellationToken = default
   )
   {
@@ -18,16 +18,16 @@ public class AgnosticMeasurementGenerator(IServiceProvider serviceProvider)
       .GetRequiredService<ILogger<AgnosticMeasurementGenerator>>();
     var generators = _serviceProvider.GetServices<IMeasurementGenerator>();
     var generator =
-      generators.FirstOrDefault(g => g.CanGenerateMeasurementsFor(lineId));
+      generators.FirstOrDefault(g => g.CanGenerateMeasurementsFor(meterId));
     var measurements =
       await (generator?.GenerateMeasurements(
-          dateFrom, dateTo, lineId, cancellationToken)
+          dateFrom, dateTo, meterId, cancellationToken)
         ?? throw new InvalidOperationException(
-          $"No generator found for line {lineId}"));
+          $"No generator found for line {meterId}"));
     logger.LogInformation(
       "Generated {Count} measurements for line {LineId} from {DateFrom} to {DateTo}",
       measurements.Count,
-      lineId,
+      meterId,
       dateFrom,
       dateTo
     );

@@ -9,7 +9,9 @@ public class AgnosticPushRequestMeasurementConverter(
 {
   private readonly IServiceProvider _serviceProvider = serviceProvider;
 
-  public XDocument ToPushRequest(string meterId, IEnumerable<IMeasurement> measurement)
+  public XDocument ToPushRequest(
+    string meterId,
+    IEnumerable<IMeasurement> measurement)
   {
     return _serviceProvider
         .GetServices<IPushRequestMeasurementConverter>()

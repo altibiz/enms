@@ -38,7 +38,7 @@ public static class EgaugeMeasurementAggregateConverterExtensions
       ActivePowerL3NetT0Avg_W = measurement.ActivePowerL3NetT0_W,
       ApparentPowerL1NetT0Avg_W = measurement.ApparentPowerL1NetT0_W,
       ApparentPowerL2NetT0Avg_W = measurement.ApparentPowerL2NetT0_W,
-      ApparentPowerL3NetT0Avg_W = measurement.ApparentPowerL3NetT0_W,
+      ApparentPowerL3NetT0Avg_W = measurement.ApparentPowerL3NetT0_W
     };
   }
 }

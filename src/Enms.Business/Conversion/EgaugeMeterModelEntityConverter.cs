@@ -33,7 +33,7 @@ public static class EgaugeMeterModelEntityConverterExtensions
       LastUpdatedById = model.LastUpdatedById,
       IsDeleted = model.IsDeleted,
       DeletedOn = model.DeletedOn,
-      DeletedById = model.DeletedById,
+      DeletedById = model.DeletedById
     };
   }
 
@@ -49,7 +49,7 @@ public static class EgaugeMeterModelEntityConverterExtensions
       LastUpdatedById = entity.LastUpdatedById,
       IsDeleted = entity.IsDeleted,
       DeletedOn = entity.DeletedOn,
-      DeletedById = entity.DeletedById,
+      DeletedById = entity.DeletedById
     };
   }
 }

@@ -5,9 +5,9 @@ using Enms.Business.Conversion.Agnostic;
 namespace Enms.Business.Iot;
 
 public class EnmsIotHandler(
-    AgnosticPushRequestMeasurementConverter pushRequestMeasurementConverter,
-    BatchAggregatedMeasurementUpserter batchAggregatedMeasurementUpserter
-  )
+  AgnosticPushRequestMeasurementConverter pushRequestMeasurementConverter,
+  BatchAggregatedMeasurementUpserter batchAggregatedMeasurementUpserter
+)
 {
   public async Task OnPush(string meterId, string request)
   {
@@ -17,6 +17,7 @@ public class EnmsIotHandler(
       DateTimeOffset.UtcNow
     );
 
-    await batchAggregatedMeasurementUpserter.BatchAggregatedUpsert(measurements);
+    await batchAggregatedMeasurementUpserter
+      .BatchAggregatedUpsert(measurements);
   }
 }

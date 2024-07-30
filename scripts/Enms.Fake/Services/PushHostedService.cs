@@ -1,4 +1,3 @@
-using Enms.Business.Iot;
 using Enms.Fake.Client;
 using Enms.Fake.Generators.Agnostic;
 
@@ -36,27 +35,22 @@ public class PushHostedService(
         var generator = scope.ServiceProvider
           .GetRequiredService<AgnosticMeasurementGenerator>();
 
-        var measurements = new List<MessengerPushRequestMeasurement>();
-        foreach (var lineId in push.LineIds)
-        {
-          measurements.AddRange(
-            await generator.GenerateMeasurements(
-              lastPush, now, lineId, stoppingToken));
-        }
+        var measurements = (await generator.GenerateMeasurements(
+          lastPush, now, push.MeterId, stoppingToken)).ToList();
 
         lastPush = now;
 
-        var request = new MessengerPushRequest(
-          now,
-          [.. measurements]
-        );
+        foreach (var measurement in measurements)
+        {
+          var request = measurement;
 
-        await pushClient.Push(
-          push.MessengerId,
-          push.ApiKey,
-          request,
-          stoppingToken
-        );
+          await pushClient.Push(
+            push.MeterId,
+            push.ApiKey,
+            request,
+            stoppingToken
+          );
+        }
       }
 
       var toWait =

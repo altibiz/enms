@@ -1,4 +1,4 @@
-using System.Text.Json.Nodes;
+using System.Xml.Linq;
 using Enms.Fake.Conversion.Abstractions;
 using Enms.Fake.Records.Abstractions;
 
@@ -9,14 +9,16 @@ public class AgnosticMeasurementRecordPushRequestConverter(
 {
   private readonly IServiceProvider _serviceProvider = serviceProvider;
 
-  public JsonObject ConvertToPushRequest(IMeasurementRecord record)
+  public XDocument ConvertToPushRequest(
+    string meterId,
+    IEnumerable<IMeasurementRecord> records)
   {
     var converter = _serviceProvider
       .GetServices<IMeasurementRecordPushRequestConverter>()
-      .FirstOrDefault(c => c.CanConvertToPushRequest(record));
+      .FirstOrDefault(c => c.CanConvertToPushRequest(meterId));
 
-    return converter?.ConvertToPushRequest(record)
+    return converter?.ConvertToPushRequest(meterId, records)
       ?? throw new InvalidOperationException(
-        $"No converter found for {record.GetType()}");
+        $"No converter found for {records.GetType()}");
   }
 }

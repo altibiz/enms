@@ -1,5 +1,4 @@
 using System.Xml.Linq;
-using Enms.Business.Iot;
 using Enms.Fake.Conversion.Agnostic;
 using Enms.Fake.Correction.Agnostic;
 using Enms.Fake.Generators.Abstractions;
@@ -32,15 +31,15 @@ public abstract class
 
   protected abstract string LineIdPrefix { get; }
 
-  public bool CanGenerateMeasurementsFor(string lineId)
+  public bool CanGenerateMeasurementsFor(string meterId)
   {
-    return lineId.StartsWith(LineIdPrefix);
+    return meterId.StartsWith(LineIdPrefix);
   }
 
   public async Task<List<XDocument>> GenerateMeasurements(
     DateTimeOffset dateFrom,
     DateTimeOffset dateTo,
-    string lineId,
+    string meterId,
     CancellationToken cancellationToken = default
   )
   {
@@ -49,13 +48,13 @@ public abstract class
         CsvResourceName,
         cancellationToken);
     var pushRequestMeasurements =
-      ExpandRecords(records, lineId, dateFrom, dateTo).ToList();
+      ExpandRecords(records, meterId, dateFrom, dateTo).ToList();
     return pushRequestMeasurements;
   }
 
   private IEnumerable<XDocument> ExpandRecords(
     List<TMeasurement> records,
-    string lineId,
+    string meterId,
     DateTimeOffset dateFrom,
     DateTimeOffset dateTo
   )
@@ -98,12 +97,9 @@ public abstract class
           firstRecord,
           lastRecord
         );
-        var json = _converter.ConvertToPushRequest(withCorrectedCumulatives);
-        yield return new MessengerPushRequestMeasurement(
-          lineId,
-          timestamp,
-          json
-        );
+        var request = _converter.ConvertToPushRequest(
+          meterId, [withCorrectedCumulatives]);
+        yield return request;
       }
 
       timeSpan -= dateToCsv - dateFromCsv;

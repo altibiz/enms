@@ -1,26 +1,29 @@
-using System.Text.Json;
-using System.Text.Json.Nodes;
+using System.Xml.Linq;
 using Enms.Fake.Conversion.Abstractions;
 using Enms.Fake.Records.Abstractions;
 
 namespace Enms.Fake.Conversion.Base;
 
-public abstract class MeasurementRecordPushRequestConverter<TRecord,
-  TPushRequest> : IMeasurementRecordPushRequestConverter
+public abstract class
+  MeasurementRecordPushRequestConverter<TRecord> :
+  IMeasurementRecordPushRequestConverter
   where TRecord : IMeasurementRecord
 {
-  public bool CanConvertToPushRequest(IMeasurementRecord record)
+  protected abstract string MeterIdPrefix { get; }
+
+  public bool CanConvertToPushRequest(string meterId)
   {
-    return record is TRecord;
+    return meterId.StartsWith(MeterIdPrefix);
   }
 
-  public JsonObject ConvertToPushRequest(IMeasurementRecord record)
+  public XDocument ConvertToPushRequest(
+    string meterId,
+    IEnumerable<IMeasurementRecord> records)
   {
-    return JsonSerializer
-          .SerializeToNode(ConvertToPushRequest((TRecord)record)!) as
-        JsonObject
-      ?? throw new InvalidOperationException();
+    return ConvertToPushRequestConcrete(meterId, records.Cast<TRecord>());
   }
 
-  protected abstract TPushRequest ConvertToPushRequest(TRecord record);
+  protected abstract XDocument ConvertToPushRequestConcrete(
+    string meterId,
+    IEnumerable<TRecord> record);
 }

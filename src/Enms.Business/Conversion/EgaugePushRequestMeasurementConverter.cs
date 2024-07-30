@@ -73,7 +73,7 @@ public sealed class
         ActivePowerL3NetT0_W = result[line + "-ActivePowerL3NetT0_W"].Value,
         ApparentPowerL1NetT0_W = result[line + "-ApparentPowerL1NetT0_W"].Value,
         ApparentPowerL2NetT0_W = result[line + "-ApparentPowerL2NetT0_W"].Value,
-        ApparentPowerL3NetT0_W = result[line + "-ApparentPowerL3NetT0_W"].Value,
+        ApparentPowerL3NetT0_W = result[line + "-ApparentPowerL3NetT0_W"].Value
       };
     }
   }

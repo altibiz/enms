@@ -19,10 +19,10 @@ public class PushOptions
   public string BaseUrl { get; set; } = "http://localhost:5000";
 
   [Option('a', "api-key", Required = false, HelpText = "API key.")]
-  public string ApiKey { get; set; } = "messenger";
+  public string ApiKey { get; set; } = "egauge";
 
-  [Option('m', "messenger-id", Required = false, HelpText = "Messenger ID.")]
-  public string MessengerId { get; set; } = "messenger";
+  [Option('m', "meter-id", Required = false, HelpText = "Meter ID.")]
+  public string MeterId { get; set; } = "egauge";
 
   [Option('i', "line-ids", Required = false, HelpText = "Line IDs.")]
   public IEnumerable<string> LineIds { get; set; } = Array.Empty<string>();
@@ -47,10 +47,10 @@ public class SeedOptions
   public string BaseUrl { get; set; } = "http://localhost:5000";
 
   [Option('a', "api-key", Required = false, HelpText = "API key.")]
-  public string ApiKey { get; set; } = "messenger";
+  public string ApiKey { get; set; } = "egauge";
 
-  [Option('m', "messenger-id", Required = false, HelpText = "Messenger ID.")]
-  public string MessengerId { get; set; } = "messenger";
+  [Option('m', "meter-id", Required = false, HelpText = "Meter ID.")]
+  public string MeterId { get; set; } = "egauge";
 
   [Option('i', "line-ids", Required = false, HelpText = "Line IDs.")]
   public IEnumerable<string> LineIds { get; set; } = Array.Empty<string>();

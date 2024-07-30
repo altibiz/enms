@@ -1,11 +1,13 @@
-using System.Text.Json.Nodes;
+using System.Xml.Linq;
 using Enms.Fake.Records.Abstractions;
 
 namespace Enms.Fake.Conversion.Abstractions;
 
 public interface IMeasurementRecordPushRequestConverter
 {
-  public bool CanConvertToPushRequest(IMeasurementRecord record);
+  public bool CanConvertToPushRequest(string meterId);
 
-  public JsonObject ConvertToPushRequest(IMeasurementRecord record);
+  public XDocument ConvertToPushRequest(
+    string meterId,
+    IEnumerable<IMeasurementRecord> records);
 }

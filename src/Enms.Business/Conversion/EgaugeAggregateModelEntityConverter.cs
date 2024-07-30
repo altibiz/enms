@@ -43,7 +43,7 @@ public static class EgaugeAggregateModelExtensions
       ActivePowerL3NetT0Avg_W = (decimal)entity.ActivePowerL3NetT0Avg_W,
       ApparentPowerL1NetT0Avg_W = (decimal)entity.ApparentPowerL1NetT0Avg_W,
       ApparentPowerL2NetT0Avg_W = (decimal)entity.ApparentPowerL2NetT0Avg_W,
-      ApparentPowerL3NetT0Avg_W = (decimal)entity.ApparentPowerL3NetT0Avg_W,
+      ApparentPowerL3NetT0Avg_W = (decimal)entity.ApparentPowerL3NetT0Avg_W
     };
   }
 
@@ -67,7 +67,7 @@ public static class EgaugeAggregateModelExtensions
       ActivePowerL3NetT0Avg_W = (float)model.ActivePowerL3NetT0Avg_W,
       ApparentPowerL1NetT0Avg_W = (float)model.ApparentPowerL1NetT0Avg_W,
       ApparentPowerL2NetT0Avg_W = (float)model.ApparentPowerL2NetT0Avg_W,
-      ApparentPowerL3NetT0Avg_W = (float)model.ApparentPowerL3NetT0Avg_W,
+      ApparentPowerL3NetT0Avg_W = (float)model.ApparentPowerL3NetT0Avg_W
     };
   }
 }

@@ -40,7 +40,7 @@ public static class EgaugeMeasurementModelExtensions
       ActivePowerL3NetT0_W = (decimal)entity.ActivePowerL3NetT0_W,
       ApparentPowerL1NetT0_W = (decimal)entity.ApparentPowerL1NetT0_W,
       ApparentPowerL2NetT0_W = (decimal)entity.ApparentPowerL2NetT0_W,
-      ApparentPowerL3NetT0_W = (decimal)entity.ApparentPowerL3NetT0_W,
+      ApparentPowerL3NetT0_W = (decimal)entity.ApparentPowerL3NetT0_W
     };
   }
 
@@ -62,7 +62,7 @@ public static class EgaugeMeasurementModelExtensions
       ActivePowerL3NetT0_W = (float)model.ActivePowerL3NetT0_W,
       ApparentPowerL1NetT0_W = (float)model.ApparentPowerL1NetT0_W,
       ApparentPowerL2NetT0_W = (float)model.ApparentPowerL2NetT0_W,
-      ApparentPowerL3NetT0_W = (float)model.ApparentPowerL3NetT0_W,
+      ApparentPowerL3NetT0_W = (float)model.ApparentPowerL3NetT0_W
     };
   }
 }

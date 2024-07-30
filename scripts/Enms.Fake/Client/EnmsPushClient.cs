@@ -1,4 +1,4 @@
-using Enms.Business.Iot;
+using System.Xml.Linq;
 
 namespace Enms.Fake.Client;
 
@@ -10,9 +10,9 @@ public class EnmsPushClient(
 )
 {
   public async Task Push(
-    string messengerId,
+    string meterId,
     string apiKey,
-    MessengerPushRequest request,
+    XDocument request,
     CancellationToken cancellationToken = default
   )
   {
@@ -26,12 +26,12 @@ public class EnmsPushClient(
 #pragma warning restore S1075
 
     logger.LogInformation(
-      "Pushing measurements to {BaseUrl} for messenger {MessengerId}",
+      "Pushing measurements to {BaseUrl} for meter {MeterId}",
       client.BaseAddress,
-      messengerId
+      meterId
     );
 
-    var content = JsonContent.Create(request);
+    var content = new StringContent(request.ToString());
 
     var success = false;
 
@@ -41,7 +41,7 @@ public class EnmsPushClient(
       {
         var response =
           await client.PostAsync(
-            $"iot/push/{messengerId}",
+            $"iot/push/{meterId}",
             content,
             cancellationToken
           );
