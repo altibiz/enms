@@ -1,0 +1,39 @@
+@startuml
+
+start
+
+:eGauge mjerač šalje mjerenja;
+
+:EgaugePushHandler parsira mjerenja;
+
+if (Measurements parsirana uspješno?) then (no)
+  :Spremi notifikaciju o neuspješnom parsiranju mjerenja u bazu;
+  stop
+else (yes)
+endif
+
+:Pretvori mjerenja u agregate;
+
+:Agregiraj agregate;
+
+:Spremi mjerenja u bazu;
+
+if (Mjerenja spremljena uspješno?) then (no)
+  :Spremi notifikaciju o neuspješno spremljenjom mjerenja u bazu;
+
+  stop
+else (yes)
+endif
+
+:Spremi agregate u bazu;
+
+if (Agregati spremljena uspješno?) then (no)
+  :Spremi notifikaciju o neuspješno spremljenjim agregatima u bazu;
+
+  stop
+else (yes)
+endif
+
+stop
+
+@enduml
