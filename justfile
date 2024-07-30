@@ -380,7 +380,13 @@ purge:
     -e !.idea/** \
     -e !**/*.csproj.user \
     -e !.direnv/ \
-    -e !.direnv/bin/
+    -e !.direnv/bin/ \
+    -e !.dvc/ \
+    -e !.dvc/** \
+    -e !scripts/Enms.Fake/Assets/ \
+    -e !scripts/Enms.Fake/Assets/** \
+    -e !scripts/migrations/ \
+    -e !scripts/migrations/**
   dotnet tool restore
   dotnet restore
 
