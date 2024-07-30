@@ -14,7 +14,6 @@ jbinspectlog := absolute_path('.jb/inspect.log')
 artifacts := absolute_path('artifacts')
 servercsproj := absolute_path('src/Enms.Server/Enms.Server.csproj')
 datacsproj := absolute_path('src/Enms.Data/Enms.Data.csproj')
-messagingcsproj := absolute_path('src/Enms.Messaging/Enms.Messaging.csproj')
 fakecsproj := absolute_path('scripts/Enms.Fake/Enms.Fake.csproj')
 fakeassets := absolute_path('scripts/Enms.Fake/Assets')
 migrationassets := absolute_path('scripts/migrations')
@@ -68,11 +67,6 @@ prepare:
   dotnet ef \
     --startup-project '{{servercsproj}}' \
     --project '{{datacsproj}}' \
-    database update
-
-  dotnet ef \
-    --startup-project '{{servercsproj}}' \
-    --project '{{messagingcsproj}}' \
     database update
 
   open --raw '{{migrationassets}}/current.sql' | \
@@ -149,11 +143,6 @@ lint:
     --project '{{datacsproj}}' \
     has-pending-model-changes
 
-  dotnet ef migrations \
-    --startup-project '{{servercsproj}}' \
-    --project '{{messagingcsproj}}' \
-    has-pending-model-changes
-
 test *args:
   dotnet test '{{sln}}' {{args}}
 
@@ -189,12 +178,6 @@ dump:
         --exclude-table-data='"User"*' \
         --exclude-table-data='*aggregates' \
         --exclude-table-data='*measurements' \
-        --exclude-table-data='*invoices' \
-        --exclude-table-data='*calculations' \
-        --exclude-table-data='*state' \
-        --exclude-table-data='outbox_state' \
-        --exclude-table-data='inbox_state' \
-        --exclude-table-data='outbox_message' \
         --exclude-table-data='"__"*' \
     out> '{{migrationassets}}/current.sql'
 
@@ -217,11 +200,6 @@ migrate project name:
   dotnet ef \
     --startup-project '{{servercsproj}}' \
     --project '{{datacsproj}}' \
-    database update
-
-  dotnet ef \
-    --startup-project '{{servercsproj}}' \
-    --project '{{messagingcsproj}}' \
     database update
 
   open --raw '{{migrationassets}}/current.sql' | \
@@ -250,11 +228,6 @@ migrate project name:
   dotnet ef \
     --startup-project '{{servercsproj}}' \
     --project '{{datacsproj}}' \
-    database update
-
-  dotnet ef \
-    --startup-project '{{servercsproj}}' \
-    --project '{{messagingcsproj}}' \
     database update
 
   docker exec \
@@ -385,11 +358,6 @@ clean:
     --project '{{datacsproj}}' \
     database update
 
-  dotnet ef \
-    --startup-project '{{servercsproj}}' \
-    --project '{{messagingcsproj}}' \
-    database update
-
   open --raw '{{migrationassets}}/current.sql' | \
     docker exec \
       --env PGHOST="localhost" \
@@ -434,11 +402,6 @@ purge:
   dotnet ef \
     --startup-project '{{servercsproj}}' \
     --project '{{datacsproj}}' \
-    database update
-
-  dotnet ef \
-    --startup-project '{{servercsproj}}' \
-    --project '{{messagingcsproj}}' \
     database update
 
   open --raw '{{migrationassets}}/current.sql' | \
