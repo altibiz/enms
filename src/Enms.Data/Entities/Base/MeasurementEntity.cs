@@ -40,7 +40,7 @@ public class
     builder.HasTimescaleHypertable(
       nameof(MeasurementEntity.Timestamp),
       nameof(MeasurementEntity<LineEntity>.LineId),
-      "number_partitions => 2"
+      "number_partitions => 1"
     );
 
     builder

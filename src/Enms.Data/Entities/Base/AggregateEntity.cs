@@ -45,7 +45,7 @@ public class
     builder.HasTimescaleHypertable(
       nameof(AggregateEntity.Timestamp),
       nameof(AggregateEntity<LineEntity>.LineId),
-      "number_partitions => 2"
+      "number_partitions => 1"
     );
 
     builder
