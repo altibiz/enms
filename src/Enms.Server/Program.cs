@@ -13,11 +13,12 @@ builder.Services
   .AddSetupFeatures("OrchardCore.AutoSetup")
   .ConfigureServices(
     services => services
-      .AddEnmsClient(builder.Environment.IsDevelopment())
-      .AddEnmsBusinessClient())
+      .AddEnmsClient(builder)
+      .AddEnmsBusinessClient(builder))
   .Configure(
     (_, endpoints) => endpoints
-      .MapEnmsClient("App", "Index", "/app"))
+      .MapEnmsClient("App", "Index", "/app")
+      .MapEnmsIot("Iot", "Push", "/iot/push"))
   .Configure(
     app => app
       .MigrateEnmsData());

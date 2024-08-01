@@ -3,7 +3,8 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Enms.Server.Controllers;
 
-public class IotController : ControllerBase
+[IgnoreAntiforgeryToken]
+public class IotController : Controller
 {
   private readonly EnmsIotHandler _iotHandler;
 
@@ -12,7 +13,8 @@ public class IotController : ControllerBase
     _iotHandler = iotHandler;
   }
 
-  public async Task<IActionResult> Push([FromRoute] string id)
+  [HttpPost]
+  public async Task<IActionResult> Push(string id)
   {
     using var reader = new StreamReader(Request.Body);
     var message = await reader.ReadToEndAsync();

@@ -1,5 +1,6 @@
 using Enms.Client.State;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using MudBlazor.Services;
 
 namespace Enms.Client.Extensions;
@@ -8,7 +9,7 @@ public static class IServiceCollectionExtensions
 {
   public static IServiceCollection AddEnmsClient(
     this IServiceCollection services,
-    bool isDevelopment
+    IHostApplicationBuilder builder
   )
   {
     services
@@ -20,7 +21,7 @@ public static class IServiceCollectionExtensions
       .AddCircuitOptions(
         options =>
         {
-          if (isDevelopment)
+          if (builder.Environment.IsDevelopment())
           {
             options.DetailedErrors = true;
           }
@@ -28,7 +29,7 @@ public static class IServiceCollectionExtensions
       .AddHubOptions(
         options =>
         {
-          if (isDevelopment)
+          if (builder.Environment.IsDevelopment())
           {
             options.EnableDetailedErrors = true;
           }
