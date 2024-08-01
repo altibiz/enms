@@ -11,7 +11,14 @@ public class
   {
     var optionsBuilder = new DbContextOptionsBuilder<EnmsDataDbContext>();
     optionsBuilder.UseTimescale(
-      "Server=localhost;Port=5432;User Id=enms;Password=enms;Database=enms");
+      "Server=localhost;Port=5432;User Id=enms;Password=enms;Database=enms",
+      x =>
+      {
+        x.MigrationsAssembly(
+          typeof(EnmsDataDbContext).Assembly.GetName().Name);
+        x.MigrationsHistoryTable(
+          $"__{nameof(EnmsDataDbContext)}");
+      });
     return new EnmsDataDbContext(optionsBuilder.Options);
   }
 }
