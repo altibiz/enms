@@ -12,10 +12,16 @@ public class IotController : ControllerBase
     _iotHandler = iotHandler;
   }
 
-  public async Task<IActionResult> Push(
-    [FromRoute] string id,
-    [FromBody] string message)
+  public async Task<IActionResult> Push([FromRoute] string id)
   {
+    using var reader = new StreamReader(Request.Body);
+    var message = await reader.ReadToEndAsync();
+
+    if (!await _iotHandler.Authorize(id, message))
+    {
+      return Unauthorized();
+    }
+
     await _iotHandler.OnPush(id, message);
 
     return Ok();
