@@ -52,8 +52,12 @@ public class
 
     if (entity.BaseType == typeof(AuditableEntity))
     {
-      if (entity == typeof(RepresentativeEntity)
-        || entity == typeof(LineEntity)
+      if (entity == typeof(LineEntity))
+      {
+        builder.HasKey("_lineId", "_meterId");
+      }
+      else if (
+        entity == typeof(RepresentativeEntity)
         || entity == typeof(MeterEntity))
       {
         builder.HasKey("_stringId");
@@ -64,7 +68,24 @@ public class
       }
     }
 
-    if (entity == typeof(RepresentativeEntity) ||
+    if (entity.IsAssignableTo(typeof(LineEntity)))
+    {
+      builder.Ignore("_id");
+      builder.Ignore(nameof(AuditableEntity.Id));
+      builder.Ignore(nameof(LineEntity.LineId));
+      builder
+        .Property("_lineId")
+        .HasColumnName("line_id")
+        .HasColumnType("text")
+        .ValueGeneratedNever();
+      builder.Ignore(nameof(LineEntity.MeterId));
+      builder
+        .Property("_meterId")
+        .HasColumnName("meter_id")
+        .HasColumnType("text")
+        .ValueGeneratedNever();
+    }
+    else if (entity == typeof(RepresentativeEntity) ||
       entity.IsAssignableTo(typeof(LineEntity)) ||
       entity.IsAssignableTo(typeof(MeterEntity)))
     {

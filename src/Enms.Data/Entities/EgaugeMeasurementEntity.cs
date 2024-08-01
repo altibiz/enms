@@ -5,7 +5,9 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Enms.Data.Entities;
 
-public class EgaugeMeasurementEntity : MeasurementEntity<EgaugeLineEntity>
+public class EgaugeMeasurementEntity : MeasurementEntity<
+  EgaugeLineEntity,
+  EgaugeMeterEntity>
 {
 #pragma warning disable CA1707
   public float VoltageL1AnyT0_V { get; set; }

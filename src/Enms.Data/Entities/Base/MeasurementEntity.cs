@@ -10,12 +10,17 @@ public abstract class MeasurementEntity : IMeasurementEntity
   public DateTimeOffset Timestamp { get; set; }
 
   public string LineId { get; set; } = default!;
+
+  public string MeterId { get; set; } = default!;
 }
 
-public class MeasurementEntity<T> : MeasurementEntity
-  where T : LineEntity
+public class MeasurementEntity<TLine, TMeter> : MeasurementEntity
+  where TLine : LineEntity
+  where TMeter : MeterEntity
 {
-  public virtual T Line { get; set; } = default!;
+  public virtual TLine Line { get; set; } = default!;
+
+  public virtual TMeter Meter { get; set; } = default!;
 }
 
 public class
@@ -34,19 +39,30 @@ public class
 
     builder.HasKey(
       nameof(MeasurementEntity.Timestamp),
-      nameof(MeasurementEntity.LineId)
+      nameof(MeasurementEntity.LineId),
+      nameof(MeasurementEntity.MeterId)
     );
 
     builder.HasTimescaleHypertable(
       nameof(MeasurementEntity.Timestamp),
-      nameof(MeasurementEntity<LineEntity>.LineId),
-      "number_partitions => 1"
+      nameof(MeasurementEntity<LineEntity, MeterEntity>.MeterId),
+      "number_partitions => 256"
     );
 
     builder
-      .HasOne(nameof(MeasurementEntity<LineEntity>.Line))
+      .HasOne(nameof(MeasurementEntity<LineEntity, MeterEntity>.Line))
+      .WithMany(
+        nameof(LineEntity<MeasurementEntity, AggregateEntity,
+          MeasurementValidatorEntity, MeterEntity>.Measurements))
+      .HasForeignKey(
+        nameof(MeasurementEntity<LineEntity, MeterEntity>.LineId),
+        nameof(MeasurementEntity<LineEntity, MeterEntity>.MeterId));
+
+    builder
+      .HasOne(nameof(MeasurementEntity<LineEntity, MeterEntity>.Meter))
       .WithMany()
-      .HasForeignKey(nameof(MeasurementEntity<LineEntity>.LineId));
+      .HasForeignKey(
+        nameof(MeasurementEntity<LineEntity, MeterEntity>.MeterId));
 
     builder
       .Property<DateTimeOffset>(nameof(MeasurementEntity.Timestamp))

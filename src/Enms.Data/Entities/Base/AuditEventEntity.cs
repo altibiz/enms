@@ -3,6 +3,8 @@ using Enms.Data.Extensions;
 using Microsoft.EntityFrameworkCore;
 
 // TODO: extension method for querying auditable entities from these events
+// TODO: check if auditable entity type or table is modified that
+// migration also modified events
 
 namespace Enms.Data.Entities.Base;
 

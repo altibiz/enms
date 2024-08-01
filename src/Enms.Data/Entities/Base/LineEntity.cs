@@ -6,31 +6,48 @@ namespace Enms.Data.Entities.Base;
 
 public class LineEntity : AuditableEntity
 {
-  protected readonly string _stringId = default!;
+  protected string _lineId = default!;
+
+  protected string _meterId = default!;
+
+  public virtual string LineId
+  {
+    get => _lineId;
+    init => _lineId = value;
+  }
+
+  public virtual string MeterId
+  {
+    get => _meterId;
+    init => _meterId = value;
+  }
 
   public override string Id
   {
-    get { return _stringId; }
-    init { _stringId = value; }
+    get { return $"{_lineId}{EnmsDataDbContext.KeyJoin}{_meterId}"; }
+    init
+    {
+      var parts = value.Split(EnmsDataDbContext.KeyJoin);
+      _lineId = parts[0];
+      _meterId = parts[1];
+    }
   }
 
   public float ConnectionPower_W { get; set; } = default!;
 
   public List<PhaseEntity> Phases { get; set; } = default!;
-
-  public string MeterId { get; set; } = default!;
-
-  public virtual MeterEntity Meter { get; set; } = default!;
 }
 
 public class LineEntity<
   TMeasurement,
   TAggregate,
-  TMeasurementValidator
+  TMeasurementValidator,
+  TMeter
 > : LineEntity
   where TMeasurement : MeasurementEntity
   where TAggregate : AggregateEntity
   where TMeasurementValidator : MeasurementValidatorEntity
+  where TMeter : MeterEntity
 {
   private readonly long _measurementValidatorId;
 
@@ -47,6 +64,8 @@ public class LineEntity<
 
   public virtual TMeasurementValidator MeasurementValidator { get; set; } =
     default!;
+
+  public virtual TMeter Meter { get; set; } = default!;
 }
 
 public class
@@ -63,11 +82,6 @@ public class
       .HasDiscriminator<string>("kind");
 
     builder
-      .HasOne(nameof(LineEntity.Meter))
-      .WithMany(nameof(MeterEntity.Lines))
-      .HasForeignKey(nameof(LineEntity.MeterId));
-
-    builder
       .Property(nameof(LineEntity.ConnectionPower_W))
       .HasColumnName("connection_power_w");
 
@@ -76,28 +90,34 @@ public class
       builder
         .HasMany(
           nameof(LineEntity<MeasurementEntity, AggregateEntity,
-            MeasurementValidatorEntity>.Measurements))
-        .WithOne(nameof(MeasurementEntity<LineEntity>.Line));
+            MeasurementValidatorEntity, MeterEntity>.Aggregates))
+        .WithOne(nameof(AggregateEntity<LineEntity, MeterEntity>.Line));
 
       builder
         .HasMany(
           nameof(LineEntity<MeasurementEntity, AggregateEntity,
-            MeasurementValidatorEntity>.Aggregates))
-        .WithOne(nameof(AggregateEntity<LineEntity>.Line));
+            MeasurementValidatorEntity, MeterEntity>.Measurements))
+        .WithOne(nameof(MeasurementEntity<LineEntity, MeterEntity>.Line));
 
       builder
         .HasOne(
           nameof(LineEntity<MeasurementEntity, AggregateEntity,
-            MeasurementValidatorEntity>.MeasurementValidator))
+            MeasurementValidatorEntity, MeterEntity>.MeasurementValidator))
         .WithOne(nameof(MeasurementValidatorEntity<LineEntity>.Line))
         .HasForeignKey(entity.Name, "_measurementValidatorId");
 
       builder.Ignore(
         nameof(LineEntity<MeasurementEntity, AggregateEntity,
-          MeasurementValidatorEntity>.MeasurementValidatorId));
+          MeasurementValidatorEntity, MeterEntity>.MeasurementValidatorId));
       builder
         .Property("_measurementValidatorId")
         .HasColumnName("measurement_validator_id");
+
+      builder
+        .HasOne(nameof(LineEntity<MeasurementEntity, AggregateEntity,
+          MeasurementValidatorEntity, MeterEntity>.Meter))
+        .WithMany(nameof(MeterEntity.Lines))
+        .HasForeignKey("_meterId");
     }
   }
 }

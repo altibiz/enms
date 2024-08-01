@@ -1,5 +1,5 @@
 using Enms.Data.Extensions;
-using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Microsoft.EntityFrameworkCore;
 
 // TODO: settings for the meter
 
@@ -19,12 +19,15 @@ public class MeterEntity : AuditableEntity
 }
 
 public class
-  MessengerEntityTypeConfiguration : EntityTypeConfiguration<MeterEntity>
+  MessengerEntityTypeConfiguration : EntityTypeHierarchyConfiguration<MeterEntity>
 {
-  public override void Configure(EntityTypeBuilder<MeterEntity> builder)
+  public override void Configure(ModelBuilder modelBuilder, Type entity)
   {
+    var builder = modelBuilder.Entity(entity);
+
     builder
-      .HasMany(nameof(MeterEntity.Lines))
-      .WithOne(nameof(LineEntity.Meter));
+      .UseTphMappingStrategy()
+      .ToTable("meters")
+      .HasDiscriminator<string>("kind");
   }
 }

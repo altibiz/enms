@@ -5,6 +5,7 @@ namespace Enms.Data.Entities;
 public class EgaugeLineEntity : LineEntity<
   EgaugeMeasurementEntity,
   EgaugeAggregateEntity,
-  EgaugeMeasurementValidatorEntity>
+  EgaugeMeasurementValidatorEntity,
+  EgaugeMeterEntity>
 {
 }

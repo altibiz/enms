@@ -76,9 +76,13 @@ namespace Enms.Data.Migrations
 
             modelBuilder.Entity("Enms.Data.Entities.Base.LineEntity", b =>
                 {
-                    b.Property<string>("_stringId")
+                    b.Property<string>("_lineId")
                         .HasColumnType("text")
-                        .HasColumnName("id");
+                        .HasColumnName("line_id");
+
+                    b.Property<string>("_meterId")
+                        .HasColumnType("text")
+                        .HasColumnName("meter_id");
 
                     b.Property<float>("ConnectionPower_W")
                         .HasColumnType("real")
@@ -112,11 +116,6 @@ namespace Enms.Data.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("last_updated_on");
 
-                    b.Property<string>("MeterId")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("meter_id");
-
                     b.Property<int[]>("Phases")
                         .IsRequired()
                         .HasColumnType("integer[]")
@@ -133,7 +132,7 @@ namespace Enms.Data.Migrations
                         .HasColumnType("character varying(21)")
                         .HasColumnName("kind");
 
-                    b.HasKey("_stringId")
+                    b.HasKey("_lineId", "_meterId")
                         .HasName("pk_lines");
 
                     b.HasIndex("CreatedById")
@@ -144,9 +143,6 @@ namespace Enms.Data.Migrations
 
                     b.HasIndex("LastUpdatedById")
                         .HasDatabaseName("ix_lines_last_updated_by_id");
-
-                    b.HasIndex("MeterId")
-                        .HasDatabaseName("ix_lines_meter_id");
 
                     b.ToTable("lines", (string)null);
 
@@ -159,7 +155,7 @@ namespace Enms.Data.Migrations
                 {
                     b.Property<string>("_stringId")
                         .HasColumnType("text")
-                        .HasColumnName("_string_id");
+                        .HasColumnName("id");
 
                     b.Property<string>("CreatedById")
                         .HasColumnType("text")
@@ -176,12 +172,6 @@ namespace Enms.Data.Migrations
                     b.Property<DateTimeOffset?>("DeletedOn")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("deleted_on");
-
-                    b.Property<string>("Discriminator")
-                        .IsRequired()
-                        .HasMaxLength(21)
-                        .HasColumnType("character varying(21)")
-                        .HasColumnName("discriminator");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean")
@@ -200,12 +190,11 @@ namespace Enms.Data.Migrations
                         .HasColumnType("text")
                         .HasColumnName("title");
 
-                    b.Property<long>("_id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint")
-                        .HasColumnName("id");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityAlwaysColumn(b.Property<long>("_id"));
+                    b.Property<string>("kind")
+                        .IsRequired()
+                        .HasMaxLength(21)
+                        .HasColumnType("character varying(21)")
+                        .HasColumnName("kind");
 
                     b.HasKey("_stringId")
                         .HasName("pk_meters");
@@ -221,24 +210,28 @@ namespace Enms.Data.Migrations
 
                     b.ToTable("meters", (string)null);
 
-                    b.HasDiscriminator<string>("Discriminator").HasValue("MeterEntity");
+                    b.HasDiscriminator<string>("kind").HasValue("MeterEntity");
 
                     b.UseTphMappingStrategy();
                 });
 
             modelBuilder.Entity("Enms.Data.Entities.EgaugeAggregateEntity", b =>
                 {
-                    b.Property<DateTimeOffset>("Timestamp")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("timestamp");
-
                     b.Property<int>("Interval")
                         .HasColumnType("integer")
                         .HasColumnName("interval");
 
+                    b.Property<DateTimeOffset>("Timestamp")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("timestamp");
+
                     b.Property<string>("LineId")
                         .HasColumnType("text")
                         .HasColumnName("line_id");
+
+                    b.Property<string>("MeterId")
+                        .HasColumnType("text")
+                        .HasColumnName("meter_id");
 
                     b.Property<float>("ActivePowerL1NetT0Avg_W")
                         .HasColumnType("real")
@@ -292,15 +285,18 @@ namespace Enms.Data.Migrations
                         .HasColumnType("real")
                         .HasColumnName("voltage_l3_any_t0_avg_v");
 
-                    b.HasKey("Timestamp", "Interval", "LineId")
+                    b.HasKey("Interval", "Timestamp", "LineId", "MeterId")
                         .HasName("pk_egauge_aggregates");
 
-                    b.HasIndex("LineId")
-                        .HasDatabaseName("ix_egauge_aggregates_line_id");
+                    b.HasIndex("MeterId")
+                        .HasDatabaseName("ix_egauge_aggregates_meter_id");
+
+                    b.HasIndex("LineId", "MeterId")
+                        .HasDatabaseName("ix_egauge_aggregates_line_id_meter_id");
 
                     b.ToTable("egauge_aggregates", (string)null);
 
-                    b.HasAnnotation("TimescaleHypertable", "Timestamp,LineId:number_partitions => 2");
+                    b.HasAnnotation("TimescaleHypertable", "Timestamp,MeterId:number_partitions => 256");
                 });
 
             modelBuilder.Entity("Enms.Data.Entities.EgaugeMeasurementEntity", b =>
@@ -312,6 +308,10 @@ namespace Enms.Data.Migrations
                     b.Property<string>("LineId")
                         .HasColumnType("text")
                         .HasColumnName("line_id");
+
+                    b.Property<string>("MeterId")
+                        .HasColumnType("text")
+                        .HasColumnName("meter_id");
 
                     b.Property<float>("ActivePowerL1NetT0_W")
                         .HasColumnType("real")
@@ -349,10 +349,6 @@ namespace Enms.Data.Migrations
                         .HasColumnType("real")
                         .HasColumnName("current_l3_any_t0_a");
 
-                    b.Property<string>("EgaugeLineEntity_stringId")
-                        .HasColumnType("text")
-                        .HasColumnName("egauge_line_entity_string_id");
-
                     b.Property<float>("VoltageL1AnyT0_V")
                         .HasColumnType("real")
                         .HasColumnName("voltage_l1_any_t0_v");
@@ -365,18 +361,18 @@ namespace Enms.Data.Migrations
                         .HasColumnType("real")
                         .HasColumnName("voltage_l3_any_t0_v");
 
-                    b.HasKey("Timestamp", "LineId")
+                    b.HasKey("Timestamp", "LineId", "MeterId")
                         .HasName("pk_egauge_measurements");
 
-                    b.HasIndex("EgaugeLineEntity_stringId")
-                        .HasDatabaseName("ix_egauge_measurements_egauge_line_entity_string_id");
+                    b.HasIndex("MeterId")
+                        .HasDatabaseName("ix_egauge_measurements_meter_id");
 
-                    b.HasIndex("LineId")
-                        .HasDatabaseName("ix_egauge_measurements_line_id");
+                    b.HasIndex("LineId", "MeterId")
+                        .HasDatabaseName("ix_egauge_measurements_line_id_meter_id");
 
                     b.ToTable("egauge_measurements", (string)null);
 
-                    b.HasAnnotation("TimescaleHypertable", "Timestamp,LineId:number_partitions => 2");
+                    b.HasAnnotation("TimescaleHypertable", "Timestamp,MeterId:number_partitions => 256");
                 });
 
             modelBuilder.Entity("Enms.Data.Entities.MeasurementValidatorEntity", b =>
@@ -612,6 +608,9 @@ namespace Enms.Data.Migrations
                         .IsUnique()
                         .HasDatabaseName("ix_lines__measurement_validator_id");
 
+                    b.HasIndex("_meterId")
+                        .HasDatabaseName("ix_lines_meter_id");
+
                     b.ToTable("lines", (string)null);
 
                     b.HasDiscriminator().HasValue("EgaugeLineEntity");
@@ -679,20 +678,11 @@ namespace Enms.Data.Migrations
                         .HasForeignKey("LastUpdatedById")
                         .HasConstraintName("fk_lines_representatives_last_updated_by_id");
 
-                    b.HasOne("Enms.Data.Entities.Base.MeterEntity", "Meter")
-                        .WithMany("Lines")
-                        .HasForeignKey("MeterId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("fk_lines_meters_meter_id");
-
                     b.Navigation("CreatedBy");
 
                     b.Navigation("DeletedBy");
 
                     b.Navigation("LastUpdatedBy");
-
-                    b.Navigation("Meter");
                 });
 
             modelBuilder.Entity("Enms.Data.Entities.Base.MeterEntity", b =>
@@ -721,31 +711,44 @@ namespace Enms.Data.Migrations
 
             modelBuilder.Entity("Enms.Data.Entities.EgaugeAggregateEntity", b =>
                 {
-                    b.HasOne("Enms.Data.Entities.EgaugeLineEntity", "Line")
-                        .WithMany("Aggregates")
-                        .HasForeignKey("LineId")
+                    b.HasOne("Enms.Data.Entities.EgaugeMeterEntity", "Meter")
+                        .WithMany()
+                        .HasForeignKey("MeterId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
-                        .HasConstraintName("fk_egauge_aggregates_lines_line_id");
+                        .HasConstraintName("fk_egauge_aggregates_meters_meter_id");
+
+                    b.HasOne("Enms.Data.Entities.EgaugeLineEntity", "Line")
+                        .WithMany("Aggregates")
+                        .HasForeignKey("LineId", "MeterId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_egauge_aggregates_lines_line_id_meter_id");
 
                     b.Navigation("Line");
+
+                    b.Navigation("Meter");
                 });
 
             modelBuilder.Entity("Enms.Data.Entities.EgaugeMeasurementEntity", b =>
                 {
-                    b.HasOne("Enms.Data.Entities.EgaugeLineEntity", null)
-                        .WithMany("Measurements")
-                        .HasForeignKey("EgaugeLineEntity_stringId")
-                        .HasConstraintName("fk_egauge_measurements_lines_egauge_line_entity_string_id");
-
-                    b.HasOne("Enms.Data.Entities.EgaugeLineEntity", "Line")
+                    b.HasOne("Enms.Data.Entities.EgaugeMeterEntity", "Meter")
                         .WithMany()
-                        .HasForeignKey("LineId")
+                        .HasForeignKey("MeterId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
-                        .HasConstraintName("fk_egauge_measurements_lines_line_id");
+                        .HasConstraintName("fk_egauge_measurements_meters_meter_id");
+
+                    b.HasOne("Enms.Data.Entities.EgaugeLineEntity", "Line")
+                        .WithMany("Measurements")
+                        .HasForeignKey("LineId", "MeterId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_egauge_measurements_lines_line_id_meter_id");
 
                     b.Navigation("Line");
+
+                    b.Navigation("Meter");
                 });
 
             modelBuilder.Entity("Enms.Data.Entities.MeasurementValidatorEntity", b =>
@@ -817,7 +820,16 @@ namespace Enms.Data.Migrations
                         .IsRequired()
                         .HasConstraintName("fk_lines_measurement_validators__measurement_validator_id");
 
+                    b.HasOne("Enms.Data.Entities.EgaugeMeterEntity", "Meter")
+                        .WithMany("Lines")
+                        .HasForeignKey("_meterId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_lines_meters_meter_id");
+
                     b.Navigation("MeasurementValidator");
+
+                    b.Navigation("Meter");
                 });
 
             modelBuilder.Entity("Enms.Data.Entities.RepresentativeAuditEventEntity", b =>
@@ -832,11 +844,6 @@ namespace Enms.Data.Migrations
                     b.Navigation("Representative");
                 });
 
-            modelBuilder.Entity("Enms.Data.Entities.Base.MeterEntity", b =>
-                {
-                    b.Navigation("Lines");
-                });
-
             modelBuilder.Entity("Enms.Data.Entities.RepresentativeEntity", b =>
                 {
                     b.Navigation("AuditEvents");
@@ -849,6 +856,11 @@ namespace Enms.Data.Migrations
                     b.Navigation("Aggregates");
 
                     b.Navigation("Measurements");
+                });
+
+            modelBuilder.Entity("Enms.Data.Entities.EgaugeMeterEntity", b =>
+                {
+                    b.Navigation("Lines");
                 });
 
             modelBuilder.Entity("Enms.Data.Entities.EgaugeMeasurementValidatorEntity", b =>

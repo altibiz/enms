@@ -15,12 +15,17 @@ public abstract class AggregateEntity : IAggregateEntity
   public IntervalEntity Interval { get; set; }
 
   public string LineId { get; set; } = default!;
+
+  public string MeterId { get; set; } = default!;
 }
 
-public class AggregateEntity<T> : AggregateEntity
-  where T : LineEntity
+public class AggregateEntity<TLine, TMeter> : AggregateEntity
+  where TLine : LineEntity
+  where TMeter : MeterEntity
 {
-  public virtual T Line { get; set; } = default!;
+  public virtual TLine Line { get; set; } = default!;
+
+  public virtual TMeter Meter { get; set; } = default!;
 }
 
 public class
@@ -37,21 +42,32 @@ public class
     var builder = modelBuilder.Entity(entity);
 
     builder.HasKey(
-      nameof(AggregateEntity.Timestamp),
       nameof(AggregateEntity.Interval),
-      nameof(AggregateEntity.LineId)
+      nameof(AggregateEntity.Timestamp),
+      nameof(AggregateEntity.LineId),
+      nameof(AggregateEntity.MeterId)
     );
 
     builder.HasTimescaleHypertable(
       nameof(AggregateEntity.Timestamp),
-      nameof(AggregateEntity<LineEntity>.LineId),
-      "number_partitions => 1"
+      nameof(AggregateEntity<LineEntity, MeterEntity>.MeterId),
+      "number_partitions => 256"
     );
 
     builder
-      .HasOne(nameof(AggregateEntity<LineEntity>.Line))
+      .HasOne(nameof(AggregateEntity<LineEntity, MeterEntity>.Line))
+      .WithMany(
+        nameof(LineEntity<MeasurementEntity, AggregateEntity,
+          MeasurementValidatorEntity, MeterEntity>.Aggregates))
+      .HasForeignKey(
+        nameof(AggregateEntity<LineEntity, MeterEntity>.LineId),
+        nameof(AggregateEntity<LineEntity, MeterEntity>.MeterId));
+
+    builder
+      .HasOne(nameof(AggregateEntity<LineEntity, MeterEntity>.Meter))
       .WithMany()
-      .HasForeignKey(nameof(AggregateEntity<LineEntity>.LineId));
+      .HasForeignKey(
+        nameof(AggregateEntity<LineEntity, MeterEntity>.MeterId));
 
     builder
       .Property<DateTimeOffset>(nameof(AggregateEntity.Timestamp))
