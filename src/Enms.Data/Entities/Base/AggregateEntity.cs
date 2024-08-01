@@ -8,6 +8,7 @@ namespace Enms.Data.Entities.Base;
 
 public abstract class AggregateEntity : IAggregateEntity
 {
+  public string MeterId { get; set; } = default!;
   public DateTimeOffset Timestamp { get; set; }
 
   public long Count { get; set; }
@@ -15,8 +16,6 @@ public abstract class AggregateEntity : IAggregateEntity
   public IntervalEntity Interval { get; set; }
 
   public string LineId { get; set; } = default!;
-
-  public string MeterId { get; set; } = default!;
 }
 
 public class AggregateEntity<TLine, TMeter> : AggregateEntity

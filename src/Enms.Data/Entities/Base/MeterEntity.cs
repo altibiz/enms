@@ -19,7 +19,8 @@ public class MeterEntity : AuditableEntity
 }
 
 public class
-  MessengerEntityTypeConfiguration : EntityTypeHierarchyConfiguration<MeterEntity>
+  MessengerEntityTypeConfiguration : EntityTypeHierarchyConfiguration<
+  MeterEntity>
 {
   public override void Configure(ModelBuilder modelBuilder, Type entity)
   {

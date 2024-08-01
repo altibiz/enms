@@ -7,11 +7,10 @@ namespace Enms.Data.Entities.Base;
 
 public abstract class MeasurementEntity : IMeasurementEntity
 {
+  public string MeterId { get; set; } = default!;
   public DateTimeOffset Timestamp { get; set; }
 
   public string LineId { get; set; } = default!;
-
-  public string MeterId { get; set; } = default!;
 }
 
 public class MeasurementEntity<TLine, TMeter> : MeasurementEntity

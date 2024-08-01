@@ -168,7 +168,11 @@ public partial class EnmsDataDbContext
       typeof(ICollection<string>).GetMethod(
         nameof(ICollection<string>.Contains)) ??
       throw new InvalidOperationException(
-        $"No {nameof(ICollection<string>.Contains)} method found in {typeof(ICollection<string>)}"),
+        $"No {
+          nameof(ICollection<string>.Contains)
+        } method found in {
+          typeof(ICollection<string>)
+        }"),
       Expression.Invoke(primaryKeyExpression, parameter));
     return Expression.Lambda<Func<object, bool>>(
       primaryKeyInExpression,

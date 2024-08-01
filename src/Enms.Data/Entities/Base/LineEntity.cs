@@ -12,14 +12,14 @@ public class LineEntity : AuditableEntity
 
   public virtual string LineId
   {
-    get => _lineId;
-    init => _lineId = value;
+    get { return _lineId; }
+    init { _lineId = value; }
   }
 
   public virtual string MeterId
   {
-    get => _meterId;
-    init => _meterId = value;
+    get { return _meterId; }
+    init { _meterId = value; }
   }
 
   public override string Id
@@ -114,8 +114,9 @@ public class
         .HasColumnName("measurement_validator_id");
 
       builder
-        .HasOne(nameof(LineEntity<MeasurementEntity, AggregateEntity,
-          MeasurementValidatorEntity, MeterEntity>.Meter))
+        .HasOne(
+          nameof(LineEntity<MeasurementEntity, AggregateEntity,
+            MeasurementValidatorEntity, MeterEntity>.Meter))
         .WithMany(nameof(MeterEntity.Lines))
         .HasForeignKey("_meterId");
     }
