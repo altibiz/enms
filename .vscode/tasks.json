@@ -8,7 +8,7 @@
       "type": "process",
       "args": [
         "build",
-        "${workspaceFolder}/src/Ozds.Server/Ozds.Server.csproj",
+        "${workspaceFolder}/src/Enms.Server/Enms.Server.csproj",
         "--configuration",
         "Debug",
         "--property:GenerateFullPaths=true",
@@ -28,7 +28,7 @@
       "type": "process",
       "args": [
         "build",
-        "${workspaceFolder}/scripts/Ozds.Fake/Ozds.Fake.csproj",
+        "${workspaceFolder}/scripts/Enms.Fake/Enms.Fake.csproj",
         "--configuration",
         "Debug",
         "--property:GenerateFullPaths=true",
