@@ -1,4 +1,4 @@
-using System.Xml.Linq;
+using System.Text.Json.Nodes;
 using Enms.Fake.Conversion.Base;
 using Enms.Fake.Records;
 
@@ -12,7 +12,7 @@ public class EgaugeMeasurementRecordPushRequestConverter
     get { return "egauge"; }
   }
 
-  protected override XDocument ConvertToPushRequestConcrete(
+  protected override JsonNode ConvertToPushRequestConcrete(
     string meterId,
     IEnumerable<EgaugeMeasurementRecord> record)
   {

@@ -1,4 +1,4 @@
-using System.Xml.Linq;
+using System.Text.Json.Nodes;
 using Enms.Business.Models.Abstractions;
 
 namespace Enms.Business.Conversion.Abstractions;
@@ -9,8 +9,8 @@ public interface IPushRequestMeasurementConverter
 
   IEnumerable<IMeasurement> ToMeasurements(
     string meterId,
-    XDocument request,
+    JsonNode request,
     DateTimeOffset timestamp);
 
-  XDocument ToPushRequest(IEnumerable<IMeasurement> measurement);
+  JsonNode ToPushRequest(IEnumerable<IMeasurement> measurement);
 }

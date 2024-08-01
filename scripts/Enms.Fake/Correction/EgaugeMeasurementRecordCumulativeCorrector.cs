@@ -13,28 +13,6 @@ public class EgaugeMeasurementRecordCumulativeCorrector
     EgaugeMeasurementRecord lastMeasurementRecord
   )
   {
-#pragma warning disable S125
-    // var diffMultiplier = DiffMultiplier(
-    //   timestamp,
-    //   firstMeasurementRecord.Timestamp,
-    //   lastMeasurementRecord.Timestamp
-    // );
-
-    // var activeEnergy = measurementRecord.ActiveEnergy_Wh
-    //   .Add(
-    //     lastMeasurementRecord.ActiveEnergy_Wh
-    //       .Subtract(firstMeasurementRecord.ActiveEnergy_Wh)
-    //       .Multiply(diffMultiplier)
-    //   );
-
-    // var reactiveEnergy = measurementRecord.ReactiveEnergy_VARh
-    //   .Add(
-    //     lastMeasurementRecord.ReactiveEnergy_VARh
-    //       .Subtract(firstMeasurementRecord.ReactiveEnergy_VARh)
-    //       .Multiply(diffMultiplier)
-    //   );
-#pragma warning restore S125
-
     return measurementRecord;
   }
 
@@ -44,7 +22,19 @@ public class EgaugeMeasurementRecordCumulativeCorrector
     return new EgaugeMeasurementRecord
     {
       LineId = record.LineId,
-      Timestamp = record.Timestamp
+      Timestamp = record.Timestamp,
+      VoltageL1AnyT0_V = record.VoltageL1AnyT0_V,
+      VoltageL2AnyT0_V = record.VoltageL2AnyT0_V,
+      VoltageL3AnyT0_V = record.VoltageL3AnyT0_V,
+      CurrentL1AnyT0_A = record.CurrentL1AnyT0_A,
+      CurrentL2AnyT0_A = record.CurrentL2AnyT0_A,
+      CurrentL3AnyT0_A = record.CurrentL3AnyT0_A,
+      ActivePowerL1NetT0_W = record.ActivePowerL1NetT0_W,
+      ActivePowerL2NetT0_W = record.ActivePowerL2NetT0_W,
+      ActivePowerL3NetT0_W = record.ActivePowerL3NetT0_W,
+      ApparentPowerL1NetT0_W = record.ApparentPowerL1NetT0_W,
+      ApparentPowerL2NetT0_W = record.ApparentPowerL2NetT0_W,
+      ApparentPowerL3NetT0_W = record.ApparentPowerL3NetT0_W
     };
   }
 }

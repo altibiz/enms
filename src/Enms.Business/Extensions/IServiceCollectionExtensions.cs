@@ -47,10 +47,10 @@ public static class IServiceCollectionExtensions
       (services, options) =>
       {
         var connectionString = services
-          .GetRequiredService<IConfiguration>()
-          .GetConnectionString("Enms")
-            ?? throw new InvalidOperationException(
-              "Enms connection string not found");
+            .GetRequiredService<IConfiguration>()
+            .GetConnectionString("Enms")
+          ?? throw new InvalidOperationException(
+            "Enms connection string not found");
 
         if (builder.Environment.IsDevelopment())
         {

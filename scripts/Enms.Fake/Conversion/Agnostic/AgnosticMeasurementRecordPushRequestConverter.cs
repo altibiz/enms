@@ -1,4 +1,4 @@
-using System.Xml.Linq;
+using System.Text.Json.Nodes;
 using Enms.Fake.Conversion.Abstractions;
 using Enms.Fake.Records.Abstractions;
 
@@ -9,7 +9,7 @@ public class AgnosticMeasurementRecordPushRequestConverter(
 {
   private readonly IServiceProvider _serviceProvider = serviceProvider;
 
-  public XDocument ConvertToPushRequest(
+  public JsonNode ConvertToPushRequest(
     string meterId,
     IEnumerable<IMeasurementRecord> records)
   {

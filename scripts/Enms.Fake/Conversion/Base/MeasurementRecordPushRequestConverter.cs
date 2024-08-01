@@ -1,4 +1,4 @@
-using System.Xml.Linq;
+using System.Text.Json.Nodes;
 using Enms.Fake.Conversion.Abstractions;
 using Enms.Fake.Records.Abstractions;
 
@@ -16,14 +16,14 @@ public abstract class
     return meterId.StartsWith(MeterIdPrefix);
   }
 
-  public XDocument ConvertToPushRequest(
+  public JsonNode ConvertToPushRequest(
     string meterId,
     IEnumerable<IMeasurementRecord> records)
   {
     return ConvertToPushRequestConcrete(meterId, records.Cast<TRecord>());
   }
 
-  protected abstract XDocument ConvertToPushRequestConcrete(
+  protected abstract JsonNode ConvertToPushRequestConcrete(
     string meterId,
     IEnumerable<TRecord> record);
 }

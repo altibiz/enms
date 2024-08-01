@@ -1,4 +1,4 @@
-using System.Xml.Linq;
+using System.Text.Json.Nodes;
 
 namespace Enms.Fake.Client;
 
@@ -12,7 +12,7 @@ public class EnmsPushClient(
   public async Task Push(
     string meterId,
     string apiKey,
-    XDocument request,
+    JsonNode request,
     CancellationToken cancellationToken = default
   )
   {
@@ -31,7 +31,7 @@ public class EnmsPushClient(
       meterId
     );
 
-    var content = new StringContent(request.ToString());
+    var content = JsonContent.Create(request);
 
     var success = false;
 

@@ -1,6 +1,8 @@
-using System.Xml.Linq;
+using System.Text.Json.Nodes;
 using Enms.Fake.Client;
 using Enms.Fake.Generators.Agnostic;
+
+// TODO: acclimate for egauge
 
 namespace Enms.Fake.Services;
 
@@ -40,7 +42,7 @@ public class SeedHostedService(
         ? now
         : seedTimeBegin.AddDays(1);
 
-      var measurements = new List<XDocument>();
+      var measurements = new List<JsonNode>();
       foreach (var lineId in seed.LineIds)
       {
         measurements.AddRange(

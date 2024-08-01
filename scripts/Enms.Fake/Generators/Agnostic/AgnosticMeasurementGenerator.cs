@@ -1,4 +1,4 @@
-using System.Xml.Linq;
+using System.Text.Json.Nodes;
 using Enms.Fake.Generators.Abstractions;
 
 namespace Enms.Fake.Generators.Agnostic;
@@ -7,7 +7,7 @@ public class AgnosticMeasurementGenerator(IServiceProvider serviceProvider)
 {
   private readonly IServiceProvider _serviceProvider = serviceProvider;
 
-  public async Task<List<XDocument>> GenerateMeasurements(
+  public async Task<List<JsonNode>> GenerateMeasurements(
     DateTimeOffset dateFrom,
     DateTimeOffset dateTo,
     string meterId,

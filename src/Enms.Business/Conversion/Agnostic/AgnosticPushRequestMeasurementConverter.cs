@@ -1,4 +1,4 @@
-using System.Xml.Linq;
+using System.Text.Json.Nodes;
 using Enms.Business.Conversion.Abstractions;
 using Enms.Business.Models.Abstractions;
 
@@ -9,7 +9,7 @@ public class AgnosticPushRequestMeasurementConverter(
 {
   private readonly IServiceProvider _serviceProvider = serviceProvider;
 
-  public XDocument ToPushRequest(
+  public JsonNode ToPushRequest(
     string meterId,
     IEnumerable<IMeasurement> measurement)
   {
@@ -25,7 +25,7 @@ public class AgnosticPushRequestMeasurementConverter(
 
   public IEnumerable<IMeasurement> ToMeasurements(
     string meterId,
-    XDocument request,
+    JsonNode request,
     DateTimeOffset timestamp)
   {
     return _serviceProvider

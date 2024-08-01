@@ -1,6 +1,8 @@
 using Enms.Fake.Client;
 using Enms.Fake.Generators.Agnostic;
 
+// TODO: acclimate for egauge
+
 namespace Enms.Fake.Services;
 
 public class PushHostedService(

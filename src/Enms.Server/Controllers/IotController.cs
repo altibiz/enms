@@ -1,3 +1,6 @@
+using System.IO.Compression;
+using System.Text.Json;
+using System.Text.Json.Nodes;
 using Enms.Business.Iot;
 using Microsoft.AspNetCore.Mvc;
 
@@ -16,8 +19,13 @@ public class IotController : Controller
   [HttpPost]
   public async Task<IActionResult> Push(string id)
   {
-    using var reader = new StreamReader(Request.Body);
-    var message = await reader.ReadToEndAsync();
+    var message = await JsonSerializer.DeserializeAsync<JsonNode>(
+      new GZipStream(Request.Body, CompressionMode.Decompress));
+
+    if (message == null)
+    {
+      return BadRequest();
+    }
 
     if (!await _iotHandler.Authorize(id, message))
     {

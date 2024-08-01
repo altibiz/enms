@@ -1,4 +1,4 @@
-using System.Xml.Linq;
+using System.Text.Json.Nodes;
 using Enms.Fake.Conversion.Agnostic;
 using Enms.Fake.Correction.Agnostic;
 using Enms.Fake.Generators.Abstractions;
@@ -36,7 +36,7 @@ public abstract class
     return meterId.StartsWith(LineIdPrefix);
   }
 
-  public async Task<List<XDocument>> GenerateMeasurements(
+  public async Task<List<JsonNode>> GenerateMeasurements(
     DateTimeOffset dateFrom,
     DateTimeOffset dateTo,
     string meterId,
@@ -52,7 +52,7 @@ public abstract class
     return pushRequestMeasurements;
   }
 
-  private IEnumerable<XDocument> ExpandRecords(
+  private IEnumerable<JsonNode> ExpandRecords(
     List<TMeasurement> records,
     string meterId,
     DateTimeOffset dateFrom,
