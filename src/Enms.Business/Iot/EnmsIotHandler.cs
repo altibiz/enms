@@ -1,4 +1,3 @@
-using System.Text.Json;
 using Enms.Business.Aggregation;
 using Enms.Business.Conversion.Agnostic;
 
@@ -11,7 +10,7 @@ public class EnmsIotHandler(
 {
   public async Task OnPush(string meterId, Stream request)
   {
-    var measurements = pushRequestMeasurementConverter.ToMeasurements(
+    var measurements = await pushRequestMeasurementConverter.ToMeasurements(
       meterId,
       DateTimeOffset.UtcNow,
       request
@@ -20,13 +19,4 @@ public class EnmsIotHandler(
     await batchAggregatedMeasurementUpserter
       .BatchAggregatedUpsert(measurements);
   }
-}
-
-internal static class PushRequestMeasurementConverterOptions
-{
-  public static readonly JsonSerializerOptions Options =
-    new()
-    {
-      PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-    };
 }

@@ -6,12 +6,10 @@ public interface IPushRequestMeasurementConverter
 {
   bool CanConvert(string meterId);
 
-  IEnumerable<IMeasurement> ToMeasurements(
+  Task<IEnumerable<IMeasurement>> ToMeasurements(
     string meterId,
     DateTimeOffset timestamp,
     Stream request);
-
-  Stream ToPushRequest(IEnumerable<IMeasurement> measurement);
 
   HttpContent ToHttpContent(IEnumerable<IMeasurement> measurement);
 }

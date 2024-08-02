@@ -8,20 +8,6 @@ public class AgnosticPushRequestMeasurementConverter(
 {
   private readonly IServiceProvider _serviceProvider = serviceProvider;
 
-  public Stream ToPushRequest(
-    string meterId,
-    IEnumerable<IMeasurement> measurement)
-  {
-    return _serviceProvider
-        .GetServices<IPushRequestMeasurementConverter>()
-        .FirstOrDefault(
-          converter =>
-            converter.CanConvert(meterId))
-        ?.ToPushRequest(measurement)
-      ?? throw new InvalidOperationException(
-        $"No converter found for measurement {measurement.GetType()}.");
-  }
-
   public HttpContent ToHttpContent(
     string meterId,
     IEnumerable<IMeasurement> measurement)
@@ -36,7 +22,7 @@ public class AgnosticPushRequestMeasurementConverter(
         $"No converter found for measurement {measurement.GetType()}.");
   }
 
-  public IEnumerable<IMeasurement> ToMeasurements(
+  public Task<IEnumerable<IMeasurement>> ToMeasurements(
     string meterId,
     DateTimeOffset timestamp,
     Stream request)

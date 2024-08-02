@@ -119,7 +119,7 @@ public static class IServiceCollectionExtensions
 
     foreach (var conversionType in conversionTypes)
     {
-      services.AddScoped(assignableTo, conversionType);
+      services.AddTransient(assignableTo, conversionType);
       services.AddTransient(conversionType);
     }
   }

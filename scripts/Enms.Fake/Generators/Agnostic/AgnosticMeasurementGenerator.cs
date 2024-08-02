@@ -27,10 +27,9 @@ public class AgnosticMeasurementGenerator(IServiceProvider serviceProvider)
         ?? throw new InvalidOperationException(
           $"No generator found for line {meterId}"));
     logger.LogInformation(
-      "Generated {Count} measurements for line {LineId}{KeyJoin}{MeterId} from {DateFrom} to {DateTo}",
+      "Generated {Count} measurements for line {LineId}@{MeterId} from {DateFrom} to {DateTo}",
       measurements.Count,
       lineId,
-      EnmsDataDbContext.KeyJoin,
       meterId,
       dateFrom,
       dateTo

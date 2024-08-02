@@ -15,19 +15,16 @@ public abstract class
     return meterId.StartsWith(MeterIdPrefix);
   }
 
-  public abstract IEnumerable<IMeasurement> ToMeasurements(
+  public abstract Task<IEnumerable<IMeasurement>> ToMeasurements(
     string meterId,
     DateTimeOffset timestamp,
     Stream request);
 
-  public Stream ToPushRequest(IEnumerable<IMeasurement> measurement)
+  public HttpContent ToHttpContent(IEnumerable<IMeasurement> measurement)
   {
-    return ToPushRequest(measurement.Cast<TMeasurement>());
+    return ToHttpContent(measurement.Cast<TMeasurement>());
   }
 
-  public abstract HttpContent ToHttpContent(
-    IEnumerable<IMeasurement> measurement);
-
-  protected abstract Stream ToPushRequest(
+  protected abstract HttpContent ToHttpContent(
     IEnumerable<TMeasurement> measurement);
 }

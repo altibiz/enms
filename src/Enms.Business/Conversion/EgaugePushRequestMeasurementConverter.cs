@@ -3,11 +3,12 @@ using Enms.Business.Conversion.Base;
 using Enms.Business.Iot;
 using Enms.Business.Models;
 using Enms.Business.Models.Abstractions;
-using Enms.Data;
 
 namespace Enms.Business.Conversion;
 
 // TODO: make this less repetitive
+// TODO: per line register map
+// FIXME: apparent power mess
 
 public sealed class
   EgaugePushRequestMeasurementConverter : PushRequestMeasurementConverter<
@@ -18,15 +19,17 @@ public sealed class
     get { return "egauge"; }
   }
 
-  public override IEnumerable<EgaugeMeasurementModel> ToMeasurements(
+  public override async Task<IEnumerable<IMeasurement>> ToMeasurements(
     string meterId,
     DateTimeOffset timestamp,
     Stream request)
   {
-    var parsed = JsonSerializer.Deserialize<EgaugePushRequest>(request);
+    var parsed = await JsonSerializer.DeserializeAsync<EgaugePushRequest>(
+      request, JsonSerializerOptions);
 
     var schema = parsed.Registers
-      .Select(r => r.Name.Split(EnmsDataDbContext.KeyJoin)[1])
+      .Select(r => r.Name.Split(Separator)[1])
+      .Where(x => !x.EndsWith('*'))
       .Distinct()
       .Select(
         lineId => new
@@ -40,10 +43,13 @@ public sealed class
                 Register = r
               })
             .Where(
-              x => x.Register.Name.Split(EnmsDataDbContext.KeyJoin)[1]
-                == lineId)
+              x =>
+                (x.Register.Name.Split(Separator)[1] == lineId &&
+                !x.Register.Name.StartsWith("ApparentPower")) ||
+                (x.Register.Name.Split(Separator)[1] == $"{lineId}*" &&
+                x.Register.Name.StartsWith("ApparentPower")))
             .ToDictionary(
-              x => x.Register.Name.Split(EnmsDataDbContext.KeyJoin)[0],
+              x => x.Register.Name.Split(Separator)[0],
               x => x.Index)
         })
       .ToList();
@@ -51,8 +57,9 @@ public sealed class
     var measurements = parsed.Ranges.SelectMany(
       range =>
       {
-        var timestamp = DateTimeOffset.FromUnixTimeSeconds(
-          long.Parse(range.Ts));
+        var timestamp = DateTimeOffset
+          .FromUnixTimeSeconds(long.Parse(range.Ts))
+          .ToUniversalTime();
         var delta = TimeSpan.FromSeconds((double)range.Delta);
 
         return range.Rows.SelectMany(
@@ -65,40 +72,40 @@ public sealed class
                 {
                   var voltageL1AnyT0_V =
                     row[line.Measures[
-                      nameof(EgaugeMeasurementModel.VoltageL1AnyT0_V)]];
+                      Register(nameof(EgaugeMeasurementModel.VoltageL1AnyT0_V))]];
                   var voltageL2AnyT0_V =
                     row[line.Measures[
-                      nameof(EgaugeMeasurementModel.VoltageL2AnyT0_V)]];
+                      Register(nameof(EgaugeMeasurementModel.VoltageL2AnyT0_V))]];
                   var voltageL3AnyT0_V =
                     row[line.Measures[
-                      nameof(EgaugeMeasurementModel.VoltageL3AnyT0_V)]];
+                      Register(nameof(EgaugeMeasurementModel.VoltageL3AnyT0_V))]];
                   var currentL1AnyT0_A =
                     row[line.Measures[
-                      nameof(EgaugeMeasurementModel.CurrentL1AnyT0_A)]];
+                      Register(nameof(EgaugeMeasurementModel.CurrentL1AnyT0_A))]];
                   var currentL2AnyT0_A =
                     row[line.Measures[
-                      nameof(EgaugeMeasurementModel.CurrentL2AnyT0_A)]];
+                      Register(nameof(EgaugeMeasurementModel.CurrentL2AnyT0_A))]];
                   var currentL3AnyT0_A =
                     row[line.Measures[
-                      nameof(EgaugeMeasurementModel.CurrentL3AnyT0_A)]];
+                      Register(nameof(EgaugeMeasurementModel.CurrentL3AnyT0_A))]];
                   var activePowerL1NetT0_W =
                     row[line.Measures[
-                      nameof(EgaugeMeasurementModel.ActivePowerL1NetT0_W)]];
+                      Register(nameof(EgaugeMeasurementModel.ActivePowerL1NetT0_W))]];
                   var activePowerL2NetT0_W =
                     row[line.Measures[
-                      nameof(EgaugeMeasurementModel.ActivePowerL2NetT0_W)]];
+                      Register(nameof(EgaugeMeasurementModel.ActivePowerL2NetT0_W))]];
                   var activePowerL3NetT0_W =
                     row[line.Measures[
-                      nameof(EgaugeMeasurementModel.ActivePowerL3NetT0_W)]];
+                      Register(nameof(EgaugeMeasurementModel.ActivePowerL3NetT0_W))]];
                   var apparentPowerL1NetT0_W =
                     row[line.Measures[
-                      nameof(EgaugeMeasurementModel.ApparentPowerL1NetT0_W)]];
+                      Register(nameof(EgaugeMeasurementModel.ApparentPowerL1NetT0_W))]];
                   var apparentPowerL2NetT0_W =
                     row[line.Measures[
-                      nameof(EgaugeMeasurementModel.ApparentPowerL2NetT0_W)]];
+                      Register(nameof(EgaugeMeasurementModel.ApparentPowerL2NetT0_W))]];
                   var apparentPowerL3NetT0_W =
                     row[line.Measures[
-                      nameof(EgaugeMeasurementModel.ApparentPowerL3NetT0_W)]];
+                      Register(nameof(EgaugeMeasurementModel.ApparentPowerL3NetT0_W))]];
 
                   if (string.IsNullOrEmpty(voltageL1AnyT0_V) &&
                     string.IsNullOrEmpty(voltageL2AnyT0_V) &&
@@ -139,14 +146,14 @@ public sealed class
                   };
                 })
               .Where(x => x is not null)
-              .Cast<EgaugeMeasurementModel>();
+              .Cast<IMeasurement>();
           });
       });
 
     return measurements;
   }
 
-  protected override Stream ToPushRequest(
+  protected override HttpContent ToHttpContent(
     IEnumerable<EgaugeMeasurementModel> measurements)
   {
     var lineIds = measurements.Select(m => m.LineId).Distinct().ToList();
@@ -157,85 +164,85 @@ public sealed class
           lineId =>
           [
             new EgaugeRegister(
-              nameof(EgaugeMeasurementModel.VoltageL1AnyT0_V)
-              + EnmsDataDbContext.KeyJoin
+              Register(nameof(EgaugeMeasurementModel.VoltageL1AnyT0_V))
+              + Separator
               + lineId,
               EgaugeRegisterTypeString.Voltage,
               default
             ),
             new EgaugeRegister(
-              nameof(EgaugeMeasurementModel.VoltageL2AnyT0_V)
-              + EnmsDataDbContext.KeyJoin
+              Register(nameof(EgaugeMeasurementModel.VoltageL2AnyT0_V))
+              + Separator
               + lineId,
               EgaugeRegisterTypeString.Voltage,
               default
             ),
             new EgaugeRegister(
-              nameof(EgaugeMeasurementModel.VoltageL3AnyT0_V)
-              + EnmsDataDbContext.KeyJoin
+              Register(nameof(EgaugeMeasurementModel.VoltageL3AnyT0_V))
+              + Separator
               + lineId,
               EgaugeRegisterTypeString.Voltage,
               default
             ),
             new EgaugeRegister(
-              nameof(EgaugeMeasurementModel.CurrentL1AnyT0_A)
-              + EnmsDataDbContext.KeyJoin
+              Register(nameof(EgaugeMeasurementModel.CurrentL1AnyT0_A))
+              + Separator
               + lineId,
               EgaugeRegisterTypeString.Current,
               default
             ),
             new EgaugeRegister(
-              nameof(EgaugeMeasurementModel.CurrentL2AnyT0_A)
-              + EnmsDataDbContext.KeyJoin
+              Register(nameof(EgaugeMeasurementModel.CurrentL2AnyT0_A))
+              + Separator
               + lineId,
               EgaugeRegisterTypeString.Current,
               default
             ),
             new EgaugeRegister(
-              nameof(EgaugeMeasurementModel.CurrentL3AnyT0_A)
-              + EnmsDataDbContext.KeyJoin
+              Register(nameof(EgaugeMeasurementModel.CurrentL3AnyT0_A))
+              + Separator
               + lineId,
               EgaugeRegisterTypeString.Current,
               default
             ),
             new EgaugeRegister(
-              nameof(EgaugeMeasurementModel.ActivePowerL1NetT0_W)
-              + EnmsDataDbContext.KeyJoin
+              Register(nameof(EgaugeMeasurementModel.ActivePowerL1NetT0_W))
+              + Separator
               + lineId,
               EgaugeRegisterTypeString.Power,
               default
             ),
             new EgaugeRegister(
-              nameof(EgaugeMeasurementModel.ActivePowerL2NetT0_W)
-              + EnmsDataDbContext.KeyJoin
+              Register(nameof(EgaugeMeasurementModel.ActivePowerL2NetT0_W))
+              + Separator
               + lineId,
               EgaugeRegisterTypeString.Power,
               default
             ),
             new EgaugeRegister(
-              nameof(EgaugeMeasurementModel.ActivePowerL3NetT0_W)
-              + EnmsDataDbContext.KeyJoin
+              Register(nameof(EgaugeMeasurementModel.ActivePowerL3NetT0_W))
+              + Separator
               + lineId,
               EgaugeRegisterTypeString.Power,
               default
             ),
             new EgaugeRegister(
-              nameof(EgaugeMeasurementModel.ApparentPowerL1NetT0_W)
-              + EnmsDataDbContext.KeyJoin
+              Register(nameof(EgaugeMeasurementModel.ApparentPowerL1NetT0_W))
+              + Separator
               + lineId,
               EgaugeRegisterTypeString.ApparentPower,
               default
             ),
             new EgaugeRegister(
-              nameof(EgaugeMeasurementModel.ApparentPowerL2NetT0_W)
-              + EnmsDataDbContext.KeyJoin
+              Register(nameof(EgaugeMeasurementModel.ApparentPowerL2NetT0_W))
+              + Separator
               + lineId,
               EgaugeRegisterTypeString.ApparentPower,
               default
             ),
             new EgaugeRegister(
-              nameof(EgaugeMeasurementModel.ApparentPowerL3NetT0_W)
-              + EnmsDataDbContext.KeyJoin
+              Register(nameof(EgaugeMeasurementModel.ApparentPowerL3NetT0_W))
+              + Separator
               + lineId,
               EgaugeRegisterTypeString.ApparentPower,
               default
@@ -267,7 +274,10 @@ public sealed class
             registers[startingIndex + 11] = m.ApparentPowerL3NetT0_W.ToString();
 
             return new EgaugeRange(
-              m.Timestamp.ToUnixTimeSeconds().ToString(),
+              m.Timestamp
+                .ToUniversalTime()
+                .ToUnixTimeSeconds()
+                .ToString(),
               default,
               [registers]
             );
@@ -278,12 +288,41 @@ public sealed class
     var stream = new MemoryStream();
     JsonSerializer.Serialize(stream, request);
 
-    return stream;
+    return JsonContent.Create(request);
   }
 
-  public override HttpContent ToHttpContent(
-    IEnumerable<IMeasurement> measurement)
+  private string Register(string measurement)
   {
-    return JsonContent.Create(ToPushRequest(measurement));
+    return RegisterMap[measurement];
   }
+
+  private static readonly JsonSerializerOptions JsonSerializerOptions =
+    new()
+    {
+      PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+    };
+
+  private const string Separator = "@";
+
+  private static readonly Dictionary<string, string> RegisterMap = new()
+  {
+    [nameof(EgaugeMeasurementModel.VoltageL1AnyT0_V)] = "VoltageL1AnyT0_V",
+    [nameof(EgaugeMeasurementModel.VoltageL2AnyT0_V)] = "VoltageL2AnyT0_V",
+    [nameof(EgaugeMeasurementModel.VoltageL3AnyT0_V)] = "VoltageL3AnyT0_V",
+    [nameof(EgaugeMeasurementModel.CurrentL1AnyT0_A)] = "CurrentL1AnyT0_A",
+    [nameof(EgaugeMeasurementModel.CurrentL2AnyT0_A)] = "CurrentL2AnyT0_A",
+    [nameof(EgaugeMeasurementModel.CurrentL3AnyT0_A)] = "CurrentL3AnyT0_A",
+    [nameof(EgaugeMeasurementModel.ActivePowerL1NetT0_W)] =
+      "ActivePowerL1NetT0_W",
+    [nameof(EgaugeMeasurementModel.ActivePowerL2NetT0_W)] =
+      "ActivePowerL2NetT0_W",
+    [nameof(EgaugeMeasurementModel.ActivePowerL3NetT0_W)] =
+      "ActivePowerL3NetT0_W",
+    [nameof(EgaugeMeasurementModel.ApparentPowerL1NetT0_W)] =
+      "ApparentPowerL1NetT0_W",
+    [nameof(EgaugeMeasurementModel.ApparentPowerL2NetT0_W)] =
+      "ApparentPowerL2NetT0_W",
+    [nameof(EgaugeMeasurementModel.ApparentPowerL3NetT0_W)] =
+      "ApparentPowerL3NetT0_W"
+  };
 }

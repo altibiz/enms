@@ -175,6 +175,7 @@ public class BatchAggregatedMeasurementUpserter(
       .On(
         measurement => new
         {
+          measurement.MeterId,
           measurement.LineId,
           measurement.Timestamp
         })
@@ -193,6 +194,7 @@ public class BatchAggregatedMeasurementUpserter(
       .On(
         aggregate => new
         {
+          aggregate.MeterId,
           aggregate.LineId,
           aggregate.Timestamp,
           aggregate.Interval
