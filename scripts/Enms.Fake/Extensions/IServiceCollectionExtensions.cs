@@ -47,11 +47,11 @@ public static class IServiceCollectionExtensions
   public static IServiceCollection AddRecords(this IServiceCollection services)
   {
     services.AddTransientAssignableTo(
-      typeof(IMeasurementRecordPushRequestConverter));
+      typeof(IMeasurementRecordMeasurementConverter));
     services.AddSingleton(
-      typeof(AgnosticMeasurementRecordPushRequestConverter));
+      typeof(AgnosticMeasurementRecordMeasurementConverter));
     services.AddTransientAssignableTo(
-      typeof(ICumulativeCorrector));
+      typeof(IMeasurementCorrector));
     services.AddSingleton(typeof(AgnosticCumulativeCorrector));
     return services;
   }

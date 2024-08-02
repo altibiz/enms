@@ -1,4 +1,3 @@
-using System.Text.Json.Nodes;
 using Enms.Business.Conversion.Abstractions;
 using Enms.Business.Models.Abstractions;
 
@@ -9,7 +8,7 @@ public class AgnosticPushRequestMeasurementConverter(
 {
   private readonly IServiceProvider _serviceProvider = serviceProvider;
 
-  public JsonNode ToPushRequest(
+  public Stream ToPushRequest(
     string meterId,
     IEnumerable<IMeasurement> measurement)
   {
@@ -23,15 +22,29 @@ public class AgnosticPushRequestMeasurementConverter(
         $"No converter found for measurement {measurement.GetType()}.");
   }
 
+  public HttpContent ToHttpContent(
+    string meterId,
+    IEnumerable<IMeasurement> measurement)
+  {
+    return _serviceProvider
+        .GetServices<IPushRequestMeasurementConverter>()
+        .FirstOrDefault(
+          converter =>
+            converter.CanConvert(meterId))
+        ?.ToHttpContent(measurement)
+      ?? throw new InvalidOperationException(
+        $"No converter found for measurement {measurement.GetType()}.");
+  }
+
   public IEnumerable<IMeasurement> ToMeasurements(
     string meterId,
-    JsonNode request,
-    DateTimeOffset timestamp)
+    DateTimeOffset timestamp,
+    Stream request)
   {
     return _serviceProvider
         .GetServices<IPushRequestMeasurementConverter>()
         .FirstOrDefault(converter => converter.CanConvert(meterId))
-        ?.ToMeasurements(meterId, request, timestamp)
+        ?.ToMeasurements(meterId, timestamp, request)
       ?? throw new InvalidOperationException(
         $"No converter found for meter {meterId}.");
   }

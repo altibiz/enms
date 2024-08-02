@@ -27,6 +27,7 @@ public static class EgaugeMeasurementModelExtensions
   {
     return new EgaugeMeasurementModel
     {
+      MeterId = entity.MeterId,
       LineId = entity.LineId,
       Timestamp = entity.Timestamp,
       VoltageL1AnyT0_V = (decimal)entity.VoltageL1AnyT0_V,
@@ -49,6 +50,7 @@ public static class EgaugeMeasurementModelExtensions
   {
     return new EgaugeMeasurementEntity
     {
+      MeterId = model.MeterId,
       LineId = model.LineId,
       Timestamp = model.Timestamp,
       VoltageL1AnyT0_V = (float)model.VoltageL1AnyT0_V,

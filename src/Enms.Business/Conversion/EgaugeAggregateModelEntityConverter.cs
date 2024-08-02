@@ -28,6 +28,7 @@ public static class EgaugeAggregateModelExtensions
   {
     return new EgaugeAggregateModel
     {
+      MeterId = entity.MeterId,
       LineId = entity.LineId,
       Timestamp = entity.Timestamp,
       Interval = entity.Interval.ToModel(),
@@ -52,6 +53,7 @@ public static class EgaugeAggregateModelExtensions
   {
     return new EgaugeAggregateEntity
     {
+      MeterId = model.MeterId,
       LineId = model.LineId,
       Timestamp = model.Timestamp,
       Interval = model.Interval.ToEntity(),

@@ -1,5 +1,3 @@
-using System.Text.Json.Nodes;
-
 namespace Enms.Fake.Client;
 
 // TODO: put some options into appsettings.json
@@ -12,7 +10,7 @@ public class EnmsPushClient(
   public async Task Push(
     string meterId,
     string apiKey,
-    JsonNode request,
+    HttpContent request,
     CancellationToken cancellationToken = default
   )
   {
@@ -31,8 +29,6 @@ public class EnmsPushClient(
       meterId
     );
 
-    var content = JsonContent.Create(request);
-
     var success = false;
 
     while (!success)
@@ -42,7 +38,7 @@ public class EnmsPushClient(
         var response =
           await client.PostAsync(
             $"iot/push/{meterId}",
-            content,
+            request,
             cancellationToken
           );
         success = response.IsSuccessStatusCode;

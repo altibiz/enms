@@ -1,4 +1,3 @@
-using System.Text.Json.Nodes;
 using Enms.Business.Conversion.Abstractions;
 using Enms.Business.Models.Abstractions;
 
@@ -18,14 +17,17 @@ public abstract class
 
   public abstract IEnumerable<IMeasurement> ToMeasurements(
     string meterId,
-    JsonNode request,
-    DateTimeOffset timestamp);
+    DateTimeOffset timestamp,
+    Stream request);
 
-  public JsonNode ToPushRequest(IEnumerable<IMeasurement> measurement)
+  public Stream ToPushRequest(IEnumerable<IMeasurement> measurement)
   {
     return ToPushRequest(measurement.Cast<TMeasurement>());
   }
 
-  protected abstract JsonNode ToPushRequest(
+  public abstract HttpContent ToHttpContent(
+    IEnumerable<IMeasurement> measurement);
+
+  protected abstract Stream ToPushRequest(
     IEnumerable<TMeasurement> measurement);
 }

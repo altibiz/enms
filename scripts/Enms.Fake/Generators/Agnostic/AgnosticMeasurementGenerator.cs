@@ -1,4 +1,5 @@
-using System.Text.Json.Nodes;
+using Enms.Business.Models.Abstractions;
+using Enms.Data;
 using Enms.Fake.Generators.Abstractions;
 
 namespace Enms.Fake.Generators.Agnostic;
@@ -7,10 +8,11 @@ public class AgnosticMeasurementGenerator(IServiceProvider serviceProvider)
 {
   private readonly IServiceProvider _serviceProvider = serviceProvider;
 
-  public async Task<List<JsonNode>> GenerateMeasurements(
+  public async Task<List<IMeasurement>> GenerateMeasurements(
     DateTimeOffset dateFrom,
     DateTimeOffset dateTo,
     string meterId,
+    string lineId,
     CancellationToken cancellationToken = default
   )
   {
@@ -21,12 +23,14 @@ public class AgnosticMeasurementGenerator(IServiceProvider serviceProvider)
       generators.FirstOrDefault(g => g.CanGenerateMeasurementsFor(meterId));
     var measurements =
       await (generator?.GenerateMeasurements(
-          dateFrom, dateTo, meterId, cancellationToken)
+          dateFrom, dateTo, meterId, lineId, cancellationToken)
         ?? throw new InvalidOperationException(
           $"No generator found for line {meterId}"));
     logger.LogInformation(
-      "Generated {Count} measurements for line {LineId} from {DateFrom} to {DateTo}",
+      "Generated {Count} measurements for line {LineId}{KeyJoin}{MeterId} from {DateFrom} to {DateTo}",
       measurements.Count,
+      lineId,
+      EnmsDataDbContext.KeyJoin,
       meterId,
       dateFrom,
       dateTo

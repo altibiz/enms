@@ -1,4 +1,4 @@
-using System.Text.Json.Nodes;
+using Enms.Business.Models.Abstractions;
 using Enms.Fake.Conversion.Agnostic;
 using Enms.Fake.Correction.Agnostic;
 using Enms.Fake.Generators.Abstractions;
@@ -13,13 +13,13 @@ using Enms.Fake.Records.Abstractions;
 namespace Enms.Fake.Generators.Base;
 
 public abstract class
-  RepeatingCsvResourceMeasurementGenerator<TMeasurement>(
+  RepeatingCsvResourceMeasurementGenerator<TMeasurementRecord>(
     IServiceProvider serviceProvider) : IMeasurementGenerator
-  where TMeasurement : class, IMeasurementRecord
+  where TMeasurementRecord : class, IMeasurementRecord
 {
-  private readonly AgnosticMeasurementRecordPushRequestConverter _converter =
+  private readonly AgnosticMeasurementRecordMeasurementConverter _converter =
     serviceProvider
-      .GetRequiredService<AgnosticMeasurementRecordPushRequestConverter>();
+      .GetRequiredService<AgnosticMeasurementRecordMeasurementConverter>();
 
   private readonly AgnosticCumulativeCorrector _corrector =
     serviceProvider.GetRequiredService<AgnosticCumulativeCorrector>();
@@ -36,25 +36,27 @@ public abstract class
     return meterId.StartsWith(LineIdPrefix);
   }
 
-  public async Task<List<JsonNode>> GenerateMeasurements(
+  public async Task<List<IMeasurement>> GenerateMeasurements(
     DateTimeOffset dateFrom,
     DateTimeOffset dateTo,
     string meterId,
+    string lineId,
     CancellationToken cancellationToken = default
   )
   {
     var records = await _resources
-      .GetAsync<CsvLoader<TMeasurement>, List<TMeasurement>>(
+      .GetAsync<CsvLoader<TMeasurementRecord>, List<TMeasurementRecord>>(
         CsvResourceName,
         cancellationToken);
     var pushRequestMeasurements =
-      ExpandRecords(records, meterId, dateFrom, dateTo).ToList();
+      ExpandRecords(records, meterId, lineId, dateFrom, dateTo).ToList();
     return pushRequestMeasurements;
   }
 
-  private IEnumerable<JsonNode> ExpandRecords(
-    List<TMeasurement> records,
+  private IEnumerable<IMeasurement> ExpandRecords(
+    List<TMeasurementRecord> records,
     string meterId,
+    string lineId,
     DateTimeOffset dateFrom,
     DateTimeOffset dateTo
   )
@@ -67,8 +69,11 @@ public abstract class
       yield break;
     }
 
-    var csvRecordsMinTimestamp = firstRecord.Timestamp;
-    var csvRecordsMaxTimestamp = lastRecord.Timestamp;
+    var firstMeasurement = _converter.ConvertToMeasurement(firstRecord);
+    var lastMeasurement = _converter.ConvertToMeasurement(lastRecord);
+
+    var csvRecordsMinTimestamp = firstMeasurement.Timestamp;
+    var csvRecordsMaxTimestamp = lastMeasurement.Timestamp;
     var csvRecordsTimeSpan = csvRecordsMaxTimestamp - csvRecordsMinTimestamp;
 
     var timeSpan = dateTo - dateFrom;
@@ -91,15 +96,16 @@ public abstract class
         var timestamp = currentDateFrom.AddTicks(
           (record.Timestamp - dateFromCsv).Ticks
         );
-        var withCorrectedCumulatives = _corrector.CorrectCumulatives(
+        var measurement = _converter.ConvertToMeasurement(record);
+        var corrected = _corrector.Correct(
           timestamp,
-          record,
-          firstRecord,
-          lastRecord
+          meterId,
+          lineId,
+          measurement,
+          firstMeasurement,
+          lastMeasurement
         );
-        var request = _converter.ConvertToPushRequest(
-          meterId, [withCorrectedCumulatives]);
-        yield return request;
+        yield return corrected;
       }
 
       timeSpan -= dateToCsv - dateFromCsv;

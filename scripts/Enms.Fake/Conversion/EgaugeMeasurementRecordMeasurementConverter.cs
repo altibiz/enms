@@ -1,30 +1,25 @@
 using Enms.Business.Models;
-using Enms.Fake.Correction.Base;
+using Enms.Business.Models.Abstractions;
+using Enms.Fake.Conversion.Base;
+using Enms.Fake.Records;
 
-namespace Enms.Fake.Correction;
+namespace Enms.Fake.Conversion;
 
-public class EgaugeMeasurementModelCorrector
-  : MeasurementCorrector<EgaugeMeasurementModel>
+public class EgaugeMeasurementRecordMeasurementConverter
+  : MeasurementRecordMeasurementConverter<EgaugeMeasurementRecord>
 {
-  protected override EgaugeMeasurementModel CorrectCumulatives(
-    DateTimeOffset timestamp,
-    EgaugeMeasurementModel measurementRecord,
-    EgaugeMeasurementModel firstMeasurementRecord,
-    EgaugeMeasurementModel lastMeasurementRecord
-  )
+  protected override string MeterIdPrefix
   {
-    return measurementRecord;
+    get { return "egauge"; }
   }
 
-  protected override EgaugeMeasurementModel CopyCorrectId(
-    EgaugeMeasurementModel record,
-    string meterId,
-    string lineId)
+  protected override IMeasurement ConvertToMeasurementConcrete(
+    EgaugeMeasurementRecord record)
   {
     return new EgaugeMeasurementModel
     {
-      MeterId = meterId,
-      LineId = lineId,
+      MeterId = record.MeterId,
+      LineId = record.LineId,
       Timestamp = record.Timestamp,
       VoltageL1AnyT0_V = record.VoltageL1AnyT0_V,
       VoltageL2AnyT0_V = record.VoltageL2AnyT0_V,

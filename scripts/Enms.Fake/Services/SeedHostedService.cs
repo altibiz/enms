@@ -1,4 +1,5 @@
-using System.Text.Json.Nodes;
+using Enms.Business.Conversion.Agnostic;
+using Enms.Business.Models.Abstractions;
 using Enms.Fake.Client;
 using Enms.Fake.Generators.Agnostic;
 
@@ -24,6 +25,8 @@ public class SeedHostedService(
 
     var generator = scope.ServiceProvider
       .GetRequiredService<AgnosticMeasurementGenerator>();
+    var converter = scope.ServiceProvider
+      .GetRequiredService<AgnosticPushRequestMeasurementConverter>();
 
     var seedTimeBegin = seed.Interval switch
     {
@@ -42,20 +45,25 @@ public class SeedHostedService(
         ? now
         : seedTimeBegin.AddDays(1);
 
-      var measurements = new List<JsonNode>();
+      var measurements = new List<IMeasurement>();
       foreach (var lineId in seed.LineIds)
       {
         measurements.AddRange(
           await generator.GenerateMeasurements(
-            seedTimeBegin, seedTimeEnd, lineId, stoppingToken));
+            seedTimeBegin,
+            seedTimeEnd,
+            seed.MeterId,
+            lineId,
+            stoppingToken));
       }
 
       while (measurements.Count > 0)
       {
-        var batch = measurements.First();
-        measurements.RemoveRange(0, 1);
+        var batch = measurements.Take(seed.BatchSize).ToList();
+        measurements.RemoveRange(0, batch.Count);
 
-        var request = batch;
+        var request = converter.ToHttpContent(
+          seed.MeterId, batch);
 
         var pushClient =
           scope.ServiceProvider.GetRequiredService<EnmsPushClient>();
@@ -63,11 +71,12 @@ public class SeedHostedService(
           seed.MeterId,
           seed.ApiKey,
           request,
-          stoppingToken
-        );
+          stoppingToken);
       }
 
       seedTimeBegin = seedTimeEnd;
     }
+
+    Environment.Exit(0);
   }
 }

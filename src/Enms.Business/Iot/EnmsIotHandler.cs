@@ -1,4 +1,4 @@
-using System.Text.Json.Nodes;
+using System.Text.Json;
 using Enms.Business.Aggregation;
 using Enms.Business.Conversion.Agnostic;
 
@@ -9,24 +9,24 @@ public class EnmsIotHandler(
   BatchAggregatedMeasurementUpserter batchAggregatedMeasurementUpserter
 )
 {
-#pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
-#pragma warning disable IDE0060 // Remove unused parameter
-  public async Task<bool> Authorize(string meterId, JsonNode request)
-  {
-    return true;
-  }
-#pragma warning restore IDE0060 // Remove unused parameter
-#pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
-
-  public async Task OnPush(string meterId, JsonNode request)
+  public async Task OnPush(string meterId, Stream request)
   {
     var measurements = pushRequestMeasurementConverter.ToMeasurements(
       meterId,
-      request,
-      DateTimeOffset.UtcNow
+      DateTimeOffset.UtcNow,
+      request
     );
 
     await batchAggregatedMeasurementUpserter
       .BatchAggregatedUpsert(measurements);
   }
+}
+
+internal static class PushRequestMeasurementConverterOptions
+{
+  public static readonly JsonSerializerOptions Options =
+    new()
+    {
+      PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+    };
 }

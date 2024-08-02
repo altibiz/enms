@@ -1,3 +1,5 @@
+using Enms.Business.Conversion.Agnostic;
+using Enms.Business.Models.Abstractions;
 using Enms.Fake.Client;
 using Enms.Fake.Generators.Agnostic;
 
@@ -36,23 +38,28 @@ public class PushHostedService(
           scope.ServiceProvider.GetRequiredService<EnmsPushClient>();
         var generator = scope.ServiceProvider
           .GetRequiredService<AgnosticMeasurementGenerator>();
+        var converter = scope.ServiceProvider
+          .GetRequiredService<AgnosticPushRequestMeasurementConverter>();
 
-        var measurements = (await generator.GenerateMeasurements(
-          lastPush, now, push.MeterId, stoppingToken)).ToList();
+        var measurements = new List<IMeasurement>();
+        foreach (var lineId in push.LineIds)
+        {
+          measurements.AddRange(
+            await generator.GenerateMeasurements(
+              lastPush, now, push.MeterId, lineId, stoppingToken));
+        }
 
         lastPush = now;
 
-        foreach (var measurement in measurements)
-        {
-          var request = measurement;
+        var request = converter.ToHttpContent(
+          push.MeterId, measurements);
 
-          await pushClient.Push(
-            push.MeterId,
-            push.ApiKey,
-            request,
-            stoppingToken
-          );
-        }
+        await pushClient.Push(
+          push.MeterId,
+          push.ApiKey,
+          request,
+          stoppingToken
+        );
       }
 
       var toWait =

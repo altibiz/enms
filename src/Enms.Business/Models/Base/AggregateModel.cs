@@ -7,6 +7,9 @@ namespace Enms.Business.Models.Base;
 public abstract class AggregateModel : IAggregate
 {
   [Required]
+  public required string MeterId { get; set; }
+
+  [Required]
   public required string LineId { get; set; }
 
   [Required]

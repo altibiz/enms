@@ -30,6 +30,7 @@ public class EgaugeAggregateUpserter : AggregateUpserter<EgaugeAggregateModel,
   {
     return new EgaugeAggregateModel
     {
+      MeterId = lhs.MeterId,
       LineId = lhs.LineId,
       Timestamp = lhs.Timestamp,
       Interval = lhs.Interval,

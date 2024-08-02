@@ -3,6 +3,7 @@ using System.Linq.Expressions;
 // TODO: through model
 // TODO: cache expressions/compilations
 // TODO: check if conversion to string is needed for all properties
+// TODO: remove coupling with KeyJoin
 
 namespace Enms.Data;
 

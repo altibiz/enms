@@ -6,6 +6,8 @@ namespace Enms.Fake.Records.Base;
 
 public abstract class MeasurementRecord : IMeasurementRecord
 {
+  public required string MeterId { get; set; }
+
   public required string LineId { get; set; }
 
   public required DateTimeOffset Timestamp { get; set; }

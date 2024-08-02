@@ -23,6 +23,7 @@ public static class EgaugeMeasurementAggregateConverterExtensions
   {
     return new EgaugeAggregateModel
     {
+      MeterId = measurement.MeterId,
       LineId = measurement.LineId,
       Timestamp = measurement.Timestamp,
       Interval = interval,

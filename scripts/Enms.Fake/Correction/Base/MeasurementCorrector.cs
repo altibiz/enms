@@ -1,51 +1,55 @@
+using Enms.Business.Models.Abstractions;
 using Enms.Fake.Correction.Abstractions;
-using Enms.Fake.Records.Abstractions;
 
 namespace Enms.Fake.Correction.Base;
 
 public abstract class
-  CumulativeCorrector<TMeasurementRecord> : ICumulativeCorrector
-  where TMeasurementRecord : class, IMeasurementRecord
+  MeasurementCorrector<TMeasurement> : IMeasurementCorrector
+  where TMeasurement : class, IMeasurement
 {
   public bool CanCorrectCumulativesFor(Type measurementRecordType)
   {
-    return measurementRecordType.IsAssignableFrom(typeof(TMeasurementRecord));
+    return measurementRecordType.IsAssignableFrom(typeof(TMeasurement));
   }
 
-  public IMeasurementRecord CorrectCumulatives(
+  public IMeasurement Correct(
     DateTimeOffset timestamp,
-    IMeasurementRecord measurementRecord,
-    IMeasurementRecord firstMeasurementRecord,
-    IMeasurementRecord lastMeasurementRecord
+    string meterId,
+    string lineId,
+    IMeasurement measurementRecord,
+    IMeasurement firstMeasurementRecord,
+    IMeasurement lastMeasurementRecord
   )
   {
     return CorrectCumulatives(
       timestamp,
-      CopyRecord(
-        measurementRecord as TMeasurementRecord
+      CopyCorrectId(
+        measurementRecord as TMeasurement
         ?? throw new ArgumentException(
           $"Expected {
-            typeof(TMeasurementRecord).Name
+            typeof(TMeasurement).Name
           }, but got {
             measurementRecord.GetType().Name
           }",
           nameof(measurementRecord)
-        )),
+        ),
+        meterId,
+        lineId),
       firstMeasurementRecord
-        as TMeasurementRecord
+        as TMeasurement
       ?? throw new ArgumentException(
         $"Expected {
-          typeof(TMeasurementRecord).Name
+          typeof(TMeasurement).Name
         }, but got {
           firstMeasurementRecord.GetType().Name
         }",
         nameof(firstMeasurementRecord)
       ),
       lastMeasurementRecord
-        as TMeasurementRecord
+        as TMeasurement
       ?? throw new ArgumentException(
         $"Expected {
-          typeof(TMeasurementRecord).Name
+          typeof(TMeasurement).Name
         }, but got {
           lastMeasurementRecord.GetType().Name
         }",
@@ -54,14 +58,18 @@ public abstract class
     );
   }
 
-  protected abstract TMeasurementRecord CorrectCumulatives(
+  protected abstract TMeasurement CorrectCumulatives(
     DateTimeOffset timestamp,
-    TMeasurementRecord measurementRecord,
-    TMeasurementRecord firstMeasurementRecord,
-    TMeasurementRecord lastMeasurementRecord
+    TMeasurement measurementRecord,
+    TMeasurement firstMeasurementRecord,
+    TMeasurement lastMeasurementRecord
   );
 
-  protected abstract TMeasurementRecord CopyRecord(TMeasurementRecord record);
+  protected abstract TMeasurement CopyCorrectId(
+    TMeasurement record,
+    string meterId,
+    string lineId
+  );
 
   protected decimal DiffMultiplier(
     DateTimeOffset timestamp,
