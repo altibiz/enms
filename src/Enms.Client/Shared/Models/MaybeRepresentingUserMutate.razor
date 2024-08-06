@@ -1,5 +1,18 @@
-@inject NavigationManager NavigationManager
+@using Enms.Business.Models
+@using Enms.Business.Models.Composite
+@using Enms.Business.Models.Enums
+@using Enms.Business.Mutations.Agnostic
+@using Enms.Business.Queries
+@using Enms.Client.State
+@using Microsoft.AspNetCore.Components.Forms
+@using Microsoft.Extensions.DependencyInjection
+@using MudBlazor
+
+@namespace Enms.Client.Shared.Models
+
 @inherits OwningComponentBase
+
+@inject NavigationManager NavigationManager
 
 @if (LoadingState.Value is null)
 {
@@ -82,7 +95,7 @@
       <MudButton
         ButtonType="ButtonType.Submit"
         Variant="Variant.Filled"
-        Color="MudColor.Primary"
+        Color="Color.Primary"
         Class="ml-auto">
         Update
       </MudButton>

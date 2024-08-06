@@ -1,11 +1,15 @@
-@inject IDialogService DialogService
+@using MudBlazor
+
 @inherits OzdsOwningComponentBase
+
+@inject IDialogService DialogService
 
 @if (LoadingState.Value is null)
 {
   <MudProgressCircular/>
   return;
 }
+
 <MudText Class="my-2" Typo="Typo.h4">@T["Abb B2x Device"]</MudText>
 <EditForm
   Model="@LoadingState.Value"

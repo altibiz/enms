@@ -1,6 +1,16 @@
 @page "/"
+
+@using Enms.Client.Attributes
+@using Enms.Client.Base
+@using Enms.Client.State
+@using Microsoft.AspNetCore.Authorization
+
+@namespace Enms.Client.Pages
+
 @attribute [Navigation(Title = "Dashboard")]
 @attribute [Authorize]
+
+@inherits EnmsComponentBase
 
 @if (user is null)
 {
@@ -10,8 +20,6 @@
 <p>Welcome, @(user.User.UserName)!</p>
 
 @code {
-
   [CascadingParameter]
   public UserState user { get; set; } = default!;
-
 }

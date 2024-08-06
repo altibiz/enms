@@ -1,6 +1,16 @@
+@using Enms.Business.Models.Composite
+@using Enms.Business.Queries
+@using Enms.Client.Shared.Streaming
+@using Microsoft.Extensions.DependencyInjection
+@using MudBlazor
+
+@namespace Enms.Client.Shared.Models
+
 @inherits OwningComponentBase
 
-<Loading Load="@(async () => (Model ?? await ScopedServices.GetRequiredService<EnmsRepresentativeQueries>().MaybeRepresentingUserByUserId(Id))!)">
+<Loading Load="@(async () => (Model ?? await ScopedServices
+  .GetRequiredService<EnmsRepresentativeQueries>()
+  .MaybeRepresentingUserByUserId(Id))!)">
   <Found>
     <MudText Typo="Typo.h5">User</MudText>
     <MudPaper>
@@ -45,5 +55,4 @@
 
   [Parameter]
   public MaybeRepresentingUserModel? Model { get; set; }
-
 }

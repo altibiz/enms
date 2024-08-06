@@ -1,3 +1,13 @@
+@using Enms.Client.Base
+@using Enms.Client.Shared.Streaming
+@using Enms.Client.State
+@using Microsoft.AspNetCore.Components.Authorization
+@using MudBlazor
+
+@namespace Enms.Client.Shared.Layout
+
+@inherits EnmsLayoutComponentBase
+
 @using Theme = Theme
 
 <main>
@@ -15,7 +25,7 @@
               <CascadingValue Value="representative">
                 <RepresentativeLayout>
                   <Body>
-                  @Body
+                    @Body
                   </Body>
                 </RepresentativeLayout>
               </CascadingValue>

@@ -1,4 +1,11 @@
 @page "/user/{id}"
+
+@using Enms.Client.Attributes
+@using Enms.Client.Shared.Models
+@using Microsoft.AspNetCore.Authorization
+
+@namespace Enms.Client.Pages
+
 @attribute [Navigation(RouteValue = "id", Parents = new[] { typeof(UsersPage) })]
 @attribute [Authorize]
 @attribute [StreamRendering]
@@ -6,8 +13,6 @@
 <MaybeRepresentingUser Id="@Id"/>
 
 @code {
-
   [Parameter]
   public string? Id { get; set; }
-
 }

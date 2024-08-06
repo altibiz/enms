@@ -1,13 +1,21 @@
 @page "/user/{id}/edit"
+
+@using Enms.Client.Attributes
+@using Enms.Client.Base
+@using Enms.Client.Shared.Models
+@using Microsoft.AspNetCore.Authorization
+
+@namespace Enms.Client.Pages
+
 @attribute [Navigation(RouteValue = "id", Parents = new[] { typeof(UsersPage) })]
 @attribute [Authorize]
 @attribute [StreamRendering]
 
-<MaybeRepresentingUserEdit Id="@Id"/>
+@inherits EnmsComponentBase
+
+<MaybeRepresentingUserMutate Id="@Id"/>
 
 @code {
-
   [Parameter]
   public string? Id { get; set; }
-
 }

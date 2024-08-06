@@ -1,9 +1,17 @@
+@using Enms.Client.Base
+@using Enms.Client.State
+@using MudBlazor
+
+@namespace Enms.Client.Shared.Layout
+
+@inherits EnmsLayoutComponentBase
+
 <MudLayout>
   <MudAppBar Elevation="4">
     <MudHidden Breakpoint="Breakpoint.MdAndUp">
       <MudIconButton
         Icon="@Icons.Material.Outlined.Menu"
-        Color="MudColor.Inherit"
+        Color="Color.Inherit"
         Edge="Edge.Start"
         OnClick="e => DrawerToggle()"/>
     </MudHidden>
@@ -11,10 +19,6 @@
     <MudSpacer/>
     <MudMenu AnchorOrigin="Origin.CenterLeft" Dense="true" Class="mt-1 ml-4">
       <ActivatorContent>
-        <MudItem Class="mx-2">
-          @UserState?.User.UserName
-        </MudItem>
-        <MudIcon Icon="@Icons.Material.Filled.Person"/>
       </ActivatorContent>
       <ChildContent>
         <MudListItem Text="Account" Icon="@Icons.Material.Outlined.Person" Href="account" ForceLoad="true"/>
@@ -35,7 +39,7 @@
   <MudMainContent>
     <MudHidden Breakpoint="Breakpoint.SmAndDown">
       <MudToolBar DisableGutters="true">
-        <MudIconButton Icon="@Icons.Material.Outlined.Menu" Color="MudColor.Inherit" OnClick="@(e => DrawerToggle())" Class="ml-3"/>
+        <MudIconButton Icon="@Icons.Material.Outlined.Menu" Color="Color.Inherit" OnClick="@(e => DrawerToggle())" Class="ml-3"/>
       </MudToolBar>
     </MudHidden>
     <MudContainer MaxWidth="MaxWidth.Large" Class="mt-4">
@@ -55,5 +59,4 @@
   {
     _drawerOpen = !_drawerOpen;
   }
-
 }
