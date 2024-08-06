@@ -3,14 +3,14 @@
 
 @namespace Enms.Client.Shared.Streaming
 
-@typeparam TState
+@typeparam T
 
-@if (State is null)
+@if (_state is null)
 {
   return;
 }
 
-@if (State.IsLoading)
+@if (_state.IsLoading)
 {
   if (Progress is not null)
   {
@@ -22,21 +22,21 @@
   return;
 }
 
-@if (State.Error is not null)
+@if (_state.Error is not null)
 {
   if (Error is not null)
   {
-    @Error(State.Error!)
+    @Error(_state.Error!)
     return;
   }
 
   <MudAlert Severity="Severity.Error">
-    @State.Error
+    @_state.Error
   </MudAlert>
   return;
 }
 
-@if (State.Value is null)
+@if (_state.Value is null)
 {
   if (NotFound is not null)
   {
@@ -50,16 +50,18 @@
 
 @if (Found is not null)
 {
-  @Found(State.Value!)
+  @Found(_state.Value)
 }
 
 @code {
+  [Parameter]
+  public T? Value { get; set; }
 
   [Parameter]
-  public LoadingState<TState>? State { get; set; } = new();
+  public Func<T?>? Load { get; set; }
 
   [Parameter]
-  public Func<Task<TState?>>? Load { get; set; }
+  public Func<Task<T?>>? LoadAsync { get; set; }
 
   [Parameter]
   public RenderFragment? Progress { get; set; }
@@ -71,11 +73,26 @@
   public RenderFragment? NotFound { get; set; }
 
   [Parameter]
-  public RenderFragment<TState>? Found { get; set; }
+  public RenderFragment<T>? Found { get; set; }
 
-  protected override async Task OnInitializedAsync()
+  public LoadingState<T> _state { get; set; } = new();
+
+  protected override void OnParametersSet()
   {
-    if (State is null)
+    if (Value is not null)
+    {
+      _state = _state.WithValue(Value);
+    }
+  }
+
+  protected override void OnInitialized()
+  {
+    if (_state is null)
+    {
+      return;
+    }
+
+    if (!_state.IsLoading)
     {
       return;
     }
@@ -84,13 +101,37 @@
     {
       try
       {
-        State = State.WithValue(await Load());
+        _state = _state.WithValue(Load());
       }
       catch (Exception e)
       {
-        State = State.WithError(e.Message);
+        _state = _state.WithError(e.Message);
       }
     }
   }
 
+  protected override async Task OnInitializedAsync()
+  {
+    if (_state is null)
+    {
+      return;
+    }
+
+    if (!_state.IsLoading)
+    {
+      return;
+    }
+
+    if (LoadAsync is not null)
+    {
+      try
+      {
+        _state = _state.WithValue(await LoadAsync());
+      }
+      catch (Exception e)
+      {
+        _state = _state.WithError(e.Message);
+      }
+    }
+  }
 }

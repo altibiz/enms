@@ -24,9 +24,9 @@ public class EnmsAuditableMutations : IEnmsMutations
     _serviceProvider = serviceProvider;
   }
 
-  public void ClearChanges()
+  public Task Save()
   {
-    _context.ChangeTracker.Clear();
+    return _context.SaveChangesAsync();
   }
 
   public void Create(IAuditable auditable)

@@ -1,0 +1,75 @@
+@using Enms.Business.Models.Abstractions
+@using Enms.Business.Mutations.Agnostic
+@using Enms.Business.Queries.Agnostic
+@using Enms.Client.Base
+@using Enms.Client.State
+@using Microsoft.AspNetCore.Components.Forms
+@using Microsoft.Extensions.DependencyInjection
+@using MudBlazor
+
+@namespace Enms.Client.Shared.Streaming
+
+@typeparam T where T : class, IAuditable
+
+@inherits EnmsOwningComponentBase
+
+<Loading
+  Value="@Model"
+  LoadAsync="@(() => ScopedServices
+    .GetRequiredService<EnmsAuditableQueries>()
+    .ReadSingle<T>(Id))">
+  <Found Context="model">
+    <EditForm
+      Model="@model"
+      OnValidSubmit="@(() => Update(model))">
+      @ChildContent(model)
+      <DataAnnotationsValidator/>
+    </EditForm>
+    <MudButton OnClick="@(() => Delete(model))">
+      Delete
+    </MudButton>
+  </Found>
+  <NotFound>
+    <EditForm
+      Model="@Context"
+      OnValidSubmit="@((a) => Create(Context))">
+      @ChildContent(Context)
+      <DataAnnotationsValidator/>
+    </EditForm>
+  </NotFound>
+</Loading>
+
+@code {
+  [Parameter]
+  public string Id { get; set; } = default!;
+
+  [Parameter]
+  public T? Model { get; set; }
+
+  [Parameter]
+  public RenderFragment<T> ChildContent { get; set; } = default!;
+
+  private async Task Create(T model)
+  {
+    var mutations = ScopedServices.GetRequiredService<EnmsAuditableMutations>();
+    mutations.Create(model);
+    await mutations.Save();
+    DialogService.Show<MutateSuccess>("Changes Saved", new DialogOptions { CloseOnEscapeKey = true });
+  }
+
+  private async Task Update(T model)
+  {
+    var mutations = ScopedServices.GetRequiredService<EnmsAuditableMutations>();
+    mutations.Update(model);
+    await mutations.Save();
+    DialogService.Show<MutateSuccess>("Changes Saved", new DialogOptions { CloseOnEscapeKey = true });
+  }
+
+  private async Task Delete(T model)
+  {
+    var mutations = ScopedServices.GetRequiredService<EnmsAuditableMutations>();
+    mutations.Delete(model);
+    await mutations.Save();
+    DialogService.Show<MutateSuccess>("Changes Saved", new DialogOptions { CloseOnEscapeKey = true });
+  }
+}
