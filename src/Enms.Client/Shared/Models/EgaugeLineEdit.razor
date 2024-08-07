@@ -8,50 +8,50 @@
 @inherits EnmsOwningComponentBase
 
 <MudTextField
-  Label="@T["Id"]"
+  Label="@Translate("Id")"
   @bind-Value="Model.Id"
   For="@(() => Model.Id)"/>
 <MudTextField
-  Label="@T["Name"]"
+  Label="@Translate("Name")"
   @bind-Value="Model.Title"
   For="@(() => Model.Title)"/>
 <MudTextField
-  Label="@T["Connected power"]"
+  Label="@Translate("Connected power")"
   @bind-Value="Model.ConnectionPower_W"
   For="@(() => Model.ConnectionPower_W)"/>
 <MudSelect
-  Label="@T["Meter"]"
+  Label="@Translate("Meter")"
   AnchorOrigin="Origin.BottomCenter"
   @bind-Value="Model.MeterId"
   For="@(() => Model.MeterId)">
   <Paging PageAsync="@((page) => ScopedServices
       .GetRequiredService<AgnosticQueries>()
       .Read<EgaugeMeterModel>(pageNumber: page))">
-    <Found Context="model">
+    <Summary Context="model">
       <MudSelectItem Value="model.Id">
         @model.Title
       </MudSelectItem>
-    </Found>
+    </Summary>
   </Paging>
 </MudSelect>
 <MudSelect
-  Label="@T["Validator"]"
+  Label="@Translate("Validator")"
   AnchorOrigin="Origin.BottomCenter"
   @bind-Value="Model.MeasurementValidatorId"
   For="@(() => Model.MeasurementValidatorId)">
   <Paging PageAsync="@((page) => ScopedServices
       .GetRequiredService<AgnosticQueries>()
       .Read<EgaugeMeasurementValidatorModel>(pageNumber: page))">
-    <Found Context="model">
+    <Summary Context="model">
       <MudSelectItem Value="model.Id">
         @model.Title
       </MudSelectItem>
-    </Found>
+    </Summary>
   </Paging>
 </MudSelect>
 <MudSelect
   T="PhaseModel"
-  Label="@T["Phase"]"
+  Label="@Translate("Phase")"
   AnchorOrigin="Origin.BottomCenter"
   SelectedValuesChanged="@(e => Model.Phases = e.ToHashSet())"
   MultiSelection="true">

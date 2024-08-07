@@ -1,17 +1,19 @@
+@using Enms.Business.Queries.Agnostic
 @using Enms.Client.State
+@using Enms.Client.Base
 @using MudBlazor
+@using Microsoft.Extensions.DependencyInjection
 @using System.Text.Json
 
 @namespace Enms.Client.Shared.Streaming
 
+@attribute [StreamRendering(true)]
+
 @typeparam T
 
-@if (_state is null)
-{
-  return;
-}
+@inherits EnmsOwningComponentBase
 
-@if (_state.IsLoading)
+@if (_state.State is LoadingState.Loading)
 {
   if (Progress is not null)
   {
@@ -23,7 +25,7 @@
   return;
 }
 
-@if (_state.Error is not null)
+@if (_state.State is LoadingState.Error)
 {
   if (Error is not null)
   {
@@ -37,11 +39,11 @@
   return;
 }
 
-@if (_state.Value is null)
+@if (_state.State is LoadingState.Unfound)
 {
   if (NotFound is not null)
   {
-    @NotFound(_new)
+    @NotFound
     return;
   }
 
@@ -49,31 +51,30 @@
   return;
 }
 
+@if (_state.State is LoadingState.Created)
+{
+  if (Created is not null)
+  {
+    @Created(_state.Value!)
+    return;
+  }
+
+  return;
+}
+
 @if (Found is not null)
 {
-  @Found(_state.Value)
+  @Found(_state.Value!)
   return;
 }
 
 <MudText>
-  @JsonSerializer.Serialize(_state.Value, JsonSerializerOptions)
+  @JsonSerializer.Serialize(_state.Value!, JsonSerializerOptions)
 </MudText>
 
 @code {
   [Parameter]
   public T? Value { get; set; }
-
-  [Parameter]
-  public Func<T?>? Load { get; set; }
-
-  [Parameter]
-  public Func<Task<T?>>? LoadAsync { get; set; }
-
-  [Parameter]
-  public Func<T?>? New { get; set; }
-
-  [Parameter]
-  public Func<Task<T?>>? NewAsync { get; set; }
 
   [Parameter]
   public RenderFragment? Progress { get; set; }
@@ -82,14 +83,36 @@
   public RenderFragment<string>? Error { get; set; }
 
   [Parameter]
-  public RenderFragment<T?>? NotFound { get; set; }
+  public string? Id { get; set; }
+
+  [Parameter]
+  public Func<T?>? Load { get; set; }
+
+  [Parameter]
+  public Func<Task<T?>>? LoadAsync { get; set; }
+
+  [Parameter]
+  public Func<T>? New { get; set; }
+
+  [Parameter]
+  public Func<Task<T>>? NewAsync { get; set; }
+
+  [Parameter]
+  public bool Activate { get; set; }
+
+  [Parameter]
+  public bool ActivateAsync { get; set; }
+
+  [Parameter]
+  public RenderFragment? NotFound { get; set; }
 
   [Parameter]
   public RenderFragment<T>? Found { get; set; }
 
-  private LoadingState<T> _state { get; set; } = new();
+  [Parameter]
+  public RenderFragment<T>? Created { get; set; }
 
-  private T? _new { get; set; }
+  private LoadingState<T> _state = new();
 
   private static readonly JsonSerializerOptions JsonSerializerOptions =
     new()
@@ -107,12 +130,7 @@
 
   protected override void OnInitialized()
   {
-    if (_state is null)
-    {
-      return;
-    }
-
-    if (!_state.IsLoading)
+    if (_state.State is not LoadingState.Loading or LoadingState.Unfound)
     {
       return;
     }
@@ -129,11 +147,33 @@
       }
     }
 
-    if (_state.Value is null && New is not null)
+    if (_state.State is not LoadingState.Loading or LoadingState.Unfound)
+    {
+      return;
+    }
+
+    if (New is not null)
     {
       try
       {
-        _new = New();
+        _state = _state.WithCreated(New());
+      }
+      catch (Exception e)
+      {
+        _state = _state.WithError(e.Message);
+      }
+    }
+
+    if (_state.State is not LoadingState.Loading or LoadingState.Unfound)
+    {
+      return;
+    }
+
+    if (Activate)
+    {
+      try
+      {
+        _state = _state.WithCreated(Activator.CreateInstance<T>());
       }
       catch (Exception e)
       {
@@ -144,12 +184,7 @@
 
   protected override async Task OnInitializedAsync()
   {
-    if (_state is null)
-    {
-      return;
-    }
-
-    if (!_state.IsLoading)
+    if (_state.State is not LoadingState.Loading or LoadingState.Unfound)
     {
       return;
     }
@@ -166,11 +201,52 @@
       }
     }
 
-    if (_state.Value is null && NewAsync is not null)
+    if (_state.State is not LoadingState.Loading or LoadingState.Unfound)
+    {
+      return;
+    }
+
+    if (Id is not null)
     {
       try
       {
-        _new = await NewAsync();
+        _state = _state.WithValue(await ScopedServices
+          .GetRequiredService<AgnosticQueries>()
+          .ReadSingleDynamic<T>(Id));
+      }
+      catch (Exception e)
+      {
+        _state = _state.WithError(e.Message);
+      }
+    }
+
+    if (_state.State is not LoadingState.Loading or LoadingState.Unfound)
+    {
+      return;
+    }
+
+    if (NewAsync is not null)
+    {
+      try
+      {
+        _state = _state.WithCreated(await NewAsync());
+      }
+      catch (Exception e)
+      {
+        _state = _state.WithError(e.Message);
+      }
+    }
+
+    if (_state.State is not LoadingState.Loading or LoadingState.Unfound)
+    {
+      return;
+    }
+
+    if (ActivateAsync)
+    {
+      try
+      {
+        _state = _state.WithCreated(Activator.CreateInstance<T>());
       }
       catch (Exception e)
       {

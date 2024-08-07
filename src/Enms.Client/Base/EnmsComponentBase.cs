@@ -6,9 +6,11 @@ namespace Enms.Client.Base;
 
 public abstract class EnmsComponentBase : ComponentBase
 {
-  public static EnmsComponentLocalizer T
+  private readonly EnmsComponentLocalizer _localizer = new();
+
+  public string Translate(string unlocalized)
   {
-    get { return new EnmsComponentLocalizer(); }
+    return _localizer[unlocalized];
   }
 
   protected static string DecimalString(decimal? number, int places = 2)

@@ -21,7 +21,7 @@
   PageAsync="@((page) => ScopedServices
     .GetRequiredService<RepresentativeQueries>()
     .MaybeRepresentingUsers(pageNumber: page))">
-  <Found Context="maybeRepresentingUser">
+  <Summary Context="maybeRepresentingUser">
     @{
       var href = $"user/{maybeRepresentingUser.User.Id}";
       var editHref = $"user/{maybeRepresentingUser.User.Id}/edit";
@@ -45,5 +45,5 @@
         </MudCardActions>
       </MudCard>
     }
-  </Found>
+  </Summary>
 </Paging>

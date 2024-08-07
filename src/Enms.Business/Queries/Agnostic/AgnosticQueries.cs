@@ -3,6 +3,7 @@ using Enms.Business.Extensions;
 using Enms.Business.Models.Abstractions;
 using Enms.Business.Queries.Abstractions;
 using Enms.Data;
+using Enms.Data.Entities.Abstractions;
 using Enms.Data.Entities.Base;
 using Enms.Data.Extensions;
 using Microsoft.EntityFrameworkCore;
@@ -14,7 +15,7 @@ public class AgnosticQueries(
   IServiceProvider serviceProvider) : IQueries
 {
   public async Task<T?> ReadSingle<T>(string id)
-    where T : class, IModel
+    where T : IIdentifiable
   {
     var modelEntityConverter = serviceProvider
       .GetServices<IModelEntityConverter>()
@@ -23,12 +24,26 @@ public class AgnosticQueries(
           .CanConvertToModel(typeof(T))) ?? throw new InvalidOperationException(
       $"No model entity converter found for {typeof(T)}");
     var queryable = context.GetDbSet(typeof(T))
-        as IQueryable<AuditableEntity>
+        as IQueryable<IIdentifiableEntity>
       ?? throw new InvalidOperationException();
     var item = await queryable.WithId(id).FirstOrDefaultAsync();
-    return item is null ? null : modelEntityConverter.ToModel(item) as T;
+    return item is null ? default : (T)modelEntityConverter.ToModel(item);
   }
 
+  public async Task<T?> ReadSingleDynamic<T>(string id)
+  {
+    var modelEntityConverter = serviceProvider
+      .GetServices<IModelEntityConverter>()
+      .FirstOrDefault(
+        converter => converter
+          .CanConvertToModel(typeof(T))) ?? throw new InvalidOperationException(
+      $"No model entity converter found for {typeof(T)}");
+    var queryable = context.GetDbSet(typeof(T))
+        as IQueryable<IIdentifiableEntity>
+      ?? throw new InvalidOperationException();
+    var item = await queryable.WithId(id).FirstOrDefaultAsync();
+    return item is null ? default : (T)modelEntityConverter.ToModel(item);
+  }
   public async Task<PaginatedList<T>> Read<T>(
     Func<T, bool>? whereClause = default,
     Func<T, object>? orderByDescClause = default,
@@ -45,7 +60,7 @@ public class AgnosticQueries(
           .CanConvertToModel(typeof(T))) ?? throw new InvalidOperationException(
       $"No model entity converter found for {typeof(T)}");
     var queryable = context.GetDbSet(typeof(T))
-        as IQueryable<AuditableEntity>
+        as IQueryable<IEntity>
       ?? throw new InvalidOperationException();
     var filtered = whereClause is not null
       ? queryable.Where(x => whereClause((x as T)!))
@@ -74,7 +89,6 @@ public class AgnosticQueries(
     int pageNumber = QueryConstants.StartingPage,
     int pageCount = QueryConstants.DefaultPageCount
   )
-    where T : class, IModel
   {
     var modelEntityConverter = serviceProvider
       .GetServices<IModelEntityConverter>()
@@ -83,7 +97,7 @@ public class AgnosticQueries(
           .CanConvertToModel(typeof(T))) ?? throw new InvalidOperationException(
       $"No model entity converter found for {typeof(T)}");
     var queryable = context.GetDbSet(typeof(T))
-        as IQueryable<AuditableEntity>
+        as IQueryable<IEntity>
       ?? throw new InvalidOperationException();
     var filtered = whereClause is not null
       ? queryable.WhereDynamic(whereClause)

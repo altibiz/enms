@@ -1,4 +1,4 @@
-@page "/user/{id}"
+@page "/user/{id?}"
 
 @using Enms.Business.Models.Composite
 @using Enms.Business.Queries
@@ -13,21 +13,26 @@
 
 @attribute [Navigation(RouteValue = "id", Parents = new[] { typeof(UsersPage) })]
 @attribute [Authorize]
-@attribute [StreamRendering]
 
 @inherits EnmsOwningComponentBase
 
-<Loading
+<Mutating
   T="MaybeRepresentingUserModel"
-  LoadAsync="@(() => ScopedServices
-    .GetRequiredService<RepresentativeQueries>()
-    .MaybeRepresentingUserByUserId(Id))">
-  <Found Context="model">
-    <MaybeRepresentingUser Model="@model"/>
-  </Found>
-</Loading>
+  LoadAsync="@(async () =>
+    Id is null
+      ? null
+      : await ScopedServices
+          .GetRequiredService<RepresentativeQueries>()
+          .MaybeRepresentingUserByUserId(Id))">
+  <Edit Context="model">
+    <MaybeRepresentingUserEdit Model="@model"/>
+  </Edit>
+  <Details Context="model">
+    <MaybeRepresentingUserDetails Model="@model"/>
+  </Details>
+</Mutating>
 
 @code {
   [Parameter]
-  public string Id { get; set; } = default!;
+  public string? Id { get; set; } = default!;
 }
