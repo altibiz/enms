@@ -1,8 +1,13 @@
 @page "/user/{id}"
 
+@using Enms.Business.Models.Composite
+@using Enms.Business.Queries
 @using Enms.Client.Attributes
+@using Enms.Client.Base
 @using Enms.Client.Shared.Models
+@using Enms.Client.Shared.Streaming
 @using Microsoft.AspNetCore.Authorization
+@using Microsoft.Extensions.DependencyInjection
 
 @namespace Enms.Client.Pages
 
@@ -10,9 +15,19 @@
 @attribute [Authorize]
 @attribute [StreamRendering]
 
-<MaybeRepresentingUser Id="@Id"/>
+@inherits EnmsOwningComponentBase
+
+<Loading
+  T="MaybeRepresentingUserModel"
+  LoadAsync="@(() => ScopedServices
+    .GetRequiredService<RepresentativeQueries>()
+    .MaybeRepresentingUserByUserId(Id))">
+  <Found Context="model">
+    <MaybeRepresentingUser Model="@model"/>
+  </Found>
+</Loading>
 
 @code {
   [Parameter]
-  public string? Id { get; set; }
+  public string Id { get; set; } = default!;
 }

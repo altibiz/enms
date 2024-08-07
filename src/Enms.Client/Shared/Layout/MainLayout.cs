@@ -18,10 +18,6 @@ public partial class MainLayout : EnmsLayoutComponentBase
   [CascadingParameter]
   private Task<AuthenticationState>? AuthenticationStateTask { get; set; }
 
-  private LoadingState<RepresentativeState> _representativeState = new();
-
-  private LoadingState<UserState> _userState = new();
-
   [Inject]
   private NavigationManager NavigationManager { get; set; } = default!;
 
@@ -46,11 +42,11 @@ public partial class MainLayout : EnmsLayoutComponentBase
     }
   }
 
-  protected override async Task OnInitializedAsync()
+  private async Task<MaybeRepresentingUserModel?> ReadMaybeRepresentingUser()
   {
     if (AuthenticationStateTask is null)
     {
-      return;
+      return default;
     }
 
     var authenticationState = await AuthenticationStateTask;
@@ -60,32 +56,9 @@ public partial class MainLayout : EnmsLayoutComponentBase
     if (!(claimsPrincipal.Identity?.IsAuthenticated ?? false))
     {
       NavigationManager.NavigateTo("/login?returnUrl=/app");
-      return;
+      return default;
     }
 
-    var maybeRepresentingUser =
-      await ReadMaybeRepresentingUser(claimsPrincipal);
-    if (maybeRepresentingUser is null)
-    {
-      _userState = _userState.NotFound();
-      return;
-    }
-
-    _userState =
-      _userState.WithValue(new UserState(maybeRepresentingUser.User));
-    if (maybeRepresentingUser.Representative is null)
-    {
-      _representativeState = _representativeState.NotFound();
-      return;
-    }
-
-    _representativeState = _representativeState.WithValue(
-      new RepresentativeState(maybeRepresentingUser.Representative));
-  }
-
-  private async Task<MaybeRepresentingUserModel?> ReadMaybeRepresentingUser(
-    ClaimsPrincipal claimsPrincipal)
-  {
     await using var scope = Services.CreateAsyncScope();
     var query =
       scope.ServiceProvider.GetRequiredService<RepresentativeQueries>();
