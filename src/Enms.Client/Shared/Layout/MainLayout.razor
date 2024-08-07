@@ -16,13 +16,13 @@
   <Loading
     T="MaybeRepresentingUserModel"
     LoadAsync="@(() => ReadMaybeRepresentingUser())">
-    <Found Context="meybeRepresentingUser">
-      <CascadingValue Value="meybeRepresentingUser.User">
+    <Found Context="maybeRepresentingUser">
+      <CascadingValue Value="maybeRepresentingUser.User">
         <UserLayout>
           <Body>
           <Loading
             T="RepresentativeModel"
-            Load="@(() => meybeRepresentingUser.Representative)">
+            Load="@(() => maybeRepresentingUser.Representative)">
             <Found Context="representative">
               <CascadingValue Value="representative">
                 <RepresentativeLayout>
