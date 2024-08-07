@@ -18,12 +18,11 @@
 
 <Mutating
   T="MaybeRepresentingUserModel"
-  LoadAsync="@(async () =>
-    Id is null
-      ? null
-      : await ScopedServices
-          .GetRequiredService<RepresentativeQueries>()
-          .MaybeRepresentingUserByUserId(Id))">
+  LoadAsync="@(Id is null
+    ? null
+    : async () => await ScopedServices
+      .GetRequiredService<RepresentativeQueries>()
+      .MaybeRepresentingUserByUserId(Id))">
   <Edit Context="model">
     <MaybeRepresentingUserEdit Model="@model"/>
   </Edit>
