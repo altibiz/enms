@@ -1,6 +1,7 @@
 @using Enms.Business.Models.Abstractions
 @using Enms.Business.Queries
 @using Enms.Business.Queries.Abstractions
+@using Enms.Business.Queries.Agnostic
 @using Enms.Client.Base
 @using Microsoft.Extensions.DependencyInjection
 @using MudBlazor
@@ -15,7 +16,13 @@
 <Loading
   T="PaginatedList<T>"
   Load="@(Page is null ? null : () => Page(_pageNumber))"
-  LoadAsync="@(PageAsync is null ? null : () => PageAsync(_pageNumber))"
+  LoadAsync="@(PageAsync is not null
+    ? () => PageAsync(_pageNumber)
+    : Page is null && typeof(T).IsAssignableTo(typeof(IModel))
+      ? () => ScopedServices
+        .GetRequiredService<AgnosticQueries>()
+        .ReadDynamic<T>(pageNumber: _pageNumber, pageCount: PageCount)
+      : null)"
   Progress="@Progress"
   Error="@Error">
   <Found Context="page">
@@ -52,7 +59,7 @@
       <MudPagination
         class="mt-4"
         @bind-Selected="_pageNumber"
-        PageSize="PageSize"
+        PageSize="PageCount"
         TotalItems="page.TotalCount"/>
     }
   </Found>
@@ -78,7 +85,7 @@
   public RenderFragment? Empty { get; set; }
 
   [Parameter]
-  public int PageSize { get; set; } = QueryConstants.DefaultPageCount;
+  public int PageCount { get; set; } = QueryConstants.DefaultPageCount;
 
   private int _pageNumber = 1;
 

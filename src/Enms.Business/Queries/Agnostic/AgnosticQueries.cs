@@ -95,6 +95,11 @@ public class AgnosticQueries(
     int pageCount = QueryConstants.DefaultPageCount
   )
   {
+    if (!typeof(T).IsAssignableTo(typeof(IModel)))
+    {
+      throw new InvalidOperationException(
+        $"{typeof(T)} is not a model");
+    }
     var modelEntityConverter = serviceProvider
       .GetServices<IModelEntityConverter>()
       .FirstOrDefault(
