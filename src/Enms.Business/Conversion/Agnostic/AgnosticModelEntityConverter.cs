@@ -1,6 +1,6 @@
 using Enms.Business.Conversion.Abstractions;
-using Enms.Data.Entities.Abstractions;
 using Enms.Business.Models.Abstractions;
+using Enms.Data.Entities.Abstractions;
 
 namespace Enms.Business.Conversion.Agnostic;
 

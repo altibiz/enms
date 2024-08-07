@@ -55,9 +55,19 @@
 
   private async Task Create(T model)
   {
-    var mutations = ScopedServices.GetRequiredService<AgnosticMutations>();
-    mutations.Create(model);
-    await mutations.Save();
+    try
+    {
+      var mutations = ScopedServices.GetRequiredService<AgnosticMutations>();
+      mutations.Create(model);
+      await mutations.Save();
+    }
+    catch (Exception ex)
+    {
+      DialogService.Show<MutateFail>(
+        $"Not saved - {ex.Message}",
+        new DialogOptions { CloseOnEscapeKey = true });
+      return;
+    }
     DialogService.Show<MutateSuccess>(
       "Saved",
       new DialogOptions { CloseOnEscapeKey = true });
@@ -65,9 +75,19 @@
 
   private async Task Update(T model)
   {
-    var mutations = ScopedServices.GetRequiredService<AgnosticMutations>();
-    mutations.Update(model);
-    await mutations.Save();
+    try
+    {
+      var mutations = ScopedServices.GetRequiredService<AgnosticMutations>();
+      mutations.Update(model);
+      await mutations.Save();
+    }
+    catch (Exception ex)
+    {
+      DialogService.Show<MutateFail>(
+        $"Not saved - {ex.Message}",
+        new DialogOptions { CloseOnEscapeKey = true });
+      return;
+    }
     DialogService.Show<MutateSuccess>(
       "Saved",
       new DialogOptions { CloseOnEscapeKey = true });
@@ -75,9 +95,19 @@
 
   private async Task Delete(T model)
   {
-    var mutations = ScopedServices.GetRequiredService<AgnosticMutations>();
-    mutations.Delete(model);
-    await mutations.Save();
+    try
+    {
+      var mutations = ScopedServices.GetRequiredService<AgnosticMutations>();
+      mutations.Delete(model);
+      await mutations.Save();
+    }
+    catch (Exception ex)
+    {
+      DialogService.Show<MutateFail>(
+        $"Not saved - {ex.Message}",
+        new DialogOptions { CloseOnEscapeKey = true });
+      return;
+    }
     DialogService.Show<MutateSuccess>(
       "Saved",
       new DialogOptions { CloseOnEscapeKey = true });
