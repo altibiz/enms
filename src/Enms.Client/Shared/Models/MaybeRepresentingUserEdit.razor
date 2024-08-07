@@ -1,175 +1,77 @@
-@using Enms.Business.Models
 @using Enms.Business.Models.Composite
 @using Enms.Business.Models.Enums
-@using Enms.Business.Mutations.Agnostic
-@using Enms.Business.Queries
-@using Enms.Client.State
-@using Microsoft.AspNetCore.Components.Forms
-@using Microsoft.Extensions.DependencyInjection
+@using Enms.Client.Base
 @using MudBlazor
 
 @namespace Enms.Client.Shared.Models
 
-@inherits OwningComponentBase
-
-@inject NavigationManager NavigationManager
-
-@if (LoadingState.Value is null)
-{
-  <MudProgressCircular/>
-  return;
-}
+@inherits EnmsComponentBase
 
 <MudText Typo="Typo.h5">User</MudText>
 <MudPaper>
   <MudGrid>
     <MudItem xs="12" sm="6">
       <MudText Typo="Typo.body1">Id</MudText>
-      <MudText Typo="Typo.body2">@LoadingState.Value.User.UserName</MudText>
+      <MudText Typo="Typo.body2">@Model.User.UserName</MudText>
     </MudItem>
     <MudItem xs="12" sm="6">
       <MudText Typo="Typo.body1">Email</MudText>
-      <MudText Typo="Typo.body2">@LoadingState.Value.User.Email</MudText>
+      <MudText Typo="Typo.body2">@Model.User.Email</MudText>
     </MudItem>
   </MudGrid>
 </MudPaper>
 
-@if (LoadingState.Value.Representative is null)
+@if (Model.Representative is {})
 {
-  return;
+  <MudText Typo="Typo.h5">Representative</MudText>
+  <MudTextField
+    Label="Title"
+    @bind-Value="Model.Representative.Title"
+    For="@(() => Model.Representative.Title)"/>
+  <MudSelect
+    T="RoleModel"
+    Label="Coffee"
+    AnchorOrigin="Origin.BottomCenter"
+    @bind-Value="Model.Representative.Role"
+    For="@(() => Model.Representative.Role)">
+    <MudSelectItem Value="@RoleModel.OperatorRepresentative">
+      Operator Representative
+    </MudSelectItem>
+    <MudSelectItem Value="@RoleModel.UserRepresentative">
+      Network User Representative
+    </MudSelectItem>
+  </MudSelect>
+  <MudTextField
+    Label="Name"
+    @bind-Value="Model.Representative.Name"
+    For="@(() => Model.Representative.Name)"/>
+  <MudTextField
+    Label="SocialSecurityNumber"
+    @bind-Value="Model.Representative.SocialSecurityNumber"
+    For="@(() => Model.Representative.SocialSecurityNumber)"/>
+  <MudTextField
+    Label="Address"
+    @bind-Value="Model.Representative.Address"
+    For="@(() => Model.Representative.Address)"/>
+  <MudTextField
+    Label="City"
+    @bind-Value="Model.Representative.City"
+    For="@(() => Model.Representative.City)"/>
+  <MudTextField
+    Label="PostalCode"
+    @bind-Value="Model.Representative.PostalCode"
+    For="@(() => Model.Representative.PostalCode)"/>
+  <MudTextField
+    Label="Email"
+    @bind-Value="Model.Representative.Email"
+    For="@(() => Model.Representative.Email)"/>
+  <MudTextField
+    Label="PhoneNumber"
+    @bind-Value="Model.Representative.PhoneNumber"
+    For="@(() => Model.Representative.PhoneNumber)"/>
 }
 
-<EditForm
-  Model="@LoadingState.Value.Representative"
-  OnValidSubmit="Submit">
-  <DataAnnotationsValidator/>
-  <MudCard>
-    <MudCardContent>
-      <MudTextField
-        Label="Title"
-        @bind-Value="LoadingState.Value.Representative.Title"
-        For="@(() => LoadingState.Value.Representative.Title)"/>
-      <MudSelect
-        T="RoleModel"
-        Label="Coffee"
-        AnchorOrigin="Origin.BottomCenter"
-        @bind-Value="LoadingState.Value.Representative.Role"
-        For="@(() => LoadingState.Value.Representative.Role)">
-        <MudSelectItem Value="@RoleModel.OperatorRepresentative">
-          Operator Representative
-        </MudSelectItem>
-        <MudSelectItem Value="@RoleModel.UserRepresentative">
-          Network User Representative
-        </MudSelectItem>
-      </MudSelect>
-      <MudTextField
-        Label="Name"
-        @bind-Value="LoadingState.Value.Representative.Name"
-        For="@(() => LoadingState.Value.Representative.Name)"/>
-      <MudTextField
-        Label="SocialSecurityNumber"
-        @bind-Value="LoadingState.Value.Representative.SocialSecurityNumber"
-        For="@(() => LoadingState.Value.Representative.SocialSecurityNumber)"/>
-      <MudTextField
-        Label="Address"
-        @bind-Value="LoadingState.Value.Representative.Address"
-        For="@(() => LoadingState.Value.Representative.Address)"/>
-      <MudTextField
-        Label="City"
-        @bind-Value="LoadingState.Value.Representative.City"
-        For="@(() => LoadingState.Value.Representative.City)"/>
-      <MudTextField
-        Label="PostalCode"
-        @bind-Value="LoadingState.Value.Representative.PostalCode"
-        For="@(() => LoadingState.Value.Representative.PostalCode)"/>
-      <MudTextField
-        Label="Email"
-        @bind-Value="LoadingState.Value.Representative.Email"
-        For="@(() => LoadingState.Value.Representative.Email)"/>
-      <MudTextField
-        Label="PhoneNumber"
-        @bind-Value="LoadingState.Value.Representative.PhoneNumber"
-        For="@(() => LoadingState.Value.Representative.PhoneNumber)"/>
-    </MudCardContent>
-    <MudCardActions>
-      <MudButton
-        ButtonType="ButtonType.Submit"
-        Variant="Variant.Filled"
-        Color="Color.Primary"
-        Class="ml-auto">
-        Update
-      </MudButton>
-    </MudCardActions>
-  </MudCard>
-</EditForm>
-
 @code {
-
   [Parameter]
-  public string Id { get; set; } = default!;
-
-  [Parameter]
-  public MaybeRepresentingUserModel? Model { get; set; }
-
-  private LoadingState<MaybeRepresentingUserModel> LoadingState { get; set; } = new();
-
-  private bool _create = false;
-
-  private void Submit()
-  {
-    if (LoadingState.Value?.Representative is null)
-    {
-      return;
-    }
-
-    var mutations = ScopedServices.GetRequiredService<AgnosticMutations>();
-    if (_create)
-    {
-      mutations.Create(LoadingState.Value.Representative);
-    }
-    else
-    {
-      mutations.Update(LoadingState.Value.Representative);
-    }
-  }
-
-  protected override void OnInitialized()
-  {
-    if (LoadingState.Value is not null)
-    {
-      LoadingState = LoadingState.WithValue(LoadingState.Value);
-    }
-  }
-
-  protected override async Task OnInitializedAsync()
-  {
-    if (LoadingState.Value is null && Id is not null)
-    {
-      LoadingState = LoadingState.WithValue(
-        await ScopedServices
-          .GetRequiredService<RepresentativeQueries>()
-          .MaybeRepresentingUserByUserId(Id)
-      );
-    }
-
-    if (LoadingState.Value is null)
-    {
-      NavigationManager.NavigateTo("/not-found");
-      return;
-    }
-
-    if (
-      LoadingState.Value.User is not null &&
-      LoadingState.Value.Representative is null
-    )
-    {
-      LoadingState = LoadingState
-        .WithValue(
-          LoadingState.Value with
-          {
-            Representative = RepresentativeModel.New(LoadingState.Value.User)
-          });
-      _create = true;
-    }
-  }
+  public MaybeRepresentingUserModel Model { get; set; } = default!;
 }

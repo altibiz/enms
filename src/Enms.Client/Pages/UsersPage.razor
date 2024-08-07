@@ -5,6 +5,7 @@
 @using Enms.Client.Attributes
 @using Enms.Client.Base
 @using Enms.Client.Shared.Streaming
+@using Enms.Client.Shared.Models
 @using Microsoft.AspNetCore.Authorization
 @using Microsoft.Extensions.DependencyInjection
 @using MudBlazor
@@ -24,23 +25,14 @@
   <Summary Context="maybeRepresentingUser">
     @{
       var href = $"user/{maybeRepresentingUser.User.Id}";
-      var editHref = $"user/{maybeRepresentingUser.User.Id}/edit";
 
       <MudCard>
         <MudCardContent>
-          <MudText Typo="Typo.h6">
-            @maybeRepresentingUser.User.UserName
-          </MudText>
-          <MudText>
-            @maybeRepresentingUser.User.Email
-          </MudText>
+          <MaybeRepresentingUserSummary Model="@maybeRepresentingUser"/>
         </MudCardContent>
         <MudCardActions>
           <MudNavLink Href="@href">
             Details
-          </MudNavLink>
-          <MudNavLink Href="@editHref">
-            Edit
           </MudNavLink>
         </MudCardActions>
       </MudCard>
