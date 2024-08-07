@@ -78,11 +78,11 @@ public sealed class
                 (x.Register.Name.Split(Separator)[1] == lineId &&
                   !x.Register.Name.StartsWith(
                     "ApparentPower",
-                    System.StringComparison.InvariantCulture)) ||
+                    StringComparison.InvariantCulture)) ||
                 (x.Register.Name.Split(Separator)[1] == $"{lineId}*" &&
                   x.Register.Name.StartsWith(
                     "ApparentPower",
-                    System.StringComparison.InvariantCulture)))
+                    StringComparison.InvariantCulture)))
             .ToDictionary(
               x => x.Register.Name.Split(Separator)[0],
               x => x.Index)
@@ -93,7 +93,8 @@ public sealed class
       range =>
       {
         var timestamp = DateTimeOffset
-          .FromUnixTimeSeconds(long.Parse(range.Ts, CultureInfo.InvariantCulture))
+          .FromUnixTimeSeconds(
+            long.Parse(range.Ts, CultureInfo.InvariantCulture))
           .ToUniversalTime();
         var delta = TimeSpan.FromSeconds((double)range.Delta);
 
@@ -178,21 +179,33 @@ public sealed class
                     MeterId = meterId,
                     LineId = line.LineId,
                     Timestamp = rowTimestamp,
-                    VoltageL1AnyT0_V = decimal.Parse(voltageL1AnyT0_V, CultureInfo.InvariantCulture),
-                    VoltageL2AnyT0_V = decimal.Parse(voltageL2AnyT0_V, CultureInfo.InvariantCulture),
-                    VoltageL3AnyT0_V = decimal.Parse(voltageL3AnyT0_V, CultureInfo.InvariantCulture),
-                    CurrentL1AnyT0_A = decimal.Parse(currentL1AnyT0_A, CultureInfo.InvariantCulture),
-                    CurrentL2AnyT0_A = decimal.Parse(currentL2AnyT0_A, CultureInfo.InvariantCulture),
-                    CurrentL3AnyT0_A = decimal.Parse(currentL3AnyT0_A, CultureInfo.InvariantCulture),
-                    ActivePowerL1NetT0_W = decimal.Parse(activePowerL1NetT0_W, CultureInfo.InvariantCulture),
-                    ActivePowerL2NetT0_W = decimal.Parse(activePowerL2NetT0_W, CultureInfo.InvariantCulture),
-                    ActivePowerL3NetT0_W = decimal.Parse(activePowerL3NetT0_W, CultureInfo.InvariantCulture),
+                    VoltageL1AnyT0_V = decimal.Parse(
+                      voltageL1AnyT0_V, CultureInfo.InvariantCulture),
+                    VoltageL2AnyT0_V = decimal.Parse(
+                      voltageL2AnyT0_V, CultureInfo.InvariantCulture),
+                    VoltageL3AnyT0_V = decimal.Parse(
+                      voltageL3AnyT0_V, CultureInfo.InvariantCulture),
+                    CurrentL1AnyT0_A = decimal.Parse(
+                      currentL1AnyT0_A, CultureInfo.InvariantCulture),
+                    CurrentL2AnyT0_A = decimal.Parse(
+                      currentL2AnyT0_A, CultureInfo.InvariantCulture),
+                    CurrentL3AnyT0_A = decimal.Parse(
+                      currentL3AnyT0_A, CultureInfo.InvariantCulture),
+                    ActivePowerL1NetT0_W = decimal.Parse(
+                      activePowerL1NetT0_W, CultureInfo.InvariantCulture),
+                    ActivePowerL2NetT0_W = decimal.Parse(
+                      activePowerL2NetT0_W, CultureInfo.InvariantCulture),
+                    ActivePowerL3NetT0_W = decimal.Parse(
+                      activePowerL3NetT0_W, CultureInfo.InvariantCulture),
                     ApparentPowerL1NetT0_W =
-                      decimal.Parse(apparentPowerL1NetT0_W, CultureInfo.InvariantCulture),
+                      decimal.Parse(
+                        apparentPowerL1NetT0_W, CultureInfo.InvariantCulture),
                     ApparentPowerL2NetT0_W =
-                      decimal.Parse(apparentPowerL2NetT0_W, CultureInfo.InvariantCulture),
+                      decimal.Parse(
+                        apparentPowerL2NetT0_W, CultureInfo.InvariantCulture),
                     ApparentPowerL3NetT0_W =
-                      decimal.Parse(apparentPowerL3NetT0_W, CultureInfo.InvariantCulture)
+                      decimal.Parse(
+                        apparentPowerL3NetT0_W, CultureInfo.InvariantCulture)
                   };
                 })
               .Where(x => x is not null)
@@ -310,18 +323,30 @@ public sealed class
 
             var startingIndex = lineIds.IndexOf(m.LineId) * 12;
 
-            registers[startingIndex + 0] = m.VoltageL1AnyT0_V.ToString(CultureInfo.InvariantCulture);
-            registers[startingIndex + 1] = m.VoltageL2AnyT0_V.ToString(CultureInfo.InvariantCulture);
-            registers[startingIndex + 2] = m.VoltageL3AnyT0_V.ToString(CultureInfo.InvariantCulture);
-            registers[startingIndex + 3] = m.CurrentL1AnyT0_A.ToString(CultureInfo.InvariantCulture);
-            registers[startingIndex + 4] = m.CurrentL2AnyT0_A.ToString(CultureInfo.InvariantCulture);
-            registers[startingIndex + 5] = m.CurrentL3AnyT0_A.ToString(CultureInfo.InvariantCulture);
-            registers[startingIndex + 6] = m.ActivePowerL1NetT0_W.ToString(CultureInfo.InvariantCulture);
-            registers[startingIndex + 7] = m.ActivePowerL2NetT0_W.ToString(CultureInfo.InvariantCulture);
-            registers[startingIndex + 8] = m.ActivePowerL3NetT0_W.ToString(CultureInfo.InvariantCulture);
-            registers[startingIndex + 9] = m.ApparentPowerL1NetT0_W.ToString(CultureInfo.InvariantCulture);
-            registers[startingIndex + 10] = m.ApparentPowerL2NetT0_W.ToString(CultureInfo.InvariantCulture);
-            registers[startingIndex + 11] = m.ApparentPowerL3NetT0_W.ToString(CultureInfo.InvariantCulture);
+            registers[startingIndex + 0] =
+              m.VoltageL1AnyT0_V.ToString(CultureInfo.InvariantCulture);
+            registers[startingIndex + 1] =
+              m.VoltageL2AnyT0_V.ToString(CultureInfo.InvariantCulture);
+            registers[startingIndex + 2] =
+              m.VoltageL3AnyT0_V.ToString(CultureInfo.InvariantCulture);
+            registers[startingIndex + 3] =
+              m.CurrentL1AnyT0_A.ToString(CultureInfo.InvariantCulture);
+            registers[startingIndex + 4] =
+              m.CurrentL2AnyT0_A.ToString(CultureInfo.InvariantCulture);
+            registers[startingIndex + 5] =
+              m.CurrentL3AnyT0_A.ToString(CultureInfo.InvariantCulture);
+            registers[startingIndex + 6] =
+              m.ActivePowerL1NetT0_W.ToString(CultureInfo.InvariantCulture);
+            registers[startingIndex + 7] =
+              m.ActivePowerL2NetT0_W.ToString(CultureInfo.InvariantCulture);
+            registers[startingIndex + 8] =
+              m.ActivePowerL3NetT0_W.ToString(CultureInfo.InvariantCulture);
+            registers[startingIndex + 9] =
+              m.ApparentPowerL1NetT0_W.ToString(CultureInfo.InvariantCulture);
+            registers[startingIndex + 10] =
+              m.ApparentPowerL2NetT0_W.ToString(CultureInfo.InvariantCulture);
+            registers[startingIndex + 11] =
+              m.ApparentPowerL3NetT0_W.ToString(CultureInfo.InvariantCulture);
 
             return new EgaugeRange(
               m.Timestamp
