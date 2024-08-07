@@ -32,6 +32,11 @@ public class AgnosticQueries(
 
   public async Task<T?> ReadSingleDynamic<T>(string id)
   {
+    if (!typeof(T).IsAssignableTo(typeof(IIdentifiable)))
+    {
+      throw new InvalidOperationException(
+        $"{typeof(T)} is not identifiable");
+    }
     var modelEntityConverter = serviceProvider
       .GetServices<IModelEntityConverter>()
       .FirstOrDefault(

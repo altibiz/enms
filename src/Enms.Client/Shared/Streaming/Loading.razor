@@ -1,4 +1,5 @@
 @using Enms.Business.Queries.Agnostic
+@using Enms.Business.Models.Abstractions
 @using Enms.Client.State
 @using Enms.Client.Base
 @using MudBlazor
@@ -206,7 +207,7 @@
       return;
     }
 
-    if (Id is not null)
+    if (Id is not null && typeof(T).IsAssignableTo(typeof(IIdentifiable)))
     {
       try
       {
