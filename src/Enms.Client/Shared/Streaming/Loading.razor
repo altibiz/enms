@@ -1,5 +1,6 @@
 @using Enms.Client.State
 @using MudBlazor
+@using System.Text.Json
 
 @namespace Enms.Client.Shared.Streaming
 
@@ -40,7 +41,7 @@
 {
   if (NotFound is not null)
   {
-    @NotFound
+    @NotFound(_new)
     return;
   }
 
@@ -53,6 +54,10 @@
   @Found(_state.Value)
 }
 
+<MudText>
+  @JsonSerializer.Serialize(_state.Value, JsonSerializerOptions)
+</MudText>
+
 @code {
   [Parameter]
   public T? Value { get; set; }
@@ -64,18 +69,32 @@
   public Func<Task<T?>>? LoadAsync { get; set; }
 
   [Parameter]
+  public Func<T?>? New { get; set; }
+
+  [Parameter]
+  public Func<Task<T?>>? NewAsync { get; set; }
+
+  [Parameter]
   public RenderFragment? Progress { get; set; }
 
   [Parameter]
   public RenderFragment<string>? Error { get; set; }
 
   [Parameter]
-  public RenderFragment? NotFound { get; set; }
+  public RenderFragment<T?>? NotFound { get; set; }
 
   [Parameter]
   public RenderFragment<T>? Found { get; set; }
 
-  public LoadingState<T> _state { get; set; } = new();
+  private LoadingState<T> _state { get; set; } = new();
+
+  private T? _new { get; set; }
+
+  private static readonly JsonSerializerOptions JsonSerializerOptions =
+    new()
+    {
+      WriteIndented = true
+    };
 
   protected override void OnParametersSet()
   {
@@ -108,6 +127,18 @@
         _state = _state.WithError(e.Message);
       }
     }
+
+    if (_state.Value is null && New is not null)
+    {
+      try
+      {
+        _new = New();
+      }
+      catch (Exception e)
+      {
+        _state = _state.WithError(e.Message);
+      }
+    }
   }
 
   protected override async Task OnInitializedAsync()
@@ -127,6 +158,18 @@
       try
       {
         _state = _state.WithValue(await LoadAsync());
+      }
+      catch (Exception e)
+      {
+        _state = _state.WithError(e.Message);
+      }
+    }
+
+    if (_state.Value is null && NewAsync is not null)
+    {
+      try
+      {
+        _new = await NewAsync();
       }
       catch (Exception e)
       {

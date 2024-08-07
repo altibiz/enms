@@ -1,4 +1,6 @@
 using Enms.Business.Conversion.Abstractions;
+using Enms.Data.Entities.Abstractions;
+using Enms.Business.Models.Abstractions;
 
 namespace Enms.Business.Conversion.Agnostic;
 
@@ -18,7 +20,7 @@ public class AgnosticModelEntityConverter(IServiceProvider serviceProvider)
         $"No converter found for model {type}.");
   }
 
-  public object ToEntity(object model)
+  public IEntity ToEntity(IModel model)
   {
     return _serviceProvider
         .GetServices<IModelEntityConverter>()
@@ -30,15 +32,15 @@ public class AgnosticModelEntityConverter(IServiceProvider serviceProvider)
         $"No converter found for model {model.GetType()}.");
   }
 
-  public TEntity ToEntity<TEntity>(object model)
-    where TEntity : class
+  public TEntity ToEntity<TEntity>(IModel model)
+    where TEntity : class, IEntity
   {
     return ToEntity(model) as TEntity
       ?? throw new InvalidOperationException(
         $"No converter found for model {model.GetType()}.");
   }
 
-  public object ToModel(object entity)
+  public IModel ToModel(IEntity entity)
   {
     return _serviceProvider
         .GetServices<IModelEntityConverter>()
@@ -50,8 +52,8 @@ public class AgnosticModelEntityConverter(IServiceProvider serviceProvider)
         $"No converter found for entity {entity.GetType()}.");
   }
 
-  public TModel ToModel<TModel>(object entity)
-    where TModel : class
+  public TModel ToModel<TModel>(IEntity entity)
+    where TModel : class, IModel
   {
     return ToModel(entity) as TModel
       ?? throw new InvalidOperationException(

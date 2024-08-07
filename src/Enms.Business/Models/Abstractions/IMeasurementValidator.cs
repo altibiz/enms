@@ -2,6 +2,6 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Enms.Business.Models.Abstractions;
 
-public interface IMeasurementValidator : IValidatableObject
+public interface IMeasurementValidator : IAuditable
 {
 }

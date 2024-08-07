@@ -19,27 +19,15 @@ using ISession = YesSql.ISession;
 
 namespace Enms.Business.Queries;
 
-public class EnmsRepresentativeQueries : IEnmsQueries
+public class RepresentativeQueries(
+  EnmsDataDbContext context,
+  UserManager<IUser> userManager,
+  ISession session
+) : IQueries
 {
-  private readonly EnmsDataDbContext _context;
-  private readonly ISession _session;
-
-  private readonly UserManager<IUser> _userManager;
-
-  public EnmsRepresentativeQueries(
-    EnmsDataDbContext context,
-    UserManager<IUser> userManager,
-    ISession session
-  )
-  {
-    _context = context;
-    _session = session;
-    _userManager = userManager;
-  }
-
   public async Task<RepresentativeModel?> RepresentativeById(string id)
   {
-    return await _context.Representatives
+    return await context.Representatives
       .WithId(id)
       .FirstOrDefaultAsync() is { } entity
       ? entity.ToModel()
@@ -52,7 +40,7 @@ public class EnmsRepresentativeQueries : IEnmsQueries
     int pageCount = QueryConstants.DefaultPageCount
   )
   {
-    return await _context.Representatives
+    return await context.Representatives
       .Where(entity => entity.Role == RoleEntity.OperatorRepresentative)
       .QueryPaged(
         RepresentativeModelEntityConverterExtensions.ToModel,
@@ -68,7 +56,7 @@ public class EnmsRepresentativeQueries : IEnmsQueries
     int pageCount = QueryConstants.DefaultPageCount
   )
   {
-    return await _context.Representatives
+    return await context.Representatives
       .Where(entity => entity.Role == RoleEntity.UserRepresentative)
       .QueryPaged(
         RepresentativeModelEntityConverterExtensions.ToModel,
@@ -81,14 +69,14 @@ public class EnmsRepresentativeQueries : IEnmsQueries
   public async Task<UserModel?> UserByClaimsPrincipal(
     ClaimsPrincipal principal)
   {
-    return await _userManager.GetUserAsync(principal) is { } user
+    return await userManager.GetUserAsync(principal) is { } user
       ? user.ToModel()
       : null;
   }
 
   public async Task<UserModel?> UserByUserId(string userId)
   {
-    return await _userManager.FindByIdAsync(userId) is { } user
+    return await userManager.FindByIdAsync(userId) is { } user
       ? user.ToModel()
       : null;
   }
@@ -96,7 +84,7 @@ public class EnmsRepresentativeQueries : IEnmsQueries
   public async Task<RepresentativeModel?> RepresentativeByUserId(
     string userId)
   {
-    return await _context.Representatives
+    return await context.Representatives
       .WithId(userId)
       .FirstOrDefaultAsync() is { } entity
       ? entity.ToModel()
@@ -109,7 +97,7 @@ public class EnmsRepresentativeQueries : IEnmsQueries
       int pageNumber = QueryConstants.StartingPage,
       int pageCount = QueryConstants.DefaultPageCount)
   {
-    var users = await _session
+    var users = await session
       .Query<User, UserIndex>()
       .QueryPaged(
         UserModelExtensions.ToModel,
@@ -121,7 +109,7 @@ public class EnmsRepresentativeQueries : IEnmsQueries
       .Select(user => user.Id)
       .ToList();
 
-    var representatives = await _context.Representatives
+    var representatives = await context.Representatives
       .WithIdFrom(userIds)
       .ToListAsync();
 
@@ -141,7 +129,7 @@ public class EnmsRepresentativeQueries : IEnmsQueries
     int pageNumber = QueryConstants.StartingPage,
     int pageCount = QueryConstants.DefaultPageCount)
   {
-    var users = await _session
+    var users = await session
       .Query<User, UserIndex>()
       .QueryPaged(
         UserModelExtensions.ToModel,
@@ -153,7 +141,7 @@ public class EnmsRepresentativeQueries : IEnmsQueries
       .Select(user => user.Id)
       .ToList();
 
-    var representatives = await _context.Representatives
+    var representatives = await context.Representatives
       .WithIdFrom(ids)
       .ToListAsync();
 
@@ -179,14 +167,14 @@ public class EnmsRepresentativeQueries : IEnmsQueries
   public async Task<RepresentingUserModel?>
     RepresentingUserByClaimsPrincipal(ClaimsPrincipal claimsPrincipal)
   {
-    var user = await _userManager.GetUserAsync(claimsPrincipal);
+    var user = await userManager.GetUserAsync(claimsPrincipal);
     if (user is null)
     {
       return null;
     }
 
     var representative =
-      await _context.Representatives
+      await context.Representatives
         .WithId(user.GetId())
         .FirstOrDefaultAsync();
     if (representative is null)
@@ -203,14 +191,14 @@ public class EnmsRepresentativeQueries : IEnmsQueries
   public async Task<RepresentingUserModel?> RepresentingUserByUserId(
     string id)
   {
-    var user = await _userManager.FindByIdAsync(id);
+    var user = await userManager.FindByIdAsync(id);
     if (user is null)
     {
       return null;
     }
 
     var representative =
-      await _context.Representatives
+      await context.Representatives
         .WithId(id)
         .FirstOrDefaultAsync();
     if (representative is null)
@@ -228,7 +216,7 @@ public class EnmsRepresentativeQueries : IEnmsQueries
     RepresentingUserByRepresentativeId(string id)
   {
     var representative =
-      await _context.Representatives
+      await context.Representatives
         .WithId(id)
         .FirstOrDefaultAsync();
     if (representative is null)
@@ -236,7 +224,7 @@ public class EnmsRepresentativeQueries : IEnmsQueries
       return null;
     }
 
-    var user = await _userManager.FindByIdAsync(representative.Id);
+    var user = await userManager.FindByIdAsync(representative.Id);
     if (user is null)
     {
       return null;
@@ -251,14 +239,14 @@ public class EnmsRepresentativeQueries : IEnmsQueries
   public async Task<MaybeRepresentingUserModel?>
     MaybeRepresentingUserByClaimsPrincipal(ClaimsPrincipal claimsPrincipal)
   {
-    var user = await _userManager.GetUserAsync(claimsPrincipal);
+    var user = await userManager.GetUserAsync(claimsPrincipal);
     if (user is null)
     {
       return null;
     }
 
     var representative =
-      await _context.Representatives
+      await context.Representatives
         .WithId(user.GetId())
         .FirstOrDefaultAsync();
     if (representative is null)
@@ -275,14 +263,14 @@ public class EnmsRepresentativeQueries : IEnmsQueries
   public async Task<MaybeRepresentingUserModel?>
     MaybeRepresentingUserByUserId(string id)
   {
-    var user = await _userManager.FindByIdAsync(id);
+    var user = await userManager.FindByIdAsync(id);
     if (user is null)
     {
       return null;
     }
 
     var representative =
-      await _context.Representatives
+      await context.Representatives
         .WithId(id)
         .FirstOrDefaultAsync();
     if (representative is null)

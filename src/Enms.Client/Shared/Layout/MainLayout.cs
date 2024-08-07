@@ -6,6 +6,7 @@ using Enms.Client.Attributes;
 using Enms.Client.Base;
 using Enms.Client.State;
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.Extensions.DependencyInjection;
 
 // TODO: remove hardcoding of /app here
@@ -14,6 +15,9 @@ namespace Enms.Client.Shared.Layout;
 
 public partial class MainLayout : EnmsLayoutComponentBase
 {
+  [CascadingParameter]
+  private Task<AuthenticationState>? AuthenticationStateTask { get; set; }
+
   private LoadingState<RepresentativeState> _representativeState = new();
 
   private LoadingState<UserState> _userState = new();
@@ -44,16 +48,16 @@ public partial class MainLayout : EnmsLayoutComponentBase
 
   protected override async Task OnInitializedAsync()
   {
-    if (_authenticationStateTask is null)
+    if (AuthenticationStateTask is null)
     {
       return;
     }
 
-    var authenticationState = await _authenticationStateTask;
+    var authenticationState = await AuthenticationStateTask;
     var claimsPrincipal = authenticationState?.User ??
       throw new InvalidOperationException(
         "No claims principal found.");
-    if (claimsPrincipal.Identity?.IsAuthenticated is false)
+    if (!(claimsPrincipal.Identity?.IsAuthenticated ?? false))
     {
       NavigationManager.NavigateTo("/login?returnUrl=/app");
       return;
@@ -84,7 +88,7 @@ public partial class MainLayout : EnmsLayoutComponentBase
   {
     await using var scope = Services.CreateAsyncScope();
     var query =
-      scope.ServiceProvider.GetRequiredService<EnmsRepresentativeQueries>();
+      scope.ServiceProvider.GetRequiredService<RepresentativeQueries>();
     return await query.MaybeRepresentingUserByClaimsPrincipal(claimsPrincipal);
   }
 

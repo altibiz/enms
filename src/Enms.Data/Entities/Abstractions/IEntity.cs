@@ -1,5 +1,5 @@
 namespace Enms.Data.Entities.Abstractions;
 
-public interface IReadonlyEntity : IEntity
+public interface IEntity
 {
 }

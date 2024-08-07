@@ -1,5 +1,5 @@
 namespace Enms.Business.Models.Abstractions;
 
-public interface IReadonly : IModel
+public interface IModel
 {
 }

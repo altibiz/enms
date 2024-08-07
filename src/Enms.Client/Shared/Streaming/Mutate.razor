@@ -9,15 +9,19 @@
 
 @namespace Enms.Client.Shared.Streaming
 
-@typeparam T where T : class, IAuditable
+@typeparam T where T : class, IModel
 
 @inherits EnmsOwningComponentBase
 
+@inject IDialogService DialogService
+
 <Loading
+  T="T"
   Value="@Model"
   LoadAsync="@(() => ScopedServices
-    .GetRequiredService<EnmsAuditableQueries>()
-    .ReadSingle<T>(Id))">
+    .GetRequiredService<AgnosticQueries>()
+    .ReadSingle<T>(Id))"
+  New="@(() => Activator.CreateInstance<T>())">
   <Found Context="model">
     <EditForm
       Model="@model"
@@ -29,11 +33,11 @@
       Delete
     </MudButton>
   </Found>
-  <NotFound>
+  <NotFound Context="model">
     <EditForm
-      Model="@Context"
-      OnValidSubmit="@((a) => Create(Context))">
-      @ChildContent(Context)
+      Model="@model"
+      OnValidSubmit="@(() => Create(model))">
+      @ChildContent(model)
       <DataAnnotationsValidator/>
     </EditForm>
   </NotFound>
@@ -51,25 +55,31 @@
 
   private async Task Create(T model)
   {
-    var mutations = ScopedServices.GetRequiredService<EnmsAuditableMutations>();
+    var mutations = ScopedServices.GetRequiredService<AgnosticMutations>();
     mutations.Create(model);
     await mutations.Save();
-    DialogService.Show<MutateSuccess>("Changes Saved", new DialogOptions { CloseOnEscapeKey = true });
+    DialogService.Show<MutateSuccess>(
+      "Saved",
+      new DialogOptions { CloseOnEscapeKey = true });
   }
 
   private async Task Update(T model)
   {
-    var mutations = ScopedServices.GetRequiredService<EnmsAuditableMutations>();
+    var mutations = ScopedServices.GetRequiredService<AgnosticMutations>();
     mutations.Update(model);
     await mutations.Save();
-    DialogService.Show<MutateSuccess>("Changes Saved", new DialogOptions { CloseOnEscapeKey = true });
+    DialogService.Show<MutateSuccess>(
+      "Saved",
+      new DialogOptions { CloseOnEscapeKey = true });
   }
 
   private async Task Delete(T model)
   {
-    var mutations = ScopedServices.GetRequiredService<EnmsAuditableMutations>();
+    var mutations = ScopedServices.GetRequiredService<AgnosticMutations>();
     mutations.Delete(model);
     await mutations.Save();
-    DialogService.Show<MutateSuccess>("Changes Saved", new DialogOptions { CloseOnEscapeKey = true });
+    DialogService.Show<MutateSuccess>(
+      "Saved",
+      new DialogOptions { CloseOnEscapeKey = true });
   }
 }

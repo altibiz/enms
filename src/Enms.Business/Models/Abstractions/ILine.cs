@@ -6,5 +6,7 @@ public interface ILine : IAuditable
 {
   public string MeasurementValidatorId { get; }
 
+  public string MeterId { get; }
+
   public ICapabilities Capabilities { get; }
 }

@@ -1,0 +1,72 @@
+@using Enms.Business.Models
+@using Enms.Business.Queries.Agnostic
+@using Enms.Client.Base
+@using Enms.Client.Shared.Streaming
+@using Microsoft.Extensions.DependencyInjection
+@using MudBlazor
+
+@inherits EnmsOwningComponentBase
+
+<MudTextField
+  Label="@T["Id"]"
+  @bind-Value="Model.Id"
+  For="@(() => Model.Id)"/>
+<MudTextField
+  Label="@T["Name"]"
+  @bind-Value="Model.Title"
+  For="@(() => Model.Title)"/>
+<MudTextField
+  Label="@T["Connected power"]"
+  @bind-Value="Model.ConnectionPower_W"
+  For="@(() => Model.ConnectionPower_W)"/>
+<MudSelect
+  Label="@T["Meter"]"
+  AnchorOrigin="Origin.BottomCenter"
+  @bind-Value="Model.MeterId"
+  For="@(() => Model.MeterId)">
+  <Paging PageAsync="@((page) => ScopedServices
+      .GetRequiredService<AgnosticQueries>()
+      .Read<EgaugeMeterModel>(pageNumber: page))">
+    <Found Context="model">
+      <MudSelectItem Value="model.Id">
+        @model.Title
+      </MudSelectItem>
+    </Found>
+  </Paging>
+</MudSelect>
+<MudSelect
+  Label="@T["Validator"]"
+  AnchorOrigin="Origin.BottomCenter"
+  @bind-Value="Model.MeasurementValidatorId"
+  For="@(() => Model.MeasurementValidatorId)">
+  <Paging PageAsync="@((page) => ScopedServices
+      .GetRequiredService<AgnosticQueries>()
+      .Read<EgaugeMeasurementValidatorModel>(pageNumber: page))">
+    <Found Context="model">
+      <MudSelectItem Value="model.Id">
+        @model.Title
+      </MudSelectItem>
+    </Found>
+  </Paging>
+</MudSelect>
+<MudSelect
+  T="PhaseModel"
+  Label="@T["Phase"]"
+  AnchorOrigin="Origin.BottomCenter"
+  SelectedValuesChanged="@(e => Model.Phases = e.ToHashSet())"
+  MultiSelection="true">
+  <MudSelectItem Value="PhaseModel.L1">
+    L1
+  </MudSelectItem>
+  <MudSelectItem Value="PhaseModel.L2">
+    L2
+  </MudSelectItem>
+  <MudSelectItem Value="PhaseModel.L3">
+    L3
+  </MudSelectItem>
+</MudSelect>
+
+@code {
+  [Parameter]
+  public EgaugeLineModel Model { get; set; } = default!;
+}

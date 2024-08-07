@@ -26,6 +26,7 @@ public static class EgaugeLineModelEntityConverterExtensions
     return new EgaugeLineEntity
     {
       Id = model.Id,
+      MeterId = model.MeterId,
       Title = model.Title,
       CreatedOn = model.CreatedOn,
       CreatedById = model.CreatedById,
@@ -45,6 +46,7 @@ public static class EgaugeLineModelEntityConverterExtensions
     return new EgaugeLineModel
     {
       Id = entity.Id,
+      MeterId = entity.MeterId,
       Title = entity.Title,
       CreatedOn = entity.CreatedOn,
       CreatedById = entity.CreatedById,
@@ -55,7 +57,7 @@ public static class EgaugeLineModelEntityConverterExtensions
       DeletedById = entity.DeletedById,
       MeasurementValidatorId = entity.MeasurementValidatorId,
       ConnectionPower_W = entity.ConnectionPower_W,
-      Phases = entity.Phases.Select(p => p.ToModel()).ToList()
+      Phases = entity.Phases.Select(p => p.ToModel()).ToHashSet()
     };
   }
 }

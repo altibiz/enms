@@ -10,10 +10,13 @@ public abstract class LineModel : AuditableModel, ILine
   public required float ConnectionPower_W { get; set; }
 
   [Required]
-  public required List<PhaseModel> Phases { get; set; } = new();
+  public required HashSet<PhaseModel> Phases { get; set; } = new();
 
   [Required]
   public required string MeasurementValidatorId { get; set; }
+
+  [Required]
+  public required string MeterId { get; set; }
 
   public abstract ICapabilities Capabilities { get; }
 

@@ -1,6 +1,7 @@
 @page "/users"
 
 @using Enms.Business.Queries
+@using Enms.Business.Models.Composite
 @using Enms.Client.Attributes
 @using Enms.Client.Base
 @using Enms.Client.Shared.Streaming
@@ -15,12 +16,13 @@
 
 @inherits EnmsOwningComponentBase
 
-<Loading Load="@(() => ScopedServices
-  .GetRequiredService<EnmsRepresentativeQueries>()
-  .MaybeRepresentingUsers(pageNumber: _page))">
-  <Found>
-    @foreach (var maybeRepresentingUser in context.Items)
-    {
+<Paging
+  T="MaybeRepresentingUserModel"
+  PageAsync="@((page) => ScopedServices
+    .GetRequiredService<RepresentativeQueries>()
+    .MaybeRepresentingUsers(pageNumber: page))">
+  <Found Context="maybeRepresentingUser">
+    @{
       var href = $"user/{maybeRepresentingUser.User.Id}";
       var editHref = $"user/{maybeRepresentingUser.User.Id}/edit";
 
@@ -43,15 +45,5 @@
         </MudCardActions>
       </MudCard>
     }
-
-    <MudPagination
-      class="mt-4"
-      @bind-Selected="_page"
-      PageSize="QueryConstants.DefaultPageSize"
-      TotalItems="context.TotalCount"/>
   </Found>
-</Loading>
-
-@code {
-  private int _page = 1;
-}
+</Paging>

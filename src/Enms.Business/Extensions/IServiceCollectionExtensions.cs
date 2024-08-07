@@ -21,8 +21,8 @@ public static class IServiceCollectionExtensions
   {
     services.AddData(builder);
 
-    services.AddScopedAssignableTo(typeof(IEnmsQueries));
-    services.AddScopedAssignableTo(typeof(IEnmsMutations));
+    services.AddScopedAssignableTo(typeof(IQueries));
+    services.AddScopedAssignableTo(typeof(IMutations));
 
     services.AddTransientAssignableTo(typeof(IAggregateUpserter));
     services.AddSingleton(typeof(AgnosticAggregateUpserter));
