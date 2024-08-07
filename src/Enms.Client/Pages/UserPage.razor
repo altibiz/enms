@@ -1,30 +1,23 @@
 @page "/user/{id?}"
 
-@using Enms.Business.Models.Composite
-@using Enms.Business.Queries
-@using Enms.Client.Attributes
-@using Enms.Client.Base
-@using Enms.Client.Shared.Models
-@using Enms.Client.Shared.Streaming
-@using Microsoft.AspNetCore.Authorization
-@using Microsoft.Extensions.DependencyInjection
-
 @namespace Enms.Client.Pages
 
 @attribute [Navigation(RouteValue = "id", Parents = new[] { typeof(UsersPage) })]
 @attribute [Authorize]
 
-@inherits EnmsOwningComponentBase
+@using Enms.Business.Models.Composite
+@using Enms.Business.Queries
+@using Enms.Client.Shared.Models
+@using Enms.Client.Shared.Streaming
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.Extensions.DependencyInjection
+@inherits Enms.Client.Base.EnmsOwningComponentBase
 
 <!-- TODO: custom mutations -->
 
 <Mutating
   T="MaybeRepresentingUserModel"
-  LoadAsync="@(Id is null
-    ? null
-    : async () => await ScopedServices
-      .GetRequiredService<RepresentativeQueries>()
-      .MaybeRepresentingUserByUserId(Id))">
+  LoadAsync="@(Id is null ? null : async () => await ScopedServices.GetRequiredService<RepresentativeQueries>().MaybeRepresentingUserByUserId(Id))">
   <Edit Context="model">
     <MaybeRepresentingUserEdit Model="@model"/>
   </Edit>
@@ -34,6 +27,8 @@
 </Mutating>
 
 @code {
+
   [Parameter]
-  public string? Id { get; set; } = default!;
+  public string? Id { get; set; }
+
 }

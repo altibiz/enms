@@ -1,27 +1,23 @@
 @page "/users"
 
-@using Enms.Business.Queries
-@using Enms.Business.Models.Composite
-@using Enms.Client.Attributes
-@using Enms.Client.Base
-@using Enms.Client.Shared.Streaming
-@using Enms.Client.Shared.Models
-@using Microsoft.AspNetCore.Authorization
-@using Microsoft.Extensions.DependencyInjection
-@using MudBlazor
-
 @namespace Enms.Client.Pages
 
 @attribute [Navigation(Title = "Users")]
 @attribute [Authorize]
 
-@inherits EnmsOwningComponentBase
+@using Enms.Business.Models.Composite
+@using Enms.Business.Queries
+@using Enms.Client.Attributes
+@using Enms.Client.Shared.Models
+@using Enms.Client.Shared.Streaming
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.Extensions.DependencyInjection
+@using MudBlazor
+@inherits Enms.Client.Base.EnmsOwningComponentBase
 
 <Paging
   T="MaybeRepresentingUserModel"
-  PageAsync="@((page) => ScopedServices
-    .GetRequiredService<RepresentativeQueries>()
-    .MaybeRepresentingUsers(pageNumber: page))">
+  PageAsync="@(page => ScopedServices.GetRequiredService<RepresentativeQueries>().MaybeRepresentingUsers(pageNumber: page))">
   <Summary Context="maybeRepresentingUser">
     @{
       var href = $"user/{maybeRepresentingUser.User.Id}";

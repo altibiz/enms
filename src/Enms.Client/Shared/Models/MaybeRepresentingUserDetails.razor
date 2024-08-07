@@ -1,10 +1,8 @@
-@using Enms.Business.Models.Composite
-@using Enms.Client.Base
-@using MudBlazor
-
 @namespace Enms.Client.Shared.Models
 
-@inherits EnmsComponentBase
+@using Enms.Business.Models.Composite
+@using MudBlazor
+@inherits Enms.Client.Base.EnmsComponentBase
 
 <MudText Typo="Typo.h5">User</MudText>
 <MudPaper>
@@ -42,6 +40,8 @@
 }
 
 @code {
+
   [Parameter]
   public MaybeRepresentingUserModel Model { get; set; } = default!;
+
 }

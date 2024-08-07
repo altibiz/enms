@@ -12,7 +12,7 @@ namespace Enms.Business.Mutations.Agnostic;
 public class AgnosticMutations(
   EnmsDataDbContext context,
   IServiceProvider serviceProvider
-  ) : IMutations
+) : IMutations
 {
   public Task Save()
   {

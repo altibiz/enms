@@ -1,18 +1,16 @@
-@using Enms.Business.Queries.Agnostic
-@using Enms.Business.Models.Abstractions
-@using Enms.Client.State
-@using Enms.Client.Base
-@using MudBlazor
-@using Microsoft.Extensions.DependencyInjection
-@using System.Text.Json
-
 @namespace Enms.Client.Shared.Streaming
 
-@attribute [StreamRendering(true)]
+@attribute [StreamRendering()]
 
 @typeparam T
 
-@inherits EnmsOwningComponentBase
+@using System.Text.Json
+@using Enms.Business.Models.Abstractions
+@using Enms.Business.Queries.Agnostic
+@using Enms.Client.State
+@using Microsoft.Extensions.DependencyInjection
+@using MudBlazor
+@inherits Enms.Client.Base.EnmsOwningComponentBase
 
 @if (_state.State is LoadingState.Loading)
 {
@@ -74,6 +72,7 @@
 </MudText>
 
 @code {
+
   [Parameter]
   public T? Value { get; set; }
 
@@ -211,9 +210,10 @@
     {
       try
       {
-        _state = _state.WithValue(await ScopedServices
-          .GetRequiredService<AgnosticQueries>()
-          .ReadSingleDynamic<T>(Id));
+        _state = _state.WithValue(
+          await ScopedServices
+            .GetRequiredService<AgnosticQueries>()
+            .ReadSingleDynamic<T>(Id));
       }
       catch (Exception e)
       {
@@ -255,4 +255,5 @@
       }
     }
   }
+
 }

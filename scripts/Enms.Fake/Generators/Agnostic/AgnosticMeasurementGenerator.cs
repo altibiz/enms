@@ -1,5 +1,4 @@
 using Enms.Business.Models.Abstractions;
-using Enms.Data;
 using Enms.Fake.Generators.Abstractions;
 
 namespace Enms.Fake.Generators.Agnostic;

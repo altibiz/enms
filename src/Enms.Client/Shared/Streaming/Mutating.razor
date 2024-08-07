@@ -1,17 +1,13 @@
-@using Enms.Business.Models.Abstractions
-@using Enms.Business.Mutations.Agnostic
-@using Enms.Business.Queries.Agnostic
-@using Enms.Client.Base
-@using Enms.Client.State
-@using Microsoft.AspNetCore.Components.Forms
-@using Microsoft.Extensions.DependencyInjection
-@using MudBlazor
-
 @namespace Enms.Client.Shared.Streaming
 
 @typeparam T
 
-@inherits EnmsOwningComponentBase
+@using Enms.Business.Models.Abstractions
+@using Enms.Business.Mutations.Agnostic
+@using Microsoft.AspNetCore.Components.Forms
+@using Microsoft.Extensions.DependencyInjection
+@using MudBlazor
+@inherits Enms.Client.Base.EnmsOwningComponentBase
 
 @inject IDialogService DialogService
 
@@ -74,6 +70,7 @@
 </Loading>
 
 @code {
+
   [Parameter]
   public T? Value { get; set; }
 
@@ -150,6 +147,7 @@
         new DialogOptions { CloseOnEscapeKey = true });
       return;
     }
+
     DialogService.Show<MutatingSuccess>(
       "Saved",
       new DialogOptions { CloseOnEscapeKey = true });
@@ -181,6 +179,7 @@
         new DialogOptions { CloseOnEscapeKey = true });
       return;
     }
+
     DialogService.Show<MutatingSuccess>(
       "Saved",
       new DialogOptions { CloseOnEscapeKey = true });
@@ -212,8 +211,10 @@
         new DialogOptions { CloseOnEscapeKey = true });
       return;
     }
+
     DialogService.Show<MutatingSuccess>(
       "Saved",
       new DialogOptions { CloseOnEscapeKey = true });
   }
+
 }

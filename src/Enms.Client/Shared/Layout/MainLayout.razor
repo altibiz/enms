@@ -1,15 +1,11 @@
-@using Enms.Client.Base
-@using Enms.Client.Shared.Streaming
-@using Enms.Client.State
-@using Enms.Business.Models
-@using Enms.Business.Models.Composite
-@using Microsoft.AspNetCore.Components.Authorization
-@using MudBlazor
-
 @namespace Enms.Client.Shared.Layout
 
-@inherits EnmsLayoutComponentBase
+@inherits Enms.Client.Base.EnmsLayoutComponentBase
 
+@using Enms.Business.Models
+@using Enms.Business.Models.Composite
+@using Enms.Client.Shared.Streaming
+@using MudBlazor
 @using Theme = Theme
 
 <main>
@@ -24,22 +20,22 @@
       <CascadingValue Value="meybeRepresentingUser.User">
         <UserLayout>
           <Body>
-            <Loading
-              T="RepresentativeModel"
-              Load="@(() => meybeRepresentingUser.Representative)">
-              <Found Context="representative">
-                <CascadingValue Value="representative">
-                  <RepresentativeLayout>
-                    <Body>
-                      @Body
-                    </Body>
-                  </RepresentativeLayout>
-                </CascadingValue>
-              </Found>
-              <NotFound>
-                @Body
-              </NotFound>
-            </Loading>
+          <Loading
+            T="RepresentativeModel"
+            Load="@(() => meybeRepresentingUser.Representative)">
+            <Found Context="representative">
+              <CascadingValue Value="representative">
+                <RepresentativeLayout>
+                  <Body>
+                  @Body
+                  </Body>
+                </RepresentativeLayout>
+              </CascadingValue>
+            </Found>
+            <NotFound>
+              @Body
+            </NotFound>
+          </Loading>
           </Body>
         </UserLayout>
       </CascadingValue>

@@ -1,11 +1,9 @@
-@using Enms.Business.Models.Composite
-@using Enms.Business.Models.Enums
-@using Enms.Client.Base
-@using MudBlazor
-
 @namespace Enms.Client.Shared.Models
 
-@inherits EnmsComponentBase
+@using Enms.Business.Models.Composite
+@using Enms.Business.Models.Enums
+@using MudBlazor
+@inherits Enms.Client.Base.EnmsComponentBase
 
 <MudText Typo="Typo.h5">User</MudText>
 <MudPaper>
@@ -21,7 +19,7 @@
   </MudGrid>
 </MudPaper>
 
-@if (Model.Representative is {})
+@if (Model.Representative is not null)
 {
   <MudText Typo="Typo.h5">Representative</MudText>
   <MudTextField
@@ -72,6 +70,8 @@
 }
 
 @code {
+
   [Parameter]
   public MaybeRepresentingUserModel Model { get; set; } = default!;
+
 }

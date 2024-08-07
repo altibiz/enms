@@ -17,18 +17,30 @@ public record LoadingState<T>(
 {
   public LoadingState<T> WithError(string? error)
   {
-    return this with { State = LoadingState.Error, Value = default, Error = error };
+    return this with
+    {
+      State = LoadingState.Error, Value = default, Error = error
+    };
   }
 
   public LoadingState<T> WithValue(T? value)
   {
     return value is null
-      ? this with { State = LoadingState.Unfound, Value = default, Error = default }
-      : this with { State = LoadingState.Found, Value = value, Error = default };
+      ? this with
+      {
+        State = LoadingState.Unfound, Value = default, Error = default
+      }
+      : this with
+      {
+        State = LoadingState.Found, Value = value, Error = default
+      };
   }
 
   public LoadingState<T> WithCreated(T value)
   {
-    return this with { State = LoadingState.Created, Value = value, Error = default };
+    return this with
+    {
+      State = LoadingState.Created, Value = value, Error = default
+    };
   }
 }

@@ -1,10 +1,8 @@
-@using Enms.Client.Base
-@using Enms.Client.State
-@using MudBlazor
-
 @namespace Enms.Client.Shared.Layout
 
-@inherits EnmsLayoutComponentBase
+@using Enms.Client.State
+@using MudBlazor
+@inherits Enms.Client.Base.EnmsLayoutComponentBase
 
 <MudLayout>
   <MudAppBar Elevation="4">
@@ -59,4 +57,5 @@
   {
     _drawerOpen = !_drawerOpen;
   }
+
 }

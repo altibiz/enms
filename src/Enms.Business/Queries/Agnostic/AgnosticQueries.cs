@@ -4,7 +4,6 @@ using Enms.Business.Models.Abstractions;
 using Enms.Business.Queries.Abstractions;
 using Enms.Data;
 using Enms.Data.Entities.Abstractions;
-using Enms.Data.Entities.Base;
 using Enms.Data.Extensions;
 using Microsoft.EntityFrameworkCore;
 
@@ -37,6 +36,7 @@ public class AgnosticQueries(
       throw new InvalidOperationException(
         $"{typeof(T)} is not identifiable");
     }
+
     var modelEntityConverter = serviceProvider
       .GetServices<IModelEntityConverter>()
       .FirstOrDefault(
@@ -49,6 +49,7 @@ public class AgnosticQueries(
     var item = await queryable.WithId(id).FirstOrDefaultAsync();
     return item is null ? default : (T)modelEntityConverter.ToModel(item);
   }
+
   public async Task<PaginatedList<T>> Read<T>(
     Func<T, bool>? whereClause = default,
     Func<T, object>? orderByDescClause = default,
@@ -100,6 +101,7 @@ public class AgnosticQueries(
       throw new InvalidOperationException(
         $"{typeof(T)} is not a model");
     }
+
     var modelEntityConverter = serviceProvider
       .GetServices<IModelEntityConverter>()
       .FirstOrDefault(

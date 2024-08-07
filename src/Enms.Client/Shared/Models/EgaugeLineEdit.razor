@@ -1,11 +1,9 @@
 @using Enms.Business.Models
 @using Enms.Business.Queries.Agnostic
-@using Enms.Client.Base
 @using Enms.Client.Shared.Streaming
 @using Microsoft.Extensions.DependencyInjection
 @using MudBlazor
-
-@inherits EnmsOwningComponentBase
+@inherits Enms.Client.Base.EnmsOwningComponentBase
 
 <MudTextField
   Label="@Translate("Id")"
@@ -24,9 +22,7 @@
   AnchorOrigin="Origin.BottomCenter"
   @bind-Value="Model.MeterId"
   For="@(() => Model.MeterId)">
-  <Paging PageAsync="@((page) => ScopedServices
-      .GetRequiredService<AgnosticQueries>()
-      .Read<EgaugeMeterModel>(pageNumber: page))">
+  <Paging PageAsync="@(page => ScopedServices.GetRequiredService<AgnosticQueries>().Read<EgaugeMeterModel>(pageNumber: page))">
     <Summary Context="model">
       <MudSelectItem Value="model.Id">
         @model.Title
@@ -39,9 +35,7 @@
   AnchorOrigin="Origin.BottomCenter"
   @bind-Value="Model.MeasurementValidatorId"
   For="@(() => Model.MeasurementValidatorId)">
-  <Paging PageAsync="@((page) => ScopedServices
-      .GetRequiredService<AgnosticQueries>()
-      .Read<EgaugeMeasurementValidatorModel>(pageNumber: page))">
+  <Paging PageAsync="@(page => ScopedServices.GetRequiredService<AgnosticQueries>().Read<EgaugeMeasurementValidatorModel>(pageNumber: page))">
     <Summary Context="model">
       <MudSelectItem Value="model.Id">
         @model.Title
@@ -67,6 +61,8 @@
 </MudSelect>
 
 @code {
+
   [Parameter]
   public EgaugeLineModel Model { get; set; } = default!;
+
 }
