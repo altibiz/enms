@@ -11,5 +11,5 @@ public interface IPushRequestMeasurementConverter
     DateTimeOffset timestamp,
     Stream request);
 
-  HttpContent ToHttpContent(IEnumerable<IMeasurement> measurement);
+  HttpContent ToHttpContent(IEnumerable<IMeasurement> measurements);
 }

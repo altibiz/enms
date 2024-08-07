@@ -12,7 +12,7 @@ public abstract class
 
   public bool CanConvert(string meterId)
   {
-    return meterId.StartsWith(MeterIdPrefix);
+    return meterId.StartsWith(MeterIdPrefix, StringComparison.InvariantCulture);
   }
 
   public abstract Task<IEnumerable<IMeasurement>> ToMeasurements(
@@ -20,11 +20,11 @@ public abstract class
     DateTimeOffset timestamp,
     Stream request);
 
-  public HttpContent ToHttpContent(IEnumerable<IMeasurement> measurement)
+  public HttpContent ToHttpContent(IEnumerable<IMeasurement> measurements)
   {
-    return ToHttpContent(measurement.Cast<TMeasurement>());
+    return ToHttpContent(measurements.Cast<TMeasurement>());
   }
 
   protected abstract HttpContent ToHttpContent(
-    IEnumerable<TMeasurement> measurement);
+    IEnumerable<TMeasurement> measurements);
 }
