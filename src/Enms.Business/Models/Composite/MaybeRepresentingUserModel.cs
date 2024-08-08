@@ -1,6 +1,8 @@
 namespace Enms.Business.Models.Composite;
 
 public record MaybeRepresentingUserModel(
-  UserModel User,
-  RepresentativeModel? Representative
-);
+  UserModel User
+)
+{
+  public virtual RepresentativeModel? MaybeRepresentative { get; set; }
+};

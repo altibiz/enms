@@ -6,17 +6,19 @@
 @attribute [Authorize]
 @using Enms.Business.Models.Composite
 @using Enms.Business.Queries
+@using Enms.Business.Mutations
 @using Enms.Client.Shared.Models
 @using Enms.Client.Shared.Streaming
 @using Microsoft.AspNetCore.Authorization
 @using Microsoft.Extensions.DependencyInjection
 @inherits Enms.Client.Base.EnmsOwningComponentBase
 
-<!-- TODO: custom mutations -->
-
 <Mutating
   T="MaybeRepresentingUserModel"
-  LoadAsync="@(Id is null ? null : async () => await ScopedServices.GetRequiredService<RepresentativeQueries>().MaybeRepresentingUserByUserId(Id))">
+  LoadAsync="@(Id is null ? null : () => ScopedServices.GetRequiredService<RepresentativeQueries>().MaybeRepresentingUserByUserId(Id))"
+  CreateAsync="@((model) => ScopedServices.GetRequiredService<RepresentativeMutations>().Create(model))"
+  UpdateAsync="@((model) => ScopedServices.GetRequiredService<RepresentativeMutations>().Update(model))"
+  DeleteAsync="@((model) => ScopedServices.GetRequiredService<RepresentativeMutations>().Delete(model))">
   <Edit Context="model">
     <MaybeRepresentingUserEdit Model="@model"/>
   </Edit>

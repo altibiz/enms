@@ -1,8 +1,11 @@
 @namespace Enms.Client.Shared.Models
 @using Enms.Business.Models.Composite
 @using Enms.Business.Models.Enums
+@using Enms.Business.Models
 @using MudBlazor
 @inherits Enms.Client.Base.EnmsComponentBase
+
+<!-- TODO: password -->
 
 <MudText Typo="Typo.h5">User</MudText>
 <MudPaper>
@@ -18,19 +21,19 @@
   </MudGrid>
 </MudPaper>
 
-@if (Model.Representative is not null)
+@if (Model.MaybeRepresentative is not null)
 {
   <MudText Typo="Typo.h5">Representative</MudText>
   <MudTextField
     Label="Title"
-    @bind-Value="Model.Representative.Title"
-    For="@(() => Model.Representative.Title)"/>
+    @bind-Value="Model.MaybeRepresentative.Title"
+    For="@(() => Model.MaybeRepresentative.Title)"/>
   <MudSelect
     T="RoleModel"
     Label="Coffee"
     AnchorOrigin="Origin.BottomCenter"
-    @bind-Value="Model.Representative.Role"
-    For="@(() => Model.Representative.Role)">
+    @bind-Value="Model.MaybeRepresentative.Role"
+    For="@(() => Model.MaybeRepresentative.Role)">
     <MudSelectItem Value="@RoleModel.OperatorRepresentative">
       Operator Representative
     </MudSelectItem>
@@ -40,32 +43,38 @@
   </MudSelect>
   <MudTextField
     Label="Name"
-    @bind-Value="Model.Representative.Name"
-    For="@(() => Model.Representative.Name)"/>
+    @bind-Value="Model.MaybeRepresentative.Name"
+    For="@(() => Model.MaybeRepresentative.Name)"/>
   <MudTextField
     Label="SocialSecurityNumber"
-    @bind-Value="Model.Representative.SocialSecurityNumber"
-    For="@(() => Model.Representative.SocialSecurityNumber)"/>
+    @bind-Value="Model.MaybeRepresentative.SocialSecurityNumber"
+    For="@(() => Model.MaybeRepresentative.SocialSecurityNumber)"/>
   <MudTextField
     Label="Address"
-    @bind-Value="Model.Representative.Address"
-    For="@(() => Model.Representative.Address)"/>
+    @bind-Value="Model.MaybeRepresentative.Address"
+    For="@(() => Model.MaybeRepresentative.Address)"/>
   <MudTextField
     Label="City"
-    @bind-Value="Model.Representative.City"
-    For="@(() => Model.Representative.City)"/>
+    @bind-Value="Model.MaybeRepresentative.City"
+    For="@(() => Model.MaybeRepresentative.City)"/>
   <MudTextField
     Label="PostalCode"
-    @bind-Value="Model.Representative.PostalCode"
-    For="@(() => Model.Representative.PostalCode)"/>
+    @bind-Value="Model.MaybeRepresentative.PostalCode"
+    For="@(() => Model.MaybeRepresentative.PostalCode)"/>
   <MudTextField
     Label="Email"
-    @bind-Value="Model.Representative.Email"
-    For="@(() => Model.Representative.Email)"/>
+    @bind-Value="Model.MaybeRepresentative.Email"
+    For="@(() => Model.MaybeRepresentative.Email)"/>
   <MudTextField
     Label="PhoneNumber"
-    @bind-Value="Model.Representative.PhoneNumber"
-    For="@(() => Model.Representative.PhoneNumber)"/>
+    @bind-Value="Model.MaybeRepresentative.PhoneNumber"
+    For="@(() => Model.MaybeRepresentative.PhoneNumber)"/>
+}
+else
+{
+  <MudButton OnClick="@(() => Model.MaybeRepresentative = RepresentativeModel.New(Model.User))">
+    @Translate("Create representative")
+  </MudButton>
 }
 
 @code {

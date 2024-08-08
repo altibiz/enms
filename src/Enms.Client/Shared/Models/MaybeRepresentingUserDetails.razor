@@ -17,7 +17,7 @@
   </MudGrid>
 </MudPaper>
 
-@if (Model.Representative is { } representative)
+@if (Model.MaybeRepresentative is { } representative)
 {
   <MudText Typo="Typo.h6">@representative.Title</MudText>
   <MudPaper>

@@ -116,11 +116,14 @@ public class RepresentativeQueries(
     return users.Items
       .Select(
         user => new MaybeRepresentingUserModel(
-          user,
-          representatives.WithId(user.Id).FirstOrDefault() is { } representative
-            ? representative.ToModel()
-            : null
-        ))
+          user
+        )
+        {
+          MaybeRepresentative =
+            representatives.WithId(user.Id).FirstOrDefault() is { } representative
+                ? representative.ToModel()
+                : null
+        })
       .ToPaginatedList(users.TotalCount);
   }
 
@@ -148,19 +151,23 @@ public class RepresentativeQueries(
     return users.Items
       .Select(
         user => new MaybeRepresentingUserModel(
-          user,
-          representatives.WithId(user.Id).FirstOrDefault() is { } representative
-            ? representative.ToModel()
-            : null
-        ))
+          user
+        )
+        {
+          MaybeRepresentative = representatives.WithId(user.Id).FirstOrDefault() is { } representative
+          ? representative.ToModel()
+          : null
+        })
       .Where(
         maybeRepresentingUser =>
-          maybeRepresentingUser.Representative is not null)
+          maybeRepresentingUser.MaybeRepresentative is not null)
       .Select(
         maybeRepresentingUser => new RepresentingUserModel(
-          maybeRepresentingUser.User,
-          maybeRepresentingUser.Representative!
-        ))
+          maybeRepresentingUser.User
+        )
+        {
+          Representative = maybeRepresentingUser.MaybeRepresentative!
+        })
       .ToPaginatedList(users.TotalCount);
   }
 
@@ -177,15 +184,12 @@ public class RepresentativeQueries(
       await context.Representatives
         .WithId(user.GetId())
         .FirstOrDefaultAsync();
-    if (representative is null)
-    {
-      return null;
-    }
-
-    return new RepresentingUserModel(
-      user.ToModel(),
-      representative.ToModel()
-    );
+    return representative is null
+      ? null
+      : new RepresentingUserModel(user.ToModel())
+      {
+        Representative = representative.ToModel()
+      };
   }
 
   public async Task<RepresentingUserModel?> RepresentingUserByUserId(
@@ -201,15 +205,12 @@ public class RepresentativeQueries(
       await context.Representatives
         .WithId(id)
         .FirstOrDefaultAsync();
-    if (representative is null)
-    {
-      return null;
-    }
-
-    return new RepresentingUserModel(
-      user.ToModel(),
-      representative.ToModel()
-    );
+    return representative is null
+      ? null
+      : new RepresentingUserModel(user.ToModel())
+      {
+        Representative = representative.ToModel()
+      };
   }
 
   public async Task<RepresentingUserModel?>
@@ -225,15 +226,12 @@ public class RepresentativeQueries(
     }
 
     var user = await userManager.FindByIdAsync(representative.Id);
-    if (user is null)
-    {
-      return null;
-    }
-
-    return new RepresentingUserModel(
-      user.ToModel(),
-      representative.ToModel()
-    );
+    return user is null
+      ? null
+      : new RepresentingUserModel(user.ToModel())
+      {
+        Representative = representative.ToModel()
+      };
   }
 
   public async Task<MaybeRepresentingUserModel?>
@@ -249,15 +247,13 @@ public class RepresentativeQueries(
       await context.Representatives
         .WithId(user.GetId())
         .FirstOrDefaultAsync();
-    if (representative is null)
-    {
-      return new MaybeRepresentingUserModel(user.ToModel(), null);
-    }
 
     return new MaybeRepresentingUserModel(
-      user.ToModel(),
-      representative.ToModel()
-    );
+      user.ToModel()
+    )
+    {
+      MaybeRepresentative = representative?.ToModel()
+    };
   }
 
   public async Task<MaybeRepresentingUserModel?>
@@ -273,14 +269,12 @@ public class RepresentativeQueries(
       await context.Representatives
         .WithId(id)
         .FirstOrDefaultAsync();
-    if (representative is null)
-    {
-      return new MaybeRepresentingUserModel(user.ToModel(), null);
-    }
 
     return new MaybeRepresentingUserModel(
-      user.ToModel(),
-      representative.ToModel()
-    );
+      user.ToModel()
+    )
+    {
+      MaybeRepresentative = representative?.ToModel()
+    };
   }
 }
