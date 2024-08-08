@@ -1,0 +1,38 @@
+@page "/lines"
+
+@namespace Enms.Client.Pages
+
+@attribute [Navigation(Title = "Lines")]
+@attribute [Authorize]
+@using Enms.Business.Models
+@using Enms.Business.Queries
+@using Enms.Client.Attributes
+@using Enms.Client.Shared.Models
+@using Enms.Client.Shared.Streaming
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.Extensions.DependencyInjection
+@using MudBlazor
+@inherits Enms.Client.Base.EnmsOwningComponentBase
+
+<Paging T="EgaugeLineModel">
+  <Summary Context="line">
+    @{
+      var href = $"line/{line.Id}";
+
+      <MudCard>
+        <MudCardContent>
+          <EgaugeLineSummary Model="@line"/>
+        </MudCardContent>
+        <MudCardActions>
+          <MudNavLink Href="@href">
+            @Translate("Details")
+          </MudNavLink>
+        </MudCardActions>
+      </MudCard>
+    }
+  </Summary>
+</Paging>
+
+<MudLink Href="line">
+  @Translate("Create")
+</MudLink>

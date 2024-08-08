@@ -1,0 +1,38 @@
+@page "/meters"
+
+@namespace Enms.Client.Pages
+
+@attribute [Navigation(Title = "Meters")]
+@attribute [Authorize]
+@using Enms.Business.Models
+@using Enms.Business.Queries
+@using Enms.Client.Attributes
+@using Enms.Client.Shared.Models
+@using Enms.Client.Shared.Streaming
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.Extensions.DependencyInjection
+@using MudBlazor
+@inherits Enms.Client.Base.EnmsOwningComponentBase
+
+<Paging T="EgaugeMeterModel">
+  <Summary Context="meter">
+    @{
+      var href = $"meter/{meter.Id}";
+
+      <MudCard>
+        <MudCardContent>
+          <EgaugeMeterSummary Model="@meter"/>
+        </MudCardContent>
+        <MudCardActions>
+          <MudNavLink Href="@href">
+            @Translate("Details")
+          </MudNavLink>
+        </MudCardActions>
+      </MudCard>
+    }
+  </Summary>
+</Paging>
+
+<MudLink Href="meter">
+  @Translate("Create")
+</MudLink>
