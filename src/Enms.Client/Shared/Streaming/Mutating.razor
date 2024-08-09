@@ -1,6 +1,6 @@
 @namespace Enms.Client.Shared.Streaming
 
-@typeparam T
+@typeparam T where T : notnull
 @using Enms.Business.Models.Abstractions
 @using Enms.Business.Mutations.Agnostic
 @using Microsoft.AspNetCore.Components.Forms
@@ -28,7 +28,8 @@
         Model="@model"
         OnValidSubmit="@(() => OnUpdate(model))">
         @Edit(model)
-        <DataAnnotationsValidator/>
+        <DataAnnotationsValidator />
+        <ValidationSummary />
         <MudButton ButtonType="ButtonType.Submit">
           @Translate("Update")
         </MudButton>
@@ -55,7 +56,8 @@
         Model="@model"
         OnValidSubmit="@(() => OnCreate(model))">
         @Edit(model)
-        <DataAnnotationsValidator/>
+        <DataAnnotationsValidator />
+        <ValidationSummary />
         <MudButton ButtonType="ButtonType.Submit">
           @Translate("Create")
         </MudButton>
@@ -138,7 +140,7 @@
       {
         await CreateAsync(model);
       }
-      else if (typeof(T).IsAssignableTo(typeof(IAuditable)))
+      else if (model?.GetType().IsAssignableTo(typeof(IAuditable)) ?? false)
       {
         var mutations = ScopedServices.GetRequiredService<AgnosticMutations>();
         mutations.Create((model as IAuditable)!);
@@ -170,7 +172,7 @@
       {
         await UpdateAsync(model);
       }
-      else if (typeof(T).IsAssignableTo(typeof(IAuditable)))
+      else if (model?.GetType().IsAssignableTo(typeof(IAuditable)) ?? false)
       {
         var mutations = ScopedServices.GetRequiredService<AgnosticMutations>();
         mutations.Update((model as IAuditable)!);
@@ -202,7 +204,7 @@
       {
         await DeleteAsync(model);
       }
-      else if (typeof(T).IsAssignableTo(typeof(IAuditable)))
+      else if (model?.GetType().IsAssignableTo(typeof(IAuditable)) ?? false)
       {
         var mutations = ScopedServices.GetRequiredService<AgnosticMutations>();
         mutations.Delete((model as IAuditable)!);

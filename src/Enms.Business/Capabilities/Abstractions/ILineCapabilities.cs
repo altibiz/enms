@@ -1,5 +1,5 @@
 namespace Enms.Business.Capabilities.Abstractions;
 
-public interface ICapabilities
+public interface ILineCapabilities
 {
 }

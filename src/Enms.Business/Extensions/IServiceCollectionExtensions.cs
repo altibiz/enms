@@ -1,4 +1,6 @@
 using System.Reflection;
+using Enms.Business.Activation.Abstractions;
+using Enms.Business.Activation.Agnostic;
 using Enms.Business.Aggregation;
 using Enms.Business.Aggregation.Abstractions;
 using Enms.Business.Aggregation.Agnostic;
@@ -34,6 +36,8 @@ public static class IServiceCollectionExtensions
     services.AddSingleton(typeof(AgnosticMeasurementAggregateConverter));
     services.AddTransientAssignableTo(typeof(IPushRequestMeasurementConverter));
     services.AddSingleton(typeof(AgnosticPushRequestMeasurementConverter));
+    services.AddTransientAssignableTo(typeof(IModelActivator));
+    services.AddSingleton(typeof(AgnosticModelActivator));
 
     services.AddScoped<EnmsIotHandler>();
     services.AddScoped<BatchAggregatedMeasurementUpserter>();

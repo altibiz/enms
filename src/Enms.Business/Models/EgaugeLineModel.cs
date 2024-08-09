@@ -6,8 +6,8 @@ namespace Enms.Business.Models;
 
 public class EgaugeLineModel : LineModel
 {
-  public override ICapabilities Capabilities
+  public override ILineCapabilities Capabilities
   {
-    get { return new EgaugeCapabilities(); }
+    get { return new EgaugeLineCapabilities(); }
   }
 }

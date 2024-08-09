@@ -18,7 +18,7 @@ public abstract class LineModel : AuditableModel, ILine
   [Required]
   public required string MeterId { get; set; }
 
-  public abstract ICapabilities Capabilities { get; }
+  public abstract ILineCapabilities Capabilities { get; }
 
   public override IEnumerable<ValidationResult> Validate(
     ValidationContext validationContext)

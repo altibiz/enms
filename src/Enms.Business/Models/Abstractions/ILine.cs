@@ -8,5 +8,5 @@ public interface ILine : IAuditable
 
   public string MeterId { get; }
 
-  public ICapabilities Capabilities { get; }
+  public ILineCapabilities Capabilities { get; }
 }
