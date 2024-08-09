@@ -1,0 +1,12 @@
+@using MudBlazor
+@namespace Enms.Client.Shared.Streaming
+
+<MudAlert Severity="Severity.Error">
+  @ChildContent
+</MudAlert>
+
+@code {
+
+  [Parameter]
+  public RenderFragment ChildContent { get; set; } = default!;
+}

@@ -1,5 +1,13 @@
 @using Enms.Business.Models
+@using Enms.Client.Base
+@using MudBlazor
 @namespace Enms.Client.Shared.Models
+@inherits EnmsComponentBase
+
+<MudTextField
+  Label="@Translate("Title")"
+  @bind-Value="Model.Title"
+  For="@(() => Model.Title)"/>
 
 @code {
 

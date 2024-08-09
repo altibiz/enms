@@ -1,16 +1,17 @@
 @using Enms.Business.Models
 @using Enms.Business.Queries.Agnostic
 @using Enms.Client.Shared.Streaming
+@using Enms.Client.Base
 @using Microsoft.Extensions.DependencyInjection
 @using MudBlazor
-@inherits Enms.Client.Base.EnmsOwningComponentBase
+@inherits EnmsOwningComponentBase
 
 <MudTextField
   Label="@Translate("Id")"
   @bind-Value="Model.Id"
   For="@(() => Model.Id)"/>
 <MudTextField
-  Label="@Translate("Name")"
+  Label="@Translate("Title")"
   @bind-Value="Model.Title"
   For="@(() => Model.Title)"/>
 <MudTextField

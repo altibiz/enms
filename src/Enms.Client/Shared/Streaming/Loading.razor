@@ -2,9 +2,9 @@
 
 @attribute [StreamRendering]
 
-@typeparam T
-@using System.Text.Json
+@typeparam T where T : notnull
 @using Enms.Business.Models.Abstractions
+@using Enms.Business.Activation.Agnostic
 @using Enms.Business.Queries.Agnostic
 @using Enms.Client.State
 @using Microsoft.Extensions.DependencyInjection
@@ -19,7 +19,7 @@
     return;
   }
 
-  <MudProgressCircular/>
+  <Progress/>
   return;
 }
 
@@ -31,9 +31,7 @@
     return;
   }
 
-  <MudAlert Severity="Severity.Error">
-    @_state.Error
-  </MudAlert>
+  <Error>@_state.Error</Error>
   return;
 }
 
@@ -57,6 +55,8 @@
     return;
   }
 
+
+  <Serialized Value="@_state.Value"/>
   return;
 }
 
@@ -66,9 +66,7 @@
   return;
 }
 
-<MudText>
-  @JsonSerializer.Serialize(_state.Value!, JsonSerializerOptions)
-</MudText>
+<Serialized Value="@_state.Value"/>
 
 @code {
 
@@ -112,12 +110,6 @@
   public RenderFragment<T>? Created { get; set; }
 
   private LoadingState<T> _state = new();
-
-  private static readonly JsonSerializerOptions JsonSerializerOptions =
-    new()
-    {
-      WriteIndented = true
-    };
 
   protected override void OnParametersSet()
   {
@@ -172,7 +164,9 @@
     {
       try
       {
-        _state = _state.WithCreated(Activator.CreateInstance<T>());
+        var activator = ScopedServices.GetRequiredService<AgnosticModelActivator>();
+        var created = activator.Activate<T>();
+        _state = _state.WithCreated(created);
       }
       catch (Exception e)
       {
@@ -246,7 +240,9 @@
     {
       try
       {
-        _state = _state.WithCreated(Activator.CreateInstance<T>());
+        var activator = ScopedServices.GetRequiredService<AgnosticModelActivator>();
+        var created = activator.Activate<T>();
+        _state = _state.WithCreated(created);
       }
       catch (Exception e)
       {
