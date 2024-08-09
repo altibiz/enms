@@ -20,9 +20,9 @@ public class AgnosticQueries(
       .GetServices<IModelEntityConverter>()
       .FirstOrDefault(
         converter => converter
-          .CanConvertToModel(typeof(T))) ?? throw new InvalidOperationException(
-      $"No model entity converter found for {typeof(T)}");
-    var queryable = context.GetDbSet(typeof(T))
+          .CanConvertToEntity(typeof(T))) ?? throw new InvalidOperationException(
+      $"No model entity converter found for model {typeof(T)}");
+    var queryable = context.GetQueryable(modelEntityConverter.EntityType())
         as IQueryable<IIdentifiableEntity>
       ?? throw new InvalidOperationException();
     var item = await queryable.WithId(id).FirstOrDefaultAsync();
@@ -41,9 +41,9 @@ public class AgnosticQueries(
       .GetServices<IModelEntityConverter>()
       .FirstOrDefault(
         converter => converter
-          .CanConvertToModel(typeof(T))) ?? throw new InvalidOperationException(
-      $"No model entity converter found for {typeof(T)}");
-    var queryable = context.GetDbSet(typeof(T))
+          .CanConvertToEntity(typeof(T))) ?? throw new InvalidOperationException(
+      $"No model entity converter found for model {typeof(T)}");
+    var queryable = context.GetQueryable(modelEntityConverter.EntityType())
         as IQueryable<IIdentifiableEntity>
       ?? throw new InvalidOperationException();
     var item = await queryable.WithId(id).FirstOrDefaultAsync();
@@ -63,9 +63,9 @@ public class AgnosticQueries(
       .GetServices<IModelEntityConverter>()
       .FirstOrDefault(
         converter => converter
-          .CanConvertToModel(typeof(T))) ?? throw new InvalidOperationException(
-      $"No model entity converter found for {typeof(T)}");
-    var queryable = context.GetDbSet(typeof(T))
+          .CanConvertToEntity(typeof(T))) ?? throw new InvalidOperationException(
+      $"No model entity converter found for model {typeof(T)}");
+    var queryable = context.GetQueryable(modelEntityConverter.EntityType())
         as IQueryable<IEntity>
       ?? throw new InvalidOperationException();
     var filtered = whereClause is not null
@@ -106,9 +106,9 @@ public class AgnosticQueries(
       .GetServices<IModelEntityConverter>()
       .FirstOrDefault(
         converter => converter
-          .CanConvertToModel(typeof(T))) ?? throw new InvalidOperationException(
-      $"No model entity converter found for {typeof(T)}");
-    var queryable = context.GetDbSet(typeof(T))
+          .CanConvertToEntity(typeof(T))) ?? throw new InvalidOperationException(
+      $"No model entity converter found for model {typeof(T)}");
+    var queryable = context.GetQueryable(modelEntityConverter.EntityType())
         as IQueryable<IEntity>
       ?? throw new InvalidOperationException();
     var filtered = whereClause is not null

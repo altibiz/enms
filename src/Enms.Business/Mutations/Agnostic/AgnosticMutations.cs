@@ -3,7 +3,6 @@ using Enms.Business.Conversion.Abstractions;
 using Enms.Business.Models.Abstractions;
 using Enms.Business.Mutations.Abstractions;
 using Enms.Data;
-using Microsoft.EntityFrameworkCore;
 
 // TODO: check representative model user id
 
@@ -19,17 +18,14 @@ public class AgnosticMutations(
     return context.SaveChangesAsync();
   }
 
-  public void Create(IModel model)
+  public void Create(IAuditable model)
   {
-    if (model is IValidatableObject validatable)
+    var validationResults = model
+      .Validate(new ValidationContext(this))
+      .ToList();
+    if (validationResults.Count is not 0)
     {
-      var validationResults = validatable
-        .Validate(new ValidationContext(this))
-        .ToList();
-      if (validationResults.Count is not 0)
-      {
-        throw new ValidationException(validationResults.First().ErrorMessage);
-      }
+      throw new ValidationException(validationResults.First().ErrorMessage);
     }
 
     var modelEntityConverter = serviceProvider
@@ -39,21 +35,17 @@ public class AgnosticMutations(
             .CanConvertToEntity(model.GetType())) ??
       throw new InvalidOperationException(
         $"No model entity converter found for {model.GetType()}");
-    context.Entry(modelEntityConverter.ToEntity(model)).State =
-      EntityState.Added;
+    context.Add(modelEntityConverter.ToEntity(model));
   }
 
-  public void Update(IModel model)
+  public void Update(IAuditable model)
   {
-    if (model is IValidatableObject validatable)
+    var validationResults = model
+      .Validate(new ValidationContext(this))
+      .ToList();
+    if (validationResults.Count is not 0)
     {
-      var validationResults = validatable
-        .Validate(new ValidationContext(this))
-        .ToList();
-      if (validationResults.Count is not 0)
-      {
-        throw new ValidationException(validationResults.First().ErrorMessage);
-      }
+      throw new ValidationException(validationResults.First().ErrorMessage);
     }
 
     var modelEntityConverter = serviceProvider
@@ -66,7 +58,7 @@ public class AgnosticMutations(
     context.Update(modelEntityConverter.ToEntity(model));
   }
 
-  public void Delete(IModel model)
+  public void Delete(IAuditable model)
   {
     var modelEntityConverter = serviceProvider
         .GetServices<IModelEntityConverter>()

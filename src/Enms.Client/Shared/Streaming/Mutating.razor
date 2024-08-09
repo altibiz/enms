@@ -132,10 +132,10 @@
       {
         await CreateAsync(model);
       }
-      else if (typeof(T).IsAssignableTo(typeof(IModel)))
+      else if (typeof(T).IsAssignableTo(typeof(IAuditable)))
       {
         var mutations = ScopedServices.GetRequiredService<AgnosticMutations>();
-        mutations.Create((model as IModel)!);
+        mutations.Create((model as IAuditable)!);
         await mutations.Save();
       }
     }
@@ -164,10 +164,10 @@
       {
         await UpdateAsync(model);
       }
-      else if (typeof(T).IsAssignableTo(typeof(IModel)))
+      else if (typeof(T).IsAssignableTo(typeof(IAuditable)))
       {
         var mutations = ScopedServices.GetRequiredService<AgnosticMutations>();
-        mutations.Update((model as IModel)!);
+        mutations.Update((model as IAuditable)!);
         await mutations.Save();
       }
     }
@@ -196,10 +196,10 @@
       {
         await DeleteAsync(model);
       }
-      else if (typeof(T).IsAssignableTo(typeof(IModel)))
+      else if (typeof(T).IsAssignableTo(typeof(IAuditable)))
       {
         var mutations = ScopedServices.GetRequiredService<AgnosticMutations>();
-        mutations.Delete((model as IModel)!);
+        mutations.Delete((model as IAuditable)!);
         await mutations.Save();
       }
     }
