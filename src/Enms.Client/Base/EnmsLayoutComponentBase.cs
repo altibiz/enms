@@ -1,48 +1,20 @@
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using Enms.Business.Time;
 using Microsoft.AspNetCore.Components;
 
 namespace Enms.Client.Base;
 
-public class EnmsLayoutComponentBase : LayoutComponentBase
+public class EnmsLayoutComponentBase : EnmsComponentBase
 {
-  private readonly EnmsComponentLocalizer _localizer = new();
+  [Parameter]
+  public RenderFragment? Body { get; set; }
 
-  public string Translate(string unlocalized)
+  [DynamicDependency(
+    DynamicallyAccessedMemberTypes.All,
+    typeof(EnmsLayoutComponentBase))]
+  public override Task SetParametersAsync(ParameterView parameters)
   {
-    return _localizer[unlocalized];
-  }
-
-  protected static string DecimalString(decimal? number, int places = 2)
-  {
-    if (number is null)
-    {
-      return "";
-    }
-
-    var cultureInfo = new CultureInfo("hr-HR");
-
-    var numberFormatInfo = (NumberFormatInfo)cultureInfo.NumberFormat.Clone();
-    numberFormatInfo.NumberGroupSeparator = ".";
-    numberFormatInfo.NumberDecimalDigits = places;
-
-    var roundedNumber = Math.Round(number.Value, places);
-    return roundedNumber.ToString("N", numberFormatInfo);
-  }
-
-  protected static string DateString(DateTimeOffset? dateTimeOffset)
-  {
-    if (dateTimeOffset is null)
-    {
-      return "";
-    }
-
-    var cultureInfo = new CultureInfo("hr-HR");
-
-    var withTimezone = dateTimeOffset
-      .Value
-      .ToOffset(DateTimeOffsetExtensions.DefaultOffset);
-
-    return withTimezone.ToString("dd. MM. yyyy.", cultureInfo);
+    return base.SetParametersAsync(parameters);
   }
 }

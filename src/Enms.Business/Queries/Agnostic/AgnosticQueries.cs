@@ -16,6 +16,8 @@ public class AgnosticQueries(
   EnmsDataDbContext context,
   IServiceProvider serviceProvider) : IQueries
 {
+  private static readonly SemaphoreSlim Semaphore = new(1, 1);
+
   public async Task<T?> ReadSingle<T>(string id)
     where T : IIdentifiable
   {
@@ -25,10 +27,17 @@ public class AgnosticQueries(
         converter => converter
           .CanConvertToEntity(typeof(T))) ?? throw new InvalidOperationException(
       $"No model entity converter found for model {typeof(T)}");
+
     var queryable = context.GetQueryable(modelEntityConverter.EntityType())
         as IQueryable<IIdentifiableEntity>
       ?? throw new InvalidOperationException();
+
+    await Semaphore.WaitAsync();
+
     var item = await queryable.WithId(id).FirstOrDefaultAsync();
+
+    Semaphore.Release();
+
     return item is null ? default : (T)modelEntityConverter.ToModel(item);
   }
 
@@ -46,10 +55,17 @@ public class AgnosticQueries(
         converter => converter
           .CanConvertToEntity(typeof(T))) ?? throw new InvalidOperationException(
       $"No model entity converter found for model {typeof(T)}");
+
     var queryable = context.GetQueryable(modelEntityConverter.EntityType())
         as IQueryable<IIdentifiableEntity>
       ?? throw new InvalidOperationException();
+
+    await Semaphore.WaitAsync();
+
     var item = await queryable.WithId(id).FirstOrDefaultAsync();
+
+    Semaphore.Release();
+
     return item is null ? default : (T)modelEntityConverter.ToModel(item);
   }
 
@@ -77,10 +93,10 @@ public class AgnosticQueries(
     var queryable = context.GetQueryable(modelEntityConverter.EntityType())
         as IQueryable<IEntity>
       ?? throw new InvalidOperationException();
+
     var filtered = whereClause is not null
       ? queryable.WhereDynamic(whereClause)
       : queryable;
-    var count = await filtered.CountAsync();
 
     var ordered = queryable;
     if (orderByDescClause is null && orderByAscClause is null)
@@ -102,10 +118,17 @@ public class AgnosticQueries(
         : orderByDesc;
     }
 
+    await Semaphore.WaitAsync();
+
+    var count = await filtered.CountAsync();
+
     var items = await ordered
       .Skip((pageNumber - 1) * pageCount)
       .Take(pageCount)
       .ToListAsync();
+
+    Semaphore.Release();
+
     return items
       .Select(modelEntityConverter.ToModel)
       .OfType<T>()
@@ -138,7 +161,6 @@ public class AgnosticQueries(
     var filtered = whereClause is not null
       ? queryable.WhereDynamic(whereClause)
       : queryable;
-    var count = await filtered.CountAsync();
 
     var ordered = queryable;
     if (orderByDescClause is null && orderByAscClause is null)
@@ -160,10 +182,17 @@ public class AgnosticQueries(
         : orderByDesc;
     }
 
+    await Semaphore.WaitAsync();
+
+    var count = await filtered.CountAsync();
+
     var items = await ordered
       .Skip((pageNumber - 1) * pageCount)
       .Take(pageCount)
       .ToListAsync();
+
+    Semaphore.Release();
+
     return items
       .Select(modelEntityConverter.ToModel)
       .OfType<T>()

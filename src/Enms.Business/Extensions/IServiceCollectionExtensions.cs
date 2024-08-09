@@ -5,6 +5,8 @@ using Enms.Business.Aggregation.Agnostic;
 using Enms.Business.Conversion.Abstractions;
 using Enms.Business.Conversion.Agnostic;
 using Enms.Business.Iot;
+using Enms.Business.Localization;
+using Enms.Business.Localization.Abstractions;
 using Enms.Business.Mutations.Abstractions;
 using Enms.Business.Queries.Abstractions;
 using Enms.Data;
@@ -35,6 +37,8 @@ public static class IServiceCollectionExtensions
 
     services.AddScoped<EnmsIotHandler>();
     services.AddScoped<BatchAggregatedMeasurementUpserter>();
+
+    services.AddSingleton<ILocalizer, Localizer>();
 
     return services;
   }

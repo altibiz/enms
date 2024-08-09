@@ -1,4 +1,6 @@
 using System.Globalization;
+using ApexCharts;
+using Enms.Business.Localization.Abstractions;
 using Enms.Business.Time;
 using Microsoft.AspNetCore.Components;
 
@@ -6,21 +8,47 @@ namespace Enms.Client.Base;
 
 public abstract class EnmsComponentBase : ComponentBase
 {
-  private readonly EnmsComponentLocalizer _localizer = new();
+  [Inject]
+  private ILocalizer Localizer { get; set; } = default!;
+
+  [Inject]
+  private NavigationManager NavigationManager { get; set; } = default!;
 
   public string Translate(string unlocalized)
   {
-    return _localizer[unlocalized];
+    return Localizer.TranslateForCurrentCulture(unlocalized);
   }
 
-  protected static string DecimalString(decimal? number, int places = 2)
+  private CultureInfo Culture()
+  {
+    var uri = new Uri(NavigationManager.Uri);
+    var culture = uri.Segments[2]?.TrimEnd('/') ?? "en-US";
+    var ci = CultureInfo.GetCultureInfo(culture);
+    return ci;
+  }
+
+  protected static ApexChartOptions<T> NewApexChartOptions<T>()
+    where T : class
+  {
+    var options = new ApexChartOptions<T>
+    {
+      Blazor = new ApexChartsBlazorOptions
+      {
+        JavascriptPath = "/_content/Blazor-ApexCharts/js/blazor-apexcharts.js"
+      }
+    };
+
+    return options;
+  }
+
+  protected string NumericString(decimal? number, int places = 2)
   {
     if (number is null)
     {
       return "";
     }
 
-    var cultureInfo = new CultureInfo("hr-HR");
+    var cultureInfo = Culture();
 
     var numberFormatInfo = (NumberFormatInfo)cultureInfo.NumberFormat.Clone();
     numberFormatInfo.NumberGroupSeparator = ".";
@@ -30,25 +58,58 @@ public abstract class EnmsComponentBase : ComponentBase
     return roundedNumber.ToString("N", numberFormatInfo);
   }
 
-  protected static string DateString(DateTimeOffset? dateTimeOffset)
+  protected string NumericString(float? number, int places = 2)
+  {
+    if (number is null)
+    {
+      return "";
+    }
+
+    var cultureInfo = Culture();
+
+    var numberFormatInfo = (NumberFormatInfo)cultureInfo.NumberFormat.Clone();
+    numberFormatInfo.NumberGroupSeparator = ".";
+    numberFormatInfo.NumberDecimalDigits = places;
+
+    var roundedNumber = Math.Round(number.Value, places);
+    return roundedNumber.ToString("N", numberFormatInfo);
+  }
+
+  protected string DateString(DateTimeOffset? dateTimeOffset)
   {
     if (dateTimeOffset is null)
     {
       return "";
     }
 
-    var cultureInfo = new CultureInfo("hr-HR");
+    var cultureInfo = Culture();
 
     var withTimezone = dateTimeOffset
       .Value
-      .ToOffset(DateTimeOffsetExtensions.DefaultOffset);
+      .ToOffset(DateTimeOffsetExtensions.GetOffset(dateTimeOffset.Value));
 
     return withTimezone.ToString("dd. MM. yyyy.", cultureInfo);
+  }
+
+  protected string DateTimeString(DateTimeOffset? dateTimeOffset)
+  {
+    if (dateTimeOffset is null)
+    {
+      return "";
+    }
+
+    var cultureInfo = Culture();
+
+    var withTimezone = dateTimeOffset
+      .Value
+      .ToOffset(DateTimeOffsetExtensions.GetOffset(dateTimeOffset.Value));
+
+    return withTimezone.ToString("dd. MM. yyyy. HH:mm", cultureInfo);
   }
 
   protected static DateTimeOffset DateTimeGraph(DateTimeOffset dateTimeOffset)
   {
     return dateTimeOffset.UtcDateTime.Add(
-      DateTimeOffsetExtensions.DefaultOffset);
+      DateTimeOffsetExtensions.GetOffset(dateTimeOffset));
   }
 }

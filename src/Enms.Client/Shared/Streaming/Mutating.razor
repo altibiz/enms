@@ -33,20 +33,20 @@
       <MudButton OnClick="@(() => OnDelete(model))">
         @Translate("Delete")
       </MudButton>
-      <MudButton OnClick="@(() => _mutating = false)">
+      <MudButton OnClick="@(() => _mutating = !_mutating)">
         @Translate("Back")
       </MudButton>
     }
     else
     {
       @Details(model)
-      <MudButton OnClick="@(() => _mutating = true)">
+      <MudButton OnClick="@(() => _mutating = !_mutating)">
         @Translate("Mutate")
       </MudButton>
     }
   </Found>
   <Created Context="model">
-    @if (_mutating)
+    @if (!_mutating)
     {
       <EditForm
         Model="@model"
@@ -54,14 +54,14 @@
         @Edit(model)
         <DataAnnotationsValidator/>
       </EditForm>
-      <MudButton OnClick="@(() => _mutating = false)">
+      <MudButton OnClick="@(() => _mutating = !_mutating)">
         @Translate("Preview")
       </MudButton>
     }
     else
     {
       @Details(model)
-      <MudButton OnClick="@(() => _mutating = true)">
+      <MudButton OnClick="@(() => _mutating = !_mutating)">
         @Translate("Mutate")
       </MudButton>
     }

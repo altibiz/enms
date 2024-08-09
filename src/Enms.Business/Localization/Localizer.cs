@@ -4,7 +4,7 @@ using Enms.Business.Localization.Abstractions;
 
 namespace Enms.Business.Localization;
 
-public class EnmsLocalizer : IEnmsLocalizer
+public class Localizer : ILocalizer
 {
   private static readonly Lazy<Dictionary<string, string>> _translations =
     new(() => LoadTranslations("translations-en.json"));
@@ -12,7 +12,17 @@ public class EnmsLocalizer : IEnmsLocalizer
   private static readonly Lazy<Dictionary<string, string>> _translationsHR =
     new(() => LoadTranslations("translations-hr.json"));
 
-  public string ForCulture(CultureInfo culture, string notLocalized)
+  public string TranslateForInvariantCulture(string notLocalized)
+  {
+    return TranslateForCulture(CultureInfo.InvariantCulture, notLocalized);
+  }
+
+  public string TranslateForCurrentCulture(string notLocalized)
+  {
+    return TranslateForCulture(CultureInfo.CurrentCulture, notLocalized);
+  }
+
+  public string TranslateForCulture(CultureInfo culture, string notLocalized)
   {
     Dictionary<string, string> activeTranslation = [];
     if (culture.Equals(CultureInfo.CreateSpecificCulture("en-US")))
@@ -33,11 +43,6 @@ public class EnmsLocalizer : IEnmsLocalizer
     return notLocalized;
   }
 
-  public string this[string notLocalized]
-  {
-    get { return ForCulture(CultureInfo.CurrentCulture, notLocalized); }
-  }
-
   private static Dictionary<string, string> LoadTranslations(string fileName)
   {
     var jsonStream = Load(fileName);
@@ -48,15 +53,13 @@ public class EnmsLocalizer : IEnmsLocalizer
 
   private static Stream Load(string name)
   {
-    var assembly = typeof(EnmsLocalizer).Assembly;
+    var assembly = typeof(Localizer).Assembly;
     var fullName = $"{assembly.GetName().Name}.Assets.{name}";
 
     var stream = assembly.GetManifestResourceStream(fullName) ??
       throw new InvalidOperationException(
         $"Resource {fullName} does not exist. "
-        + $"Here are the available resources for the given assembly '{
-          assembly.GetName().Name
-        }':\n"
+        + $"Here are the available resources for the given assembly '{assembly.GetName().Name}':\n"
         + string.Join("\n", assembly.GetManifestResourceNames())
       );
     return stream;

@@ -6,16 +6,7 @@ namespace Enms.Business.Time;
 
 public static class DateTimeOffsetExtensions
 {
-  public static TimeSpan DefaultOffset
-  {
-    get
-    {
-      return TimeZoneInfo
-        .FindSystemTimeZoneById("Europe/Zagreb").GetUtcOffset(DateTime.UtcNow);
-    }
-  }
-
-  private static TimeSpan GetOffset(DateTimeOffset forDate)
+  public static TimeSpan GetOffset(DateTimeOffset forDate)
   {
     return TimeZoneInfo.FindSystemTimeZoneById("Europe/Zagreb")
       .GetUtcOffset(forDate);
