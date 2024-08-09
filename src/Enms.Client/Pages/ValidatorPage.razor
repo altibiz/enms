@@ -1,0 +1,30 @@
+@page "/validator/{id?}"
+
+@namespace Enms.Client.Pages
+
+@attribute [Navigation(RouteValue = "id", Parents = new[] { typeof(ValidatorsPage) })]
+@attribute [Authorize]
+@using Enms.Business.Models
+@using Enms.Business.Queries
+@using Enms.Business.Mutations
+@using Enms.Client.Shared.Models
+@using Enms.Client.Shared.Streaming
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.Extensions.DependencyInjection
+@inherits Enms.Client.Base.EnmsOwningComponentBase
+
+<Mutating T="EgaugeMeasurementValidatorModel" Id="@Id">
+  <Edit Context="model">
+    <EgaugeMeasurementValidatorEdit Model="@model"/>
+  </Edit>
+  <Details Context="model">
+    <EgaugeMeasurementValidatorDetails Model="@model"/>
+  </Details>
+</Mutating>
+
+@code {
+
+  [Parameter]
+  public string? Id { get; set; }
+
+}

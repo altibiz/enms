@@ -1,5 +1,25 @@
 @using Enms.Business.Models
+@using MudBlazor
 @namespace Enms.Client.Shared.Models
+
+<MudText>
+  @Model.Id
+</MudText>
+<MudText>
+  @Model.Title
+</MudText>
+<MudText>
+  @Model.ConnectionPower_W
+</MudText>
+<MudText>
+  @Model.MeterId
+</MudText>
+<MudText>
+  @Model.MeasurementValidatorId
+</MudText>
+<MudText>
+  @Model.Phases
+</MudText>
 
 @code {
 

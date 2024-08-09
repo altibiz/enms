@@ -1,0 +1,38 @@
+@page "/validators"
+
+@namespace Enms.Client.Pages
+
+@attribute [Navigation(Title = "Validators")]
+@attribute [Authorize]
+@using Enms.Business.Models
+@using Enms.Business.Queries
+@using Enms.Client.Attributes
+@using Enms.Client.Shared.Models
+@using Enms.Client.Shared.Streaming
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.Extensions.DependencyInjection
+@using MudBlazor
+@inherits Enms.Client.Base.EnmsOwningComponentBase
+
+<Paging T="EgaugeMeasurementValidatorModel">
+  <Summary Context="validator">
+    @{
+      var href = $"meter/{validator.Id}";
+
+      <MudCard>
+        <MudCardContent>
+          <EgaugeMeasurementValidatorSummary Model="@validator"/>
+        </MudCardContent>
+        <MudCardActions>
+          <MudNavLink Href="@href">
+            @Translate("Details")
+          </MudNavLink>
+        </MudCardActions>
+      </MudCard>
+    }
+  </Summary>
+</Paging>
+
+<MudLink Href="meter">
+  @Translate("Create")
+</MudLink>

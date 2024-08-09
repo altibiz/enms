@@ -1,5 +1,13 @@
 @using Enms.Business.Models
+@using MudBlazor
 @namespace Enms.Client.Shared.Models
+
+<MudText Typo="Typo.h6">
+  @Model.Title
+</MudText>
+<MudText>
+  @Model.Id
+</MudText>
 
 @code {
 
