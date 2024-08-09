@@ -9,6 +9,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Enms.Business.Queries.Agnostic;
 
+// FIXME: Operation is not valid due to the current state of the object
+// when ordering by primary key
+
 public class AgnosticQueries(
   EnmsDataDbContext context,
   IServiceProvider serviceProvider) : IQueries
@@ -51,39 +54,60 @@ public class AgnosticQueries(
   }
 
   public async Task<PaginatedList<T>> Read<T>(
-    Func<T, bool>? whereClause = default,
-    Func<T, object>? orderByDescClause = default,
-    Func<T, object>? orderByAscClause = default,
+    string? whereClause = default,
+    string? orderByDescClause = default,
+    string? orderByAscClause = default,
     int pageNumber = QueryConstants.StartingPage,
     int pageCount = QueryConstants.DefaultPageCount
   )
-    where T : class, IModel
+    where T : IModel
   {
+    if (!typeof(T).IsAssignableTo(typeof(IModel)))
+    {
+      throw new InvalidOperationException(
+        $"{typeof(T)} is not a model");
+    }
     var modelEntityConverter = serviceProvider
       .GetServices<IModelEntityConverter>()
       .FirstOrDefault(
         converter => converter
           .CanConvertToEntity(typeof(T))) ?? throw new InvalidOperationException(
       $"No model entity converter found for model {typeof(T)}");
+
     var queryable = context.GetQueryable(modelEntityConverter.EntityType())
         as IQueryable<IEntity>
       ?? throw new InvalidOperationException();
     var filtered = whereClause is not null
-      ? queryable.Where(x => whereClause((x as T)!))
+      ? queryable.WhereDynamic(whereClause)
       : queryable;
     var count = await filtered.CountAsync();
-    var orderByDesc = orderByDescClause is not null
-      ? queryable.OrderByDescending(x => orderByDescClause((x as T)!))
-      : queryable;
-    var orderByAsc = orderByAscClause is not null
-      ? orderByDesc.OrderByDescending(x => orderByAscClause((x as T)!))
-      : orderByDesc;
-    var items = await orderByAsc
+
+    var ordered = queryable;
+    if (orderByDescClause is null && orderByAscClause is null)
+    {
+#pragma warning disable S125 // Sections of code should not be commented out
+      // ordered = queryable.OrderBy(context
+      //   .PrimaryKeyOfAgnostic(modelEntityConverter.EntityType()))
+      //   as IQueryable<IEntity>
+      //   ?? throw new InvalidOperationException();
+#pragma warning restore S125 // Sections of code should not be commented out
+    }
+    else
+    {
+      var orderByDesc = orderByDescClause is not null
+        ? queryable.OrderByDescendingDynamic(orderByDescClause)
+        : queryable;
+      ordered = orderByAscClause is not null
+        ? orderByDesc.OrderByDescendingDynamic(orderByAscClause)
+        : orderByDesc;
+    }
+
+    var items = await ordered
       .Skip((pageNumber - 1) * pageCount)
       .Take(pageCount)
       .ToListAsync();
     return items
-      .Select(item => modelEntityConverter.ToModel(item))
+      .Select(modelEntityConverter.ToModel)
       .OfType<T>()
       .ToPaginatedList(count);
   }
@@ -101,13 +125,13 @@ public class AgnosticQueries(
       throw new InvalidOperationException(
         $"{typeof(T)} is not a model");
     }
-
     var modelEntityConverter = serviceProvider
       .GetServices<IModelEntityConverter>()
       .FirstOrDefault(
         converter => converter
           .CanConvertToEntity(typeof(T))) ?? throw new InvalidOperationException(
       $"No model entity converter found for model {typeof(T)}");
+
     var queryable = context.GetQueryable(modelEntityConverter.EntityType())
         as IQueryable<IEntity>
       ?? throw new InvalidOperationException();
@@ -115,18 +139,33 @@ public class AgnosticQueries(
       ? queryable.WhereDynamic(whereClause)
       : queryable;
     var count = await filtered.CountAsync();
-    var orderByDesc = orderByDescClause is not null
-      ? queryable.OrderByDescendingDynamic(orderByDescClause)
-      : queryable;
-    var orderByAsc = orderByAscClause is not null
-      ? orderByDesc.OrderByDescendingDynamic(orderByAscClause)
-      : orderByDesc;
-    var items = await orderByAsc
+
+    var ordered = queryable;
+    if (orderByDescClause is null && orderByAscClause is null)
+    {
+#pragma warning disable S125 // Sections of code should not be commented out
+      // ordered = queryable.OrderBy(context
+      //   .PrimaryKeyOfAgnostic(modelEntityConverter.EntityType()))
+      //   as IQueryable<IEntity>
+      //   ?? throw new InvalidOperationException();
+#pragma warning restore S125 // Sections of code should not be commented out
+    }
+    else
+    {
+      var orderByDesc = orderByDescClause is not null
+        ? queryable.OrderByDescendingDynamic(orderByDescClause)
+        : queryable;
+      ordered = orderByAscClause is not null
+        ? orderByDesc.OrderByDescendingDynamic(orderByAscClause)
+        : orderByDesc;
+    }
+
+    var items = await ordered
       .Skip((pageNumber - 1) * pageCount)
       .Take(pageCount)
       .ToListAsync();
     return items
-      .Select(item => modelEntityConverter.ToModel(item))
+      .Select(modelEntityConverter.ToModel)
       .OfType<T>()
       .ToPaginatedList(count);
   }
