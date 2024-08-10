@@ -33,6 +33,8 @@ public static class DbContextOptionsBuilderExtensions
             }
           })
         .Where(interceptor => interceptor is not null)
+        .OfType<ServedSaveChangesInterceptor>()
+        .OrderBy(interceptor => interceptor.Order)
         .OfType<IInterceptor>()
         .ToArray());
   }

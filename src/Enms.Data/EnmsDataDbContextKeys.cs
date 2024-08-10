@@ -194,6 +194,48 @@ public partial class EnmsDataDbContext
     );
   }
 
+  public Func<T, bool> ForeignKeyEqualsCompiled<T>(string property, params string[] ids)
+  {
+    return ForeignKeyEquals<T>(property, ids).Compile();
+  }
+
+  public Expression<Func<T, bool>> ForeignKeyEquals<T>(string property, params string[] ids)
+  {
+    var original = ForeignKeyEqualsAgnostic(typeof(T), property, ids);
+    var parameter = Expression.Parameter(typeof(T));
+    return Expression.Lambda<Func<T, bool>>(
+      Expression.Invoke(
+        original,
+        Expression.Convert(parameter, typeof(object))),
+      parameter
+    );
+  }
+
+  public Func<object, bool> ForeignKeyEqualsAgnosticCompiled(
+    Type type,
+    string property,
+    params string[] ids)
+  {
+    return ForeignKeyEqualsAgnostic(type, property, ids).Compile();
+  }
+
+  public Expression<Func<object, bool>> ForeignKeyEqualsAgnostic(
+    Type type,
+    string property,
+    params string[] ids)
+  {
+    var objectParameter = Expression.Parameter(typeof(object));
+    var parameter = Expression.Convert(objectParameter, type);
+    var foreignKeyExpression = ForeignKeyOfAgnostic(type, property);
+    var foreignKeyEqualsExpression = Expression.Equal(
+      Expression.Invoke(foreignKeyExpression, parameter),
+      Expression.Constant(string.Join(KeyJoin, ids)));
+    return Expression.Lambda<Func<object, bool>>(
+      foreignKeyEqualsExpression,
+      objectParameter
+    );
+  }
+
   public Func<object, string> ForeignKeyOfAgnosticCompiled(
     Type type,
     string property)

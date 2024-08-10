@@ -1,5 +1,4 @@
 using System.Security.Claims;
-using Enms.Business.Queries;
 using Enms.Data;
 using Enms.Data.Entities;
 using Enms.Data.Entities.Base;
@@ -16,6 +15,8 @@ namespace Enms.Business.Interceptors;
 
 public class AuditingInterceptor : ServedSaveChangesInterceptor
 {
+  public override int Order => 10;
+
   public AuditingInterceptor(IServiceProvider serviceProvider)
     : base(serviceProvider)
   {
@@ -39,7 +40,6 @@ public class AuditingInterceptor : ServedSaveChangesInterceptor
     }
 
     var representativeId = await GetRepresentativeId(eventData);
-    var isDevelopment = IsDevelopment();
     var now = DateTimeOffset.UtcNow;
 
     var entries = eventData.Context.ChangeTracker
@@ -54,29 +54,26 @@ public class AuditingInterceptor : ServedSaveChangesInterceptor
         if (representativeId is not null)
         {
           auditable.Entity.CreatedById = representativeId;
-          if (isDevelopment)
-          {
-            eventData.Context.Add(
-              new RepresentativeAuditEventEntity
-              {
-                Timestamp = now,
-                Title =
-                  $"Created {auditable.Entity.GetType().Name} {auditable.Entity.Title}",
-                RepresentativeId = representativeId,
-                Level = LevelEntity.Debug,
-                Audit = AuditEntity.Creation,
-                Description = CreateAddedMessage(auditable),
-                AuditableEntityId = auditable.Entity.Id,
-                AuditableEntityType = auditable.Entity.GetType().FullName
-                  ?? throw new InvalidOperationException(
-                    "No type name found for auditable entity"),
-                AuditableEntityTable = auditable.Metadata.GetTableName()
-                  ?? throw new InvalidOperationException(
-                    "No table name found for auditable entity")
-              });
-          }
+          eventData.Context.Add(
+            new RepresentativeAuditEventEntity
+            {
+              Timestamp = now,
+              Title =
+                $"Created {auditable.Entity.GetType().Name} {auditable.Entity.Title}",
+              RepresentativeId = representativeId,
+              Level = LevelEntity.Debug,
+              Audit = AuditEntity.Creation,
+              Description = CreateAddedMessage(auditable),
+              AuditableEntityId = auditable.Entity.Id,
+              AuditableEntityType = auditable.Entity.GetType().FullName
+                ?? throw new InvalidOperationException(
+                  "No type name found for auditable entity"),
+              AuditableEntityTable = auditable.Metadata.GetTableName()
+                ?? throw new InvalidOperationException(
+                  "No table name found for auditable entity")
+            });
         }
-        else if (isDevelopment)
+        else
         {
           auditable.Entity.CreatedBy = null;
           eventData.Context.Add(
@@ -105,51 +102,45 @@ public class AuditingInterceptor : ServedSaveChangesInterceptor
         if (representativeId is not null)
         {
           auditable.Entity.LastUpdatedById = representativeId;
-          if (isDevelopment)
-          {
-            eventData.Context.Add(
-              new RepresentativeAuditEventEntity
-              {
-                Timestamp = now,
-                Title =
-                  $"Updated {auditable.Entity.GetType().Name} {auditable.Entity.Title}",
-                RepresentativeId = representativeId,
-                Level = LevelEntity.Debug,
-                Audit = AuditEntity.Modification,
-                Description = CreateModifiedMessage(auditable),
-                AuditableEntityId = auditable.Entity.Id,
-                AuditableEntityType = auditable.Entity.GetType().FullName
-                  ?? throw new InvalidOperationException(
-                    "No type name found for auditable entity"),
-                AuditableEntityTable = auditable.Metadata.GetTableName()
-                  ?? throw new InvalidOperationException(
-                    "No table name found for auditable entity")
-              });
-          }
+          eventData.Context.Add(
+            new RepresentativeAuditEventEntity
+            {
+              Timestamp = now,
+              Title =
+                $"Updated {auditable.Entity.GetType().Name} {auditable.Entity.Title}",
+              RepresentativeId = representativeId,
+              Level = LevelEntity.Debug,
+              Audit = AuditEntity.Modification,
+              Description = CreateModifiedMessage(auditable),
+              AuditableEntityId = auditable.Entity.Id,
+              AuditableEntityType = auditable.Entity.GetType().FullName
+                ?? throw new InvalidOperationException(
+                  "No type name found for auditable entity"),
+              AuditableEntityTable = auditable.Metadata.GetTableName()
+                ?? throw new InvalidOperationException(
+                  "No table name found for auditable entity")
+            });
         }
         else
         {
           auditable.Entity.LastUpdatedBy = null;
-          if (isDevelopment)
-          {
-            eventData.Context.Add(
-              new SystemAuditEventEntity
-              {
-                Timestamp = now,
-                Title =
-                  $"Updated {auditable.Entity.GetType().Name} {auditable.Entity.Title}",
-                Level = LevelEntity.Debug,
-                Audit = AuditEntity.Modification,
-                Description = CreateModifiedMessage(auditable),
-                AuditableEntityId = auditable.Entity.Id,
-                AuditableEntityType = auditable.Entity.GetType().FullName
-                  ?? throw new InvalidOperationException(
-                    "No type name found for auditable entity"),
-                AuditableEntityTable = auditable.Metadata.GetTableName()
-                  ?? throw new InvalidOperationException(
-                    "No table name found for auditable entity")
-              });
-          }
+          eventData.Context.Add(
+            new SystemAuditEventEntity
+            {
+              Timestamp = now,
+              Title =
+                $"Updated {auditable.Entity.GetType().Name} {auditable.Entity.Title}",
+              Level = LevelEntity.Debug,
+              Audit = AuditEntity.Modification,
+              Description = CreateModifiedMessage(auditable),
+              AuditableEntityId = auditable.Entity.Id,
+              AuditableEntityType = auditable.Entity.GetType().FullName
+                ?? throw new InvalidOperationException(
+                  "No type name found for auditable entity"),
+              AuditableEntityTable = auditable.Metadata.GetTableName()
+                ?? throw new InvalidOperationException(
+                  "No table name found for auditable entity")
+            });
         }
       }
 
@@ -161,51 +152,45 @@ public class AuditingInterceptor : ServedSaveChangesInterceptor
         if (representativeId is not null)
         {
           auditable.Entity.DeletedById = representativeId;
-          if (isDevelopment)
-          {
-            eventData.Context.Add(
-              new RepresentativeAuditEventEntity
-              {
-                Timestamp = now,
-                Title =
-                  $"Deleted {auditable.Entity.GetType().Name} {auditable.Entity.Title}",
-                RepresentativeId = representativeId,
-                Level = LevelEntity.Debug,
-                Audit = AuditEntity.Deletion,
-                Description = CreateDeletedMessage(auditable),
-                AuditableEntityId = auditable.Entity.Id,
-                AuditableEntityType = auditable.Entity.GetType().FullName
-                  ?? throw new InvalidOperationException(
-                    "No type name found for auditable entity"),
-                AuditableEntityTable = auditable.Metadata.GetTableName()
-                  ?? throw new InvalidOperationException(
-                    "No table name found for auditable entity")
-              });
-          }
+          eventData.Context.Add(
+            new RepresentativeAuditEventEntity
+            {
+              Timestamp = now,
+              Title =
+                $"Deleted {auditable.Entity.GetType().Name} {auditable.Entity.Title}",
+              RepresentativeId = representativeId,
+              Level = LevelEntity.Debug,
+              Audit = AuditEntity.Deletion,
+              Description = CreateDeletedMessage(auditable),
+              AuditableEntityId = auditable.Entity.Id,
+              AuditableEntityType = auditable.Entity.GetType().FullName
+                ?? throw new InvalidOperationException(
+                  "No type name found for auditable entity"),
+              AuditableEntityTable = auditable.Metadata.GetTableName()
+                ?? throw new InvalidOperationException(
+                  "No table name found for auditable entity")
+            });
         }
         else
         {
           auditable.Entity.DeletedById = null;
-          if (isDevelopment)
-          {
-            eventData.Context.Add(
-              new SystemAuditEventEntity
-              {
-                Timestamp = now,
-                Title =
-                  $"Deleted {auditable.Entity.GetType().Name} {auditable.Entity.Title}",
-                Level = LevelEntity.Debug,
-                Audit = AuditEntity.Deletion,
-                Description = CreateDeletedMessage(auditable),
-                AuditableEntityId = auditable.Entity.Id,
-                AuditableEntityType = auditable.Entity.GetType().FullName
-                  ?? throw new InvalidOperationException(
-                    "No type name found for auditable entity"),
-                AuditableEntityTable = auditable.Metadata.GetTableName()
-                  ?? throw new InvalidOperationException(
-                    "No table name found for auditable entity")
-              });
-          }
+          eventData.Context.Add(
+            new SystemAuditEventEntity
+            {
+              Timestamp = now,
+              Title =
+                $"Deleted {auditable.Entity.GetType().Name} {auditable.Entity.Title}",
+              Level = LevelEntity.Debug,
+              Audit = AuditEntity.Deletion,
+              Description = CreateDeletedMessage(auditable),
+              AuditableEntityId = auditable.Entity.Id,
+              AuditableEntityType = auditable.Entity.GetType().FullName
+                ?? throw new InvalidOperationException(
+                  "No type name found for auditable entity"),
+              AuditableEntityTable = auditable.Metadata.GetTableName()
+                ?? throw new InvalidOperationException(
+                  "No table name found for auditable entity")
+            });
         }
       }
     }
@@ -252,13 +237,6 @@ public class AuditingInterceptor : ServedSaveChangesInterceptor
       .FirstOrDefaultAsync();
 
     return representative?.Id;
-  }
-
-  private bool IsDevelopment()
-  {
-    return serviceProvider.GetService<IHostEnvironment>() is
-    { } hostEnvironment
-      && hostEnvironment.IsDevelopment();
   }
 
   private static string CreateAddedMessage(EntityEntry entry)

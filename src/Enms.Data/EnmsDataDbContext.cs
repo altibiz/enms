@@ -32,6 +32,13 @@ public partial class EnmsDataDbContext : DbContext
       .ApplyPostgresqlEnumAttributes()
       .ApplyTimescaleHypertableAttributes();
 
+    foreach (var relationship in modelBuilder.Model
+      .GetEntityTypes()
+      .SelectMany(e => e.GetForeignKeys()))
+    {
+      relationship.DeleteBehavior = DeleteBehavior.Restrict;
+    }
+
     base.OnModelCreating(modelBuilder);
   }
 }
