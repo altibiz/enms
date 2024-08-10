@@ -52,5 +52,4 @@ public abstract class EnmsOwningComponentBase : EnmsComponentBase, IDisposable
   {
   }
 #pragma warning restore S2953
-
 }

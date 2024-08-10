@@ -8,7 +8,6 @@ using Enms.Business.Queries.Abstractions;
 using Enms.Data;
 using Enms.Data.Entities;
 using Enms.Data.Entities.Enums;
-using Enms.Data.Extensions;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using OrchardCore.Users;
@@ -120,9 +119,11 @@ public class RepresentativeQueries(
         )
         {
           MaybeRepresentative =
-            representatives.FirstOrDefault(context.PrimaryKeyEqualsCompiled<RepresentativeEntity>(user.Id)) is { } representative
-                ? representative.ToModel()
-                : null
+            representatives.FirstOrDefault(
+                context.PrimaryKeyEqualsCompiled<RepresentativeEntity>(user.Id))
+              is { } representative
+              ? representative.ToModel()
+              : null
         })
       .ToPaginatedList(users.TotalCount);
   }
@@ -155,11 +156,12 @@ public class RepresentativeQueries(
         )
         {
           MaybeRepresentative = representatives
-            .FirstOrDefault(context
-              .PrimaryKeyEqualsCompiled<RepresentativeEntity>(user.Id)) is
-          { } representative
-          ? representative.ToModel()
-          : null
+              .FirstOrDefault(
+                context
+                  .PrimaryKeyEqualsCompiled<RepresentativeEntity>(user.Id)) is
+            { } representative
+            ? representative.ToModel()
+            : null
         })
       .Where(
         maybeRepresentingUser =>

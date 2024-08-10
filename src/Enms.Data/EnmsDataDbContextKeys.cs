@@ -169,7 +169,11 @@ public partial class EnmsDataDbContext
       typeof(ICollection<string>).GetMethod(
         nameof(ICollection<string>.Contains)) ??
       throw new InvalidOperationException(
-        $"No {nameof(ICollection<string>.Contains)} method found in {typeof(ICollection<string>)}"),
+        $"No {
+          nameof(ICollection<string>.Contains)
+        } method found in {
+          typeof(ICollection<string>)
+        }"),
       Expression.Invoke(primaryKeyExpression, parameter));
     return Expression.Lambda<Func<object, bool>>(
       primaryKeyInExpression,
@@ -194,12 +198,16 @@ public partial class EnmsDataDbContext
     );
   }
 
-  public Func<T, bool> ForeignKeyEqualsCompiled<T>(string property, params string[] ids)
+  public Func<T, bool> ForeignKeyEqualsCompiled<T>(
+    string property,
+    params string[] ids)
   {
     return ForeignKeyEquals<T>(property, ids).Compile();
   }
 
-  public Expression<Func<T, bool>> ForeignKeyEquals<T>(string property, params string[] ids)
+  public Expression<Func<T, bool>> ForeignKeyEquals<T>(
+    string property,
+    params string[] ids)
   {
     var original = ForeignKeyEqualsAgnostic(typeof(T), property, ids);
     var parameter = Expression.Parameter(typeof(T));

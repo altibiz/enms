@@ -28,8 +28,8 @@
         Model="@model"
         OnValidSubmit="@(() => OnUpdate(model))">
         @Edit(model)
-        <DataAnnotationsValidator />
-        <ValidationSummary />
+        <DataAnnotationsValidator/>
+        <ValidationSummary/>
         <MudButton ButtonType="ButtonType.Submit">
           @Translate("Update")
         </MudButton>
@@ -56,8 +56,8 @@
         Model="@model"
         OnValidSubmit="@(() => OnCreate(model))">
         @Edit(model)
-        <DataAnnotationsValidator />
-        <ValidationSummary />
+        <DataAnnotationsValidator/>
+        <ValidationSummary/>
         <MudButton ButtonType="ButtonType.Submit">
           @Translate("Create")
         </MudButton>

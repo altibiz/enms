@@ -78,24 +78,36 @@
   [Parameter]
   public int PageCount { get; set; } = QueryConstants.DefaultPageCount;
 
-  private Func<PaginatedList<T>>? OnPage => Page is null
-      ? null :
-      () => Page(_pageNumber);
+  private Func<PaginatedList<T>>? OnPage
+  {
+    get
+    {
+      return Page is null
+        ? null
+        : () => Page(_pageNumber);
+    }
+  }
 
-  private Func<Task<PaginatedList<T>>>? OnPageAsync => PageAsync is not null
-      ? () => PageAsync(_pageNumber)
-      : Page is null && typeof(T).IsAssignableTo(typeof(IAuditable))
-        ? () => ScopedServices
+  private Func<Task<PaginatedList<T>>>? OnPageAsync
+  {
+    get
+    {
+      return PageAsync is not null
+        ? () => PageAsync(_pageNumber)
+        : Page is null && typeof(T).IsAssignableTo(typeof(IAuditable))
+          ? () => ScopedServices
             .GetRequiredService<AgnosticQueries>()
             .ReadDynamic<T>(
               "x => x.IsDeleted == false",
               pageNumber: _pageNumber,
               pageCount: PageCount)
-        : Page is null && typeof(T).IsAssignableTo(typeof(IModel))
-          ? () => ScopedServices
+          : Page is null && typeof(T).IsAssignableTo(typeof(IModel))
+            ? () => ScopedServices
               .GetRequiredService<AgnosticQueries>()
               .ReadDynamic<T>(pageNumber: _pageNumber, pageCount: PageCount)
-          : null;
+            : null;
+    }
+  }
 
   private int _pageNumber = 1;
 
@@ -104,4 +116,5 @@
     {
       WriteIndented = true
     };
+
 }

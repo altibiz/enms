@@ -1,5 +1,5 @@
-@using MudBlazor
 @using System.Text.Json
+@using MudBlazor
 @namespace Enms.Client.Shared.Streaming
 
 <MudText>
@@ -7,6 +7,7 @@
 </MudText>
 
 @code {
+
   [Parameter]
   public object? Value { get; set; }
 
@@ -15,4 +16,5 @@
     {
       WriteIndented = true
     };
+
 }

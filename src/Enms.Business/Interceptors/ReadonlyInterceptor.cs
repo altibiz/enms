@@ -8,11 +8,14 @@ namespace Enms.Business.Interceptors;
 
 public class ReadonlyInterceptor : ServedSaveChangesInterceptor
 {
-  public override int Order => 0;
-
   public ReadonlyInterceptor(IServiceProvider serviceProvider)
     : base(serviceProvider)
   {
+  }
+
+  public override int Order
+  {
+    get { return 0; }
   }
 
   public override InterceptionResult<int> SavingChanges(

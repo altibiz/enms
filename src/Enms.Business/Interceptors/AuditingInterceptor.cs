@@ -15,11 +15,14 @@ namespace Enms.Business.Interceptors;
 
 public class AuditingInterceptor : ServedSaveChangesInterceptor
 {
-  public override int Order => 10;
-
   public AuditingInterceptor(IServiceProvider serviceProvider)
     : base(serviceProvider)
   {
+  }
+
+  public override int Order
+  {
+    get { return 10; }
   }
 
   public override async ValueTask<InterceptionResult<int>> SavingChangesAsync(
@@ -59,7 +62,11 @@ public class AuditingInterceptor : ServedSaveChangesInterceptor
             {
               Timestamp = now,
               Title =
-                $"Created {auditable.Entity.GetType().Name} {auditable.Entity.Title}",
+                $"Created {
+                  auditable.Entity.GetType().Name
+                } {
+                  auditable.Entity.Title
+                }",
               RepresentativeId = representativeId,
               Level = LevelEntity.Debug,
               Audit = AuditEntity.Creation,
@@ -81,7 +88,11 @@ public class AuditingInterceptor : ServedSaveChangesInterceptor
             {
               Timestamp = now,
               Title =
-                $"Created {auditable.Entity.GetType().Name} {auditable.Entity.Title}",
+                $"Created {
+                  auditable.Entity.GetType().Name
+                } {
+                  auditable.Entity.Title
+                }",
               Level = LevelEntity.Debug,
               Audit = AuditEntity.Creation,
               Description = CreateAddedMessage(auditable),
@@ -107,7 +118,11 @@ public class AuditingInterceptor : ServedSaveChangesInterceptor
             {
               Timestamp = now,
               Title =
-                $"Updated {auditable.Entity.GetType().Name} {auditable.Entity.Title}",
+                $"Updated {
+                  auditable.Entity.GetType().Name
+                } {
+                  auditable.Entity.Title
+                }",
               RepresentativeId = representativeId,
               Level = LevelEntity.Debug,
               Audit = AuditEntity.Modification,
@@ -129,7 +144,11 @@ public class AuditingInterceptor : ServedSaveChangesInterceptor
             {
               Timestamp = now,
               Title =
-                $"Updated {auditable.Entity.GetType().Name} {auditable.Entity.Title}",
+                $"Updated {
+                  auditable.Entity.GetType().Name
+                } {
+                  auditable.Entity.Title
+                }",
               Level = LevelEntity.Debug,
               Audit = AuditEntity.Modification,
               Description = CreateModifiedMessage(auditable),
@@ -157,7 +176,11 @@ public class AuditingInterceptor : ServedSaveChangesInterceptor
             {
               Timestamp = now,
               Title =
-                $"Deleted {auditable.Entity.GetType().Name} {auditable.Entity.Title}",
+                $"Deleted {
+                  auditable.Entity.GetType().Name
+                } {
+                  auditable.Entity.Title
+                }",
               RepresentativeId = representativeId,
               Level = LevelEntity.Debug,
               Audit = AuditEntity.Deletion,
@@ -179,7 +202,11 @@ public class AuditingInterceptor : ServedSaveChangesInterceptor
             {
               Timestamp = now,
               Title =
-                $"Deleted {auditable.Entity.GetType().Name} {auditable.Entity.Title}",
+                $"Deleted {
+                  auditable.Entity.GetType().Name
+                } {
+                  auditable.Entity.Title
+                }",
               Level = LevelEntity.Debug,
               Audit = AuditEntity.Deletion,
               Description = CreateDeletedMessage(auditable),
@@ -200,15 +227,15 @@ public class AuditingInterceptor : ServedSaveChangesInterceptor
   {
     ClaimsPrincipal? claimsPrincipal = null;
     if (serviceProvider
-      .GetService<IHttpContextAccessor>()
-      ?.HttpContext is { } httpContext)
+        .GetService<IHttpContextAccessor>()
+        ?.HttpContext is { } httpContext)
     {
       claimsPrincipal = httpContext.User;
     }
 
     if (claimsPrincipal is null
       && serviceProvider.GetService<AuthenticationStateProvider>()
-      is { } authStateProvider)
+        is { } authStateProvider)
     {
       claimsPrincipal =
         (await authStateProvider.GetAuthenticationStateAsync()).User;

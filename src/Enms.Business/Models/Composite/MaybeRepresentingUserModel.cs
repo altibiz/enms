@@ -5,4 +5,4 @@ public record MaybeRepresentingUserModel(
 )
 {
   public virtual RepresentativeModel? MaybeRepresentative { get; set; }
-};
+}

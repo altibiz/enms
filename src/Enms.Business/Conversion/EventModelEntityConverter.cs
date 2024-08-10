@@ -5,7 +5,8 @@ using Enms.Data.Entities.Base;
 
 namespace Enms.Business.Conversion;
 
-public class EventModelEntityConverter : ModelEntityConverter<EventModel, EventEntity>
+public class
+  EventModelEntityConverter : ModelEntityConverter<EventModel, EventEntity>
 {
   protected override EventEntity ToEntity(EventModel model)
   {
@@ -28,7 +29,7 @@ public static class EventModelEntityConverterExtensions
       Title = model.Title,
       Timestamp = model.Timestamp,
       Level = model.Level.ToEntity(),
-      Description = model.Description,
+      Description = model.Description
     };
   }
 
@@ -40,7 +41,7 @@ public static class EventModelEntityConverterExtensions
       Title = entity.Title,
       Timestamp = entity.Timestamp,
       Level = entity.Level.ToModel(),
-      Description = entity.Description,
+      Description = entity.Description
     };
   }
 }

@@ -15,9 +15,12 @@ public class LineModel : AuditableModel, ILine
   public required HashSet<PhaseModel> Phases { get; set; } = new();
 
   [Required]
+  public required string LineId { get; set; }
+
+  [Required]
   public required string MeasurementValidatorId { get; set; }
 
-  public required override string Id
+  public override required string Id
   {
     get { return $"{LineId}{EnmsDataDbContext.KeyJoin}{MeterId}"; }
     set
@@ -36,12 +39,12 @@ public class LineModel : AuditableModel, ILine
   }
 
   [Required]
-  public required string LineId { get; set; }
-
-  [Required]
   public required string MeterId { get; set; }
 
-  public virtual ILineCapabilities Capabilities { get => new LineCapabilities(); }
+  public virtual ILineCapabilities Capabilities
+  {
+    get { return new LineCapabilities(); }
+  }
 
   public override IEnumerable<ValidationResult> Validate(
     ValidationContext validationContext)

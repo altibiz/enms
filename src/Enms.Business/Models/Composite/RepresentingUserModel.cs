@@ -8,7 +8,7 @@ public record RepresentingUserModel(
 
   public override RepresentativeModel? MaybeRepresentative
   {
-    get => Representative;
-    set => Representative = value ?? RepresentativeModel.New(User);
+    get { return Representative; }
+    set { Representative = value ?? RepresentativeModel.New(User); }
   }
 }

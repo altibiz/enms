@@ -15,11 +15,14 @@ namespace Enms.Business.Interceptors;
 
 public class CascadingSoftDeleteInterceptor : ServedSaveChangesInterceptor
 {
-  public override int Order => 11;
-
   public CascadingSoftDeleteInterceptor(IServiceProvider serviceProvider)
     : base(serviceProvider)
   {
+  }
+
+  public override int Order
+  {
+    get { return 11; }
   }
 
   public override async ValueTask<InterceptionResult<int>> SavingChangesAsync(
@@ -50,16 +53,17 @@ public class CascadingSoftDeleteInterceptor : ServedSaveChangesInterceptor
     foreach (var auditable in entries)
     {
       if (auditable.State is EntityState.Modified &&
-           auditable.Entity.IsDeleted &&
-           !auditable.OriginalValues
-            .GetValue<bool>(nameof(AuditableEntity.IsDeleted)))
+        auditable.Entity.IsDeleted &&
+        !auditable.OriginalValues
+          .GetValue<bool>(nameof(AuditableEntity.IsDeleted)))
       {
         var relationships = context.Model
           .GetEntityTypes()
           .SelectMany(e => e.GetForeignKeys())
           .Where(relationship => relationship.IsRequired)
-          .Where(relationship => relationship.PrincipalEntityType
-            == auditable.Metadata);
+          .Where(
+            relationship => relationship.PrincipalEntityType
+              == auditable.Metadata);
 
         foreach (var relationship in relationships)
         {
@@ -71,11 +75,13 @@ public class CascadingSoftDeleteInterceptor : ServedSaveChangesInterceptor
 
           var declarers = await context
             .GetQueryable(relationship.DeclaringEntityType.ClrType)
-            .Where(context.ForeignKeyEqualsAgnostic(
-              relationship.PrincipalEntityType.ClrType,
-              relationship.GetNavigation(true)?.Name
+            .Where(
+              context.ForeignKeyEqualsAgnostic(
+                relationship.PrincipalEntityType.ClrType,
+                relationship.GetNavigation(true)?.Name
                 ?? throw new InvalidOperationException(
-                  "No navigation property found")))
+                  "No navigation property found"),
+                auditable.Entity.Id))
             .ToListAsync();
 
           foreach (var declaring in declarers)
@@ -155,15 +161,15 @@ public class CascadingSoftDeleteInterceptor : ServedSaveChangesInterceptor
   {
     ClaimsPrincipal? claimsPrincipal = null;
     if (serviceProvider
-      .GetService<IHttpContextAccessor>()
-      ?.HttpContext is { } httpContext)
+        .GetService<IHttpContextAccessor>()
+        ?.HttpContext is { } httpContext)
     {
       claimsPrincipal = httpContext.User;
     }
 
     if (claimsPrincipal is null
       && serviceProvider.GetService<AuthenticationStateProvider>()
-      is { } authStateProvider)
+        is { } authStateProvider)
     {
       claimsPrincipal =
         (await authStateProvider.GetAuthenticationStateAsync()).User;

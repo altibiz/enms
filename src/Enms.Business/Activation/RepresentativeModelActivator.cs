@@ -8,7 +8,7 @@ public class RepresentativeModelActivator : ModelActivator<RepresentativeModel>
 {
   public override RepresentativeModel ActivateConcrete()
   {
-    return new RepresentativeModel()
+    return new RepresentativeModel
     {
       Id = default!,
       Title = "",
@@ -26,7 +26,7 @@ public class RepresentativeModelActivator : ModelActivator<RepresentativeModel>
       City = "",
       PostalCode = "",
       Email = "",
-      PhoneNumber = "",
+      PhoneNumber = ""
     };
   }
 }

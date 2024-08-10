@@ -62,7 +62,7 @@ public static class IServiceCollectionExtensions
             "Enms connection string not found");
 
         if (builder.Environment.IsDevelopment()
-          && Environment.GetEnvironmentVariable("ENMS_LOG_SQL") is { })
+          && Environment.GetEnvironmentVariable("ENMS_LOG_SQL") is not null)
         {
           options.EnableSensitiveDataLogging();
           options.EnableDetailedErrors();

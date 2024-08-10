@@ -4,10 +4,10 @@
 
 @attribute [Navigation(RouteValue = "id", Parents = new[] { typeof(UsersPage) })]
 @attribute [Authorize]
-@using Enms.Business.Models.Composite
 @using Enms.Business.Models
-@using Enms.Business.Queries
+@using Enms.Business.Models.Composite
 @using Enms.Business.Mutations
+@using Enms.Business.Queries
 @using Enms.Client.Shared.Models
 @using Enms.Client.Shared.Streaming
 @using Microsoft.AspNetCore.Authorization
@@ -18,9 +18,9 @@
 <Mutating
   T="MaybeRepresentingUserModel"
   LoadAsync="@(Id is null ? null : () => ScopedServices.GetRequiredService<RepresentativeQueries>().MaybeRepresentingUserByUserId(Id))"
-  CreateAsync="@((model) => ScopedServices.GetRequiredService<RepresentativeMutations>().Create(model))"
-  UpdateAsync="@((model) => ScopedServices.GetRequiredService<RepresentativeMutations>().Update(model))"
-  DeleteAsync="@((model) => ScopedServices.GetRequiredService<RepresentativeMutations>().Delete(model))">
+  CreateAsync="@(model => ScopedServices.GetRequiredService<RepresentativeMutations>().Create(model))"
+  UpdateAsync="@(model => ScopedServices.GetRequiredService<RepresentativeMutations>().Update(model))"
+  DeleteAsync="@(model => ScopedServices.GetRequiredService<RepresentativeMutations>().Delete(model))">
   <Edit Context="model">
     <MaybeRepresentingUserEdit Model="@model"/>
   </Edit>

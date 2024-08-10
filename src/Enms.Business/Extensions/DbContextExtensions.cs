@@ -5,7 +5,9 @@ namespace Enms.Business.Extensions;
 
 public static class DbContextExtensions
 {
-  public static IQueryable<object> GetQueryable(this DbContext context, Type type)
+  public static IQueryable<object> GetQueryable(
+    this DbContext context,
+    Type type)
   {
     var method = typeof(DbContext)
       .GetMethods()

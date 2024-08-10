@@ -30,9 +30,10 @@ public class MeasurementValidatorEntityTypeHierarchyConfiguration :
     {
       builder
         .HasMany(nameof(MeasurementValidatorEntity<LineEntity>.Lines))
-        .WithOne(nameof(
+        .WithOne(
+          nameof(
             LineEntity<MeasurementEntity, AggregateEntity,
-            MeasurementValidatorEntity, MeterEntity>.MeasurementValidator));
+              MeasurementValidatorEntity, MeterEntity>.MeasurementValidator));
     }
   }
 }

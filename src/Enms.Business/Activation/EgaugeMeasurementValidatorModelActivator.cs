@@ -3,11 +3,13 @@ using Enms.Business.Models;
 
 namespace Enms.Business.Activation;
 
-public class EgaugeMeasurementValidatorModelActivator : ModelActivator<EgaugeMeasurementValidatorModel>
+public class
+  EgaugeMeasurementValidatorModelActivator : ModelActivator<
+  EgaugeMeasurementValidatorModel>
 {
   public override EgaugeMeasurementValidatorModel ActivateConcrete()
   {
-    return new EgaugeMeasurementValidatorModel()
+    return new EgaugeMeasurementValidatorModel
     {
       Id = default!,
       Title = "",
@@ -17,7 +19,7 @@ public class EgaugeMeasurementValidatorModelActivator : ModelActivator<EgaugeMea
       LastUpdatedById = default!,
       IsDeleted = false,
       DeletedOn = null,
-      DeletedById = null,
+      DeletedById = null
     };
   }
 }

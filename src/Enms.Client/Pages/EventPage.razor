@@ -5,12 +5,9 @@
 @attribute [Navigation(RouteValue = "id", Parents = new[] { typeof(EventsPage) })]
 @attribute [Authorize]
 @using Enms.Business.Models.Base
-@using Enms.Business.Queries
-@using Enms.Business.Mutations
 @using Enms.Client.Shared.Models
 @using Enms.Client.Shared.Streaming
 @using Microsoft.AspNetCore.Authorization
-@using Microsoft.Extensions.DependencyInjection
 @inherits Enms.Client.Base.EnmsOwningComponentBase
 
 <Loading T="EventModel" Id="@Id">

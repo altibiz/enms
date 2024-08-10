@@ -4,7 +4,6 @@ using Enms.Business.Models.Abstractions;
 using Enms.Business.Queries.Abstractions;
 using Enms.Data;
 using Enms.Data.Entities.Abstractions;
-using Enms.Data.Extensions;
 using Microsoft.EntityFrameworkCore;
 
 namespace Enms.Business.Queries.Agnostic;
@@ -22,11 +21,12 @@ public class AgnosticQueries(
     where T : IIdentifiable
   {
     var modelEntityConverter = serviceProvider
-      .GetServices<IModelEntityConverter>()
-      .FirstOrDefault(
-        converter => converter
-          .CanConvertToEntity(typeof(T))) ?? throw new InvalidOperationException(
-      $"No model entity converter found for model {typeof(T)}");
+        .GetServices<IModelEntityConverter>()
+        .FirstOrDefault(
+          converter => converter
+            .CanConvertToEntity(typeof(T)))
+      ?? throw new InvalidOperationException(
+        $"No model entity converter found for model {typeof(T)}");
 
     var queryable = context.GetQueryable(modelEntityConverter.EntityType())
         as IQueryable<IIdentifiableEntity>
@@ -35,12 +35,15 @@ public class AgnosticQueries(
     await Semaphore.WaitAsync();
 
     var item = await queryable
-      .Where(context.PrimaryKeyEqualsAgnostic(modelEntityConverter.EntityType(), id))
+      .Where(
+        context.PrimaryKeyEqualsAgnostic(modelEntityConverter.EntityType(), id))
       .FirstOrDefaultAsync();
 
     Semaphore.Release();
 
-    return item is null ? default : (T)modelEntityConverter.ToModel((item as IIdentifiableEntity)!);
+    return item is null
+      ? default
+      : (T)modelEntityConverter.ToModel((item as IIdentifiableEntity)!);
   }
 
   public async Task<T?> ReadSingleDynamic<T>(string id)
@@ -52,11 +55,12 @@ public class AgnosticQueries(
     }
 
     var modelEntityConverter = serviceProvider
-      .GetServices<IModelEntityConverter>()
-      .FirstOrDefault(
-        converter => converter
-          .CanConvertToEntity(typeof(T))) ?? throw new InvalidOperationException(
-      $"No model entity converter found for model {typeof(T)}");
+        .GetServices<IModelEntityConverter>()
+        .FirstOrDefault(
+          converter => converter
+            .CanConvertToEntity(typeof(T)))
+      ?? throw new InvalidOperationException(
+        $"No model entity converter found for model {typeof(T)}");
 
     var queryable = context.GetQueryable(modelEntityConverter.EntityType())
         as IQueryable<IIdentifiableEntity>
@@ -65,12 +69,15 @@ public class AgnosticQueries(
     await Semaphore.WaitAsync();
 
     var item = await queryable
-      .Where(context.PrimaryKeyEqualsAgnostic(modelEntityConverter.EntityType(), id))
+      .Where(
+        context.PrimaryKeyEqualsAgnostic(modelEntityConverter.EntityType(), id))
       .FirstOrDefaultAsync();
 
     Semaphore.Release();
 
-    return item is null ? default : (T)modelEntityConverter.ToModel((item as IIdentifiableEntity)!);
+    return item is null
+      ? default
+      : (T)modelEntityConverter.ToModel((item as IIdentifiableEntity)!);
   }
 
   public async Task<PaginatedList<T>> Read<T>(
@@ -83,11 +90,12 @@ public class AgnosticQueries(
     where T : IModel
   {
     var modelEntityConverter = serviceProvider
-      .GetServices<IModelEntityConverter>()
-      .FirstOrDefault(
-        converter => converter
-          .CanConvertToEntity(typeof(T))) ?? throw new InvalidOperationException(
-      $"No model entity converter found for model {typeof(T)}");
+        .GetServices<IModelEntityConverter>()
+        .FirstOrDefault(
+          converter => converter
+            .CanConvertToEntity(typeof(T)))
+      ?? throw new InvalidOperationException(
+        $"No model entity converter found for model {typeof(T)}");
 
     var queryable = context.GetQueryable(modelEntityConverter.EntityType())
         as IQueryable<IEntity>
@@ -149,11 +157,12 @@ public class AgnosticQueries(
     }
 
     var modelEntityConverter = serviceProvider
-      .GetServices<IModelEntityConverter>()
-      .FirstOrDefault(
-        converter => converter
-          .CanConvertToEntity(typeof(T))) ?? throw new InvalidOperationException(
-      $"No model entity converter found for model {typeof(T)}");
+        .GetServices<IModelEntityConverter>()
+        .FirstOrDefault(
+          converter => converter
+            .CanConvertToEntity(typeof(T)))
+      ?? throw new InvalidOperationException(
+        $"No model entity converter found for model {typeof(T)}");
 
     var queryable = context.GetQueryable(modelEntityConverter.EntityType())
         as IQueryable<IEntity>

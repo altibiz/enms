@@ -7,7 +7,7 @@ public class EgaugeMeterModelActivator : ModelActivator<EgaugeMeterModel>
 {
   public override EgaugeMeterModel ActivateConcrete()
   {
-    return new EgaugeMeterModel()
+    return new EgaugeMeterModel
     {
       Id = default!,
       Title = "",
@@ -17,7 +17,7 @@ public class EgaugeMeterModelActivator : ModelActivator<EgaugeMeterModel>
       LastUpdatedById = default!,
       IsDeleted = false,
       DeletedOn = null,
-      DeletedById = null,
+      DeletedById = null
     };
   }
 }

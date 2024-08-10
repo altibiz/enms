@@ -8,17 +8,17 @@ namespace Enms.Business.Models.Base;
 
 public abstract class AggregateModel : IAggregate
 {
-  [Required]
-  public required string MeterId { get; set; }
-
-  [Required]
-  public required string LineId { get; set; }
-
   private IntervalModel _interval = IntervalModel.QuarterHour;
 
   // NOTE: just so it doesn't break if interval is set before timestamp
   private DateTimeOffset _timestamp =
     DateTimeOffset.Parse("2000-01-01T00:00:00Z", CultureInfo.InvariantCulture);
+
+  [Required]
+  public required string MeterId { get; set; }
+
+  [Required]
+  public required string LineId { get; set; }
 
   [Required]
   public required DateTimeOffset Timestamp

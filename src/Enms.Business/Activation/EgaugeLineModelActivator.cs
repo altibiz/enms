@@ -7,7 +7,7 @@ public class EgaugeLineModelActivator : ModelActivator<EgaugeLineModel>
 {
   public override EgaugeLineModel ActivateConcrete()
   {
-    return new EgaugeLineModel()
+    return new EgaugeLineModel
     {
       Id = default!,
       Title = "",
@@ -19,10 +19,10 @@ public class EgaugeLineModelActivator : ModelActivator<EgaugeLineModel>
       DeletedOn = null,
       DeletedById = null,
       ConnectionPower_W = 0,
-      Phases = new(),
+      Phases = new HashSet<PhaseModel>(),
       MeasurementValidatorId = default!,
       LineId = default!,
-      MeterId = default!,
+      MeterId = default!
     };
   }
 }

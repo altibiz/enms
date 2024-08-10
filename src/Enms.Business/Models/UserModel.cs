@@ -25,7 +25,7 @@ public class UserModel
       Id = default!,
       UserName = "",
       Email = "",
-      Roles = new()
+      Roles = new List<string>()
     };
   }
 }
@@ -49,7 +49,7 @@ public static class UserModelExtensions
 
   public static User ToUser(this UserModel model)
   {
-    return new User()
+    return new User
     {
       UserId = model.Id,
       UserName = model.UserName,
