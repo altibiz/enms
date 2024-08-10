@@ -120,6 +120,7 @@ public class BatchAggregatedMeasurementUpserter(
     }
 
     await Semaphore.WaitAsync();
+
     while (true)
     {
       try
