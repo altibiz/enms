@@ -9,12 +9,12 @@ public class EventModelEntityConverter : ModelEntityConverter<EventModel, EventE
 {
   protected override EventEntity ToEntity(EventModel model)
   {
-    throw new NotImplementedException();
+    return model.ToEntity();
   }
 
   protected override EventModel ToModel(EventEntity entity)
   {
-    throw new NotImplementedException();
+    return entity.ToModel();
   }
 }
 
