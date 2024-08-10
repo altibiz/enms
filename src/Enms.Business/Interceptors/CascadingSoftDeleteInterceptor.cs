@@ -120,7 +120,11 @@ public class CascadingSoftDeleteInterceptor : ServedSaveChangesInterceptor
         {
           Timestamp = now,
           Title =
-            $"Deleted {auditable.Entity.GetType().Name} {auditable.Entity.Title}",
+            $"Deleted {
+              auditable.Entity.GetType().Name
+            } {
+              auditable.Entity.Title
+            }",
           RepresentativeId = representativeId,
           Level = LevelEntity.Debug,
           Audit = AuditEntity.Deletion,
@@ -142,7 +146,11 @@ public class CascadingSoftDeleteInterceptor : ServedSaveChangesInterceptor
         {
           Timestamp = now,
           Title =
-            $"Deleted {auditable.Entity.GetType().Name} {auditable.Entity.Title}",
+            $"Deleted {
+              auditable.Entity.GetType().Name
+            } {
+              auditable.Entity.Title
+            }",
           Level = LevelEntity.Debug,
           Audit = AuditEntity.Deletion,
           Description = CreateDeletedMessage(auditable),
