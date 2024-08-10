@@ -126,7 +126,7 @@ public partial class EnmsDataDbContext
     var primaryKeyExpression = PrimaryKeyOfAgnostic(type);
     var primaryKeyEqualsExpression = Expression.Equal(
       Expression.Invoke(primaryKeyExpression, parameter),
-      Expression.Constant(string.Join("-", ids)));
+      Expression.Constant(string.Join(KeyJoin, ids)));
     return Expression.Lambda<Func<object, bool>>(
       primaryKeyEqualsExpression,
       objectParameter
@@ -169,11 +169,7 @@ public partial class EnmsDataDbContext
       typeof(ICollection<string>).GetMethod(
         nameof(ICollection<string>.Contains)) ??
       throw new InvalidOperationException(
-        $"No {
-          nameof(ICollection<string>.Contains)
-        } method found in {
-          typeof(ICollection<string>)
-        }"),
+        $"No {nameof(ICollection<string>.Contains)} method found in {typeof(ICollection<string>)}"),
       Expression.Invoke(primaryKeyExpression, parameter));
     return Expression.Lambda<Func<object, bool>>(
       primaryKeyInExpression,

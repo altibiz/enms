@@ -28,7 +28,7 @@ public class RepresentativeQueries(
   public async Task<RepresentativeModel?> RepresentativeById(string id)
   {
     return await context.Representatives
-      .WithId(id)
+      .Where(context.PrimaryKeyEquals<RepresentativeEntity>(id))
       .FirstOrDefaultAsync() is { } entity
       ? entity.ToModel()
       : null;
@@ -85,7 +85,7 @@ public class RepresentativeQueries(
     string userId)
   {
     return await context.Representatives
-      .WithId(userId)
+      .Where(context.PrimaryKeyEquals<RepresentativeEntity>(userId))
       .FirstOrDefaultAsync() is { } entity
       ? entity.ToModel()
       : null;
@@ -110,7 +110,7 @@ public class RepresentativeQueries(
       .ToList();
 
     var representatives = await context.Representatives
-      .WithIdFrom(userIds)
+      .Where(context.PrimaryKeyIn<RepresentativeEntity>(userIds))
       .ToListAsync();
 
     return users.Items
@@ -120,7 +120,7 @@ public class RepresentativeQueries(
         )
         {
           MaybeRepresentative =
-            representatives.WithId(user.Id).FirstOrDefault() is { } representative
+            representatives.FirstOrDefault(context.PrimaryKeyEqualsCompiled<RepresentativeEntity>(user.Id)) is { } representative
                 ? representative.ToModel()
                 : null
         })
@@ -145,7 +145,7 @@ public class RepresentativeQueries(
       .ToList();
 
     var representatives = await context.Representatives
-      .WithIdFrom(ids)
+      .Where(context.PrimaryKeyIn<RepresentativeEntity>(ids))
       .ToListAsync();
 
     return users.Items
@@ -154,7 +154,10 @@ public class RepresentativeQueries(
           user
         )
         {
-          MaybeRepresentative = representatives.WithId(user.Id).FirstOrDefault() is { } representative
+          MaybeRepresentative = representatives
+            .FirstOrDefault(context
+              .PrimaryKeyEqualsCompiled<RepresentativeEntity>(user.Id)) is
+          { } representative
           ? representative.ToModel()
           : null
         })
@@ -182,7 +185,7 @@ public class RepresentativeQueries(
 
     var representative =
       await context.Representatives
-        .WithId(user.GetId())
+        .Where(context.PrimaryKeyEquals<RepresentativeEntity>(user.GetId()))
         .FirstOrDefaultAsync();
     return representative is null
       ? null
@@ -203,7 +206,7 @@ public class RepresentativeQueries(
 
     var representative =
       await context.Representatives
-        .WithId(id)
+        .Where(context.PrimaryKeyEquals<RepresentativeEntity>(id))
         .FirstOrDefaultAsync();
     return representative is null
       ? null
@@ -218,7 +221,7 @@ public class RepresentativeQueries(
   {
     var representative =
       await context.Representatives
-        .WithId(id)
+        .Where(context.PrimaryKeyEquals<RepresentativeEntity>(id))
         .FirstOrDefaultAsync();
     if (representative is null)
     {
@@ -245,7 +248,7 @@ public class RepresentativeQueries(
 
     var representative =
       await context.Representatives
-        .WithId(user.GetId())
+        .Where(context.PrimaryKeyEquals<RepresentativeEntity>(user.GetId()))
         .FirstOrDefaultAsync();
 
     return new MaybeRepresentingUserModel(
@@ -267,7 +270,7 @@ public class RepresentativeQueries(
 
     var representative =
       await context.Representatives
-        .WithId(id)
+        .Where(context.PrimaryKeyEquals<RepresentativeEntity>(id))
         .FirstOrDefaultAsync();
 
     return new MaybeRepresentingUserModel(

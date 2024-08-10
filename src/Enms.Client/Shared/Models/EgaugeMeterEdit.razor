@@ -5,6 +5,10 @@
 @inherits EnmsComponentBase
 
 <MudTextField
+  Label="@Translate("Id")"
+  @bind-Value="Model.Id"
+  For="@(() => Model.Id)"/>
+<MudTextField
   Label="@Translate("Title")"
   @bind-Value="Model.Title"
   For="@(() => Model.Title)"/>

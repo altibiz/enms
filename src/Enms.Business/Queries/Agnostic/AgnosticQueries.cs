@@ -34,11 +34,13 @@ public class AgnosticQueries(
 
     await Semaphore.WaitAsync();
 
-    var item = await queryable.WithId(id).FirstOrDefaultAsync();
+    var item = await queryable
+      .Where(context.PrimaryKeyEqualsAgnostic(modelEntityConverter.EntityType(), id))
+      .FirstOrDefaultAsync();
 
     Semaphore.Release();
 
-    return item is null ? default : (T)modelEntityConverter.ToModel(item);
+    return item is null ? default : (T)modelEntityConverter.ToModel((item as IIdentifiableEntity)!);
   }
 
   public async Task<T?> ReadSingleDynamic<T>(string id)
@@ -62,11 +64,13 @@ public class AgnosticQueries(
 
     await Semaphore.WaitAsync();
 
-    var item = await queryable.WithId(id).FirstOrDefaultAsync();
+    var item = await queryable
+      .Where(context.PrimaryKeyEqualsAgnostic(modelEntityConverter.EntityType(), id))
+      .FirstOrDefaultAsync();
 
     Semaphore.Release();
 
-    return item is null ? default : (T)modelEntityConverter.ToModel(item);
+    return item is null ? default : (T)modelEntityConverter.ToModel((item as IIdentifiableEntity)!);
   }
 
   public async Task<PaginatedList<T>> Read<T>(

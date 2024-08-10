@@ -86,7 +86,6 @@ public class
         .ValueGeneratedNever();
     }
     else if (entity == typeof(RepresentativeEntity) ||
-      entity.IsAssignableTo(typeof(LineEntity)) ||
       entity.IsAssignableTo(typeof(MeterEntity)))
     {
       builder.Ignore("_id");
