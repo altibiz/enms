@@ -11,7 +11,7 @@ public abstract class MeasurementValidatorEntity : AuditableEntity
 public class MeasurementValidatorEntity<TLine> : MeasurementValidatorEntity
   where TLine : LineEntity
 {
-  public virtual TLine Line { get; set; } = default!;
+  public virtual ICollection<TLine> Lines { get; set; } = default!;
 }
 
 public class MeasurementValidatorEntityTypeHierarchyConfiguration :
@@ -25,5 +25,14 @@ public class MeasurementValidatorEntityTypeHierarchyConfiguration :
       .UseTphMappingStrategy()
       .ToTable("measurement_validators")
       .HasDiscriminator<string>("kind");
+
+    if (entity != typeof(MeasurementValidatorEntity))
+    {
+      builder
+        .HasMany(nameof(MeasurementValidatorEntity<LineEntity>.Lines))
+        .WithOne(nameof(
+            LineEntity<MeasurementEntity, AggregateEntity,
+            MeasurementValidatorEntity, MeterEntity>.MeasurementValidator));
+    }
   }
 }

@@ -5,7 +5,7 @@ namespace Enms.Business.Models.Base;
 
 public abstract class IdentifiableModel : IIdentifiable
 {
-  public required string Id { get; set; }
+  public virtual required string Id { get; set; }
 
   [Required]
   public required string Title { get; set; }

@@ -1,6 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using Enms.Business.Capabilities.Abstractions;
 using Enms.Business.Models.Abstractions;
+using Enms.Data;
 
 namespace Enms.Business.Models.Base;
 
@@ -14,6 +15,27 @@ public abstract class LineModel : AuditableModel, ILine
 
   [Required]
   public required string MeasurementValidatorId { get; set; }
+
+  public required override string Id
+  {
+    get { return $"{LineId}{EnmsDataDbContext.KeyJoin}{MeterId}"; }
+    set
+    {
+      if (value is null)
+      {
+        LineId = default!;
+        MeterId = default!;
+        return;
+      }
+
+      var parts = value.Split(EnmsDataDbContext.KeyJoin);
+      LineId = parts[0];
+      MeterId = parts[1];
+    }
+  }
+
+  [Required]
+  public required string LineId { get; set; }
 
   [Required]
   public required string MeterId { get; set; }

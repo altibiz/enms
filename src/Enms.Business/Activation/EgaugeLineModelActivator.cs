@@ -21,6 +21,7 @@ public class EgaugeLineModelActivator : ModelActivator<EgaugeLineModel>
       ConnectionPower_W = 0,
       Phases = new(),
       MeasurementValidatorId = default!,
+      LineId = default!,
       MeterId = default!,
     };
   }

@@ -17,7 +17,7 @@
 <Paging T="EgaugeMeasurementValidatorModel">
   <Summary Context="validator">
     @{
-      var href = $"meter/{validator.Id}";
+      var href = $"validator/{validator.Id}";
 
       <MudCard>
         <MudCardContent>
@@ -33,6 +33,6 @@
   </Summary>
 </Paging>
 
-<MudLink Href="meter">
+<MudLink Href="validator">
   @Translate("Create")
 </MudLink>

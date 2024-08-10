@@ -7,9 +7,9 @@
 @inherits EnmsOwningComponentBase
 
 <MudTextField
-  Label="@Translate("Id")"
-  @bind-Value="Model.Id"
-  For="@(() => Model.Id)"/>
+  Label="@Translate("Line id")"
+  @bind-Value="Model.LineId"
+  For="@(() => Model.LineId)"/>
 <MudTextField
   Label="@Translate("Title")"
   @bind-Value="Model.Title"
@@ -26,7 +26,7 @@
   <Paging PageAsync="@(page => ScopedServices.GetRequiredService<AgnosticQueries>().Read<EgaugeMeterModel>(pageNumber: page))">
     <Summary Context="model">
       <MudSelectItem Value="model.Id">
-        @model.Title
+        <EgaugeMeterSummary Model="model"/>
       </MudSelectItem>
     </Summary>
   </Paging>
@@ -39,7 +39,7 @@
   <Paging PageAsync="@(page => ScopedServices.GetRequiredService<AgnosticQueries>().Read<EgaugeMeasurementValidatorModel>(pageNumber: page))">
     <Summary Context="model">
       <MudSelectItem Value="model.Id">
-        @model.Title
+        <EgaugeMeasurementValidatorSummary Model="model"/>
       </MudSelectItem>
     </Summary>
   </Paging>

@@ -26,6 +26,7 @@ public static class EgaugeLineModelEntityConverterExtensions
     return new EgaugeLineEntity
     {
       Id = model.Id,
+      LineId = model.LineId,
       MeterId = model.MeterId,
       Title = model.Title,
       CreatedOn = model.CreatedOn,
@@ -46,6 +47,7 @@ public static class EgaugeLineModelEntityConverterExtensions
     return new EgaugeLineModel
     {
       Id = entity.Id,
+      LineId = entity.LineId,
       MeterId = entity.MeterId,
       Title = entity.Title,
       CreatedOn = entity.CreatedOn,

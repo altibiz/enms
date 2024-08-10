@@ -103,8 +103,8 @@ public class
         .HasOne(
           nameof(LineEntity<MeasurementEntity, AggregateEntity,
             MeasurementValidatorEntity, MeterEntity>.MeasurementValidator))
-        .WithOne(nameof(MeasurementValidatorEntity<LineEntity>.Line))
-        .HasForeignKey(entity.Name, "_measurementValidatorId");
+        .WithMany(nameof(MeasurementValidatorEntity<LineEntity>.Lines))
+        .HasForeignKey("_measurementValidatorId");
 
       builder.Ignore(
         nameof(LineEntity<MeasurementEntity, AggregateEntity,
