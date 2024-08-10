@@ -61,16 +61,14 @@ public static class IServiceCollectionExtensions
           ?? throw new InvalidOperationException(
             "Enms connection string not found");
 
-        if (builder.Environment.IsDevelopment())
+        if (builder.Environment.IsDevelopment()
+          && Environment.GetEnvironmentVariable("ENMS_LOG_SQL") is { })
         {
-#pragma warning disable S125
-          // TODO: switch to enable query/mutation logging
-          // options.EnableSensitiveDataLogging();
-          // options.EnableDetailedErrors();
-          // options.UseLoggerFactory(
-          //   LoggerFactory.Create(builder => builder.AddConsole())
-          // );
-#pragma warning restore S125
+          options.EnableSensitiveDataLogging();
+          options.EnableDetailedErrors();
+          options.UseLoggerFactory(
+            LoggerFactory.Create(builder => builder.AddConsole())
+          );
         }
 
         options

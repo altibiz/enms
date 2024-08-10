@@ -11,8 +11,8 @@
 
 <Loading
   T="PaginatedList<T>"
-  Load="@(Page is null ? null : () => Page(_pageNumber))"
-  LoadAsync="@(PageAsync is not null ? () => PageAsync(_pageNumber) : Page is null && typeof(T).IsAssignableTo(typeof(IModel)) ? () => ScopedServices.GetRequiredService<AgnosticQueries>().ReadDynamic<T>(pageNumber: _pageNumber, pageCount: PageCount) : null)"
+  Load="@OnPage"
+  LoadAsync="@OnPageAsync"
   Progress="@Progress"
   Error="@Error">
   <Found Context="page">
@@ -78,6 +78,25 @@
   [Parameter]
   public int PageCount { get; set; } = QueryConstants.DefaultPageCount;
 
+  private Func<PaginatedList<T>>? OnPage => Page is null
+      ? null :
+      () => Page(_pageNumber);
+
+  private Func<Task<PaginatedList<T>>>? OnPageAsync => PageAsync is not null
+      ? () => PageAsync(_pageNumber)
+      : Page is null && typeof(T).IsAssignableTo(typeof(IAuditable))
+        ? () => ScopedServices
+            .GetRequiredService<AgnosticQueries>()
+            .ReadDynamic<T>(
+              "x => x.IsDeleted == false",
+              pageNumber: _pageNumber,
+              pageCount: PageCount)
+        : Page is null && typeof(T).IsAssignableTo(typeof(IModel))
+          ? () => ScopedServices
+              .GetRequiredService<AgnosticQueries>()
+              .ReadDynamic<T>(pageNumber: _pageNumber, pageCount: PageCount)
+          : null;
+
   private int _pageNumber = 1;
 
   private static readonly JsonSerializerOptions JsonSerializerOptions =
@@ -85,5 +104,4 @@
     {
       WriteIndented = true
     };
-
 }

@@ -1,6 +1,10 @@
+using System.Security.Claims;
+using Enms.Business.Queries;
+using Enms.Data;
 using Enms.Data.Entities;
 using Enms.Data.Entities.Base;
 using Enms.Data.Entities.Enums;
+using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Diagnostics;
@@ -17,23 +21,24 @@ public class AuditingInterceptor : ServedSaveChangesInterceptor
   {
   }
 
-  public override InterceptionResult<int> SavingChanges(
+  public override async ValueTask<InterceptionResult<int>> SavingChangesAsync(
     DbContextEventData eventData,
-    InterceptionResult<int> result
+    InterceptionResult<int> result,
+    CancellationToken cancellationToken = default
   )
   {
-    Audit(eventData);
-    return base.SavingChanges(eventData, result);
+    await Audit(eventData);
+    return await base.SavingChangesAsync(eventData, result, cancellationToken);
   }
 
-  public void Audit(DbContextEventData eventData)
+  public async ValueTask Audit(DbContextEventData eventData)
   {
     if (eventData.Context is null)
     {
       return;
     }
 
-    var representativeId = GetRepresentativeId();
+    var representativeId = await GetRepresentativeId(eventData);
     var isDevelopment = IsDevelopment();
     var now = DateTimeOffset.UtcNow;
 
@@ -206,16 +211,47 @@ public class AuditingInterceptor : ServedSaveChangesInterceptor
     }
   }
 
-  private string? GetRepresentativeId()
+  private async Task<string?> GetRepresentativeId(DbContextEventData eventData)
   {
+    ClaimsPrincipal? claimsPrincipal = null;
     if (serviceProvider
       .GetService<IHttpContextAccessor>()
       ?.HttpContext is { } httpContext)
     {
+      claimsPrincipal = httpContext.User;
+    }
+
+    if (claimsPrincipal is null
+      && serviceProvider.GetService<AuthenticationStateProvider>()
+      is { } authStateProvider)
+    {
+      claimsPrincipal =
+        (await authStateProvider.GetAuthenticationStateAsync()).User;
+    }
+
+    if (claimsPrincipal is null)
+    {
       return null;
     }
 
-    return null;
+    var id = claimsPrincipal.Claims
+      .FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+    if (string.IsNullOrEmpty(id))
+    {
+      return null;
+    }
+
+    var context = eventData.Context as EnmsDataDbContext;
+    if (context is null)
+    {
+      return null;
+    }
+
+    var representative = await context.Representatives
+      .Where(context.PrimaryKeyEquals<RepresentativeEntity>(id))
+      .FirstOrDefaultAsync();
+
+    return representative?.Id;
   }
 
   private bool IsDevelopment()

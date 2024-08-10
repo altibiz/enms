@@ -5,12 +5,14 @@
 @attribute [Navigation(RouteValue = "id", Parents = new[] { typeof(UsersPage) })]
 @attribute [Authorize]
 @using Enms.Business.Models.Composite
+@using Enms.Business.Models
 @using Enms.Business.Queries
 @using Enms.Business.Mutations
 @using Enms.Client.Shared.Models
 @using Enms.Client.Shared.Streaming
 @using Microsoft.AspNetCore.Authorization
 @using Microsoft.Extensions.DependencyInjection
+@using MudBlazor
 @inherits Enms.Client.Base.EnmsOwningComponentBase
 
 <Mutating
@@ -26,6 +28,25 @@
     <MaybeRepresentingUserDetails Model="@model"/>
   </Details>
 </Mutating>
+
+<Paging T="RepresentativeAuditEventModel">
+  <Summary Context="model">
+    @{
+      var href = $"event/{model.Id}";
+
+      <MudCard>
+        <MudCardContent>
+          <EventSummary Model="@model"/>
+        </MudCardContent>
+        <MudCardActions>
+          <MudNavLink Href="@href">
+            @Translate("Details")
+          </MudNavLink>
+        </MudCardActions>
+      </MudCard>
+    }
+  </Summary>
+</Paging>
 
 @code {
 

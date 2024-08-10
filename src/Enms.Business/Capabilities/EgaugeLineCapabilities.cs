@@ -1,7 +1,9 @@
-using Enms.Business.Capabilities.Abstractions;
+using Enms.Business.Capabilities.Base;
 
 namespace Enms.Business.Capabilities;
 
-public class EgaugeLineCapabilities : ILineCapabilities
+#pragma warning disable S2094 // Classes should not be empty
+public class EgaugeLineCapabilities : LineCapabilities
+#pragma warning restore S2094 // Classes should not be empty
 {
 }

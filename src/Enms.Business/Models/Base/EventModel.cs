@@ -4,7 +4,7 @@ using Enms.Business.Models.Enums;
 
 namespace Enms.Business.Models.Base;
 
-public abstract class EventModel : IEvent
+public class EventModel : IEvent
 {
   [Required]
   public required string Id { get; init; }

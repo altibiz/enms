@@ -3,7 +3,7 @@ using Enms.Business.Models.Abstractions;
 
 namespace Enms.Business.Models.Base;
 
-public abstract class MeasurementValidatorModel<T> : AuditableModel,
+public class MeasurementValidatorModel<T> : AuditableModel,
   IMeasurementValidator
   where T : IMeasurement
 {

@@ -18,9 +18,9 @@ public static class IQueryExtensions
     where TIndex : class, IIndex
     where TEntity : class
   {
-    var query = queryable.Where(filter ?? (_ => true));
+    var query = filter is { } where ? queryable.Where(where) : queryable;
     var count = await query.CountAsync();
-    var items = await queryable.Skip((pageNumber - 1) * pageSize).Take(pageSize)
+    var items = await query.Skip((pageNumber - 1) * pageSize).Take(pageSize)
       .ListAsync();
     return items.Select(toModel).ToPaginatedList(count);
   }

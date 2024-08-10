@@ -82,11 +82,6 @@ public class AgnosticQueries(
   )
     where T : IModel
   {
-    if (!typeof(T).IsAssignableTo(typeof(IModel)))
-    {
-      throw new InvalidOperationException(
-        $"{typeof(T)} is not a model");
-    }
     var modelEntityConverter = serviceProvider
       .GetServices<IModelEntityConverter>()
       .FirstOrDefault(
@@ -102,11 +97,11 @@ public class AgnosticQueries(
       ? queryable.WhereDynamic(whereClause)
       : queryable;
 
-    var ordered = queryable;
+    var ordered = filtered;
     if (orderByDescClause is null && orderByAscClause is null)
     {
 #pragma warning disable S125 // Sections of code should not be commented out
-      // ordered = queryable.OrderBy(context
+      // ordered = filtered.OrderBy(context
       //   .PrimaryKeyOfAgnostic(modelEntityConverter.EntityType()))
       //   as IQueryable<IEntity>
       //   ?? throw new InvalidOperationException();
@@ -115,8 +110,8 @@ public class AgnosticQueries(
     else
     {
       var orderByDesc = orderByDescClause is not null
-        ? queryable.OrderByDescendingDynamic(orderByDescClause)
-        : queryable;
+        ? filtered.OrderByDescendingDynamic(orderByDescClause)
+        : filtered;
       ordered = orderByAscClause is not null
         ? orderByDesc.OrderByDescendingDynamic(orderByAscClause)
         : orderByDesc;
@@ -152,6 +147,7 @@ public class AgnosticQueries(
       throw new InvalidOperationException(
         $"{typeof(T)} is not a model");
     }
+
     var modelEntityConverter = serviceProvider
       .GetServices<IModelEntityConverter>()
       .FirstOrDefault(
@@ -162,15 +158,16 @@ public class AgnosticQueries(
     var queryable = context.GetQueryable(modelEntityConverter.EntityType())
         as IQueryable<IEntity>
       ?? throw new InvalidOperationException();
+
     var filtered = whereClause is not null
       ? queryable.WhereDynamic(whereClause)
       : queryable;
 
-    var ordered = queryable;
+    var ordered = filtered;
     if (orderByDescClause is null && orderByAscClause is null)
     {
 #pragma warning disable S125 // Sections of code should not be commented out
-      // ordered = queryable.OrderBy(context
+      // ordered = filtered.OrderBy(context
       //   .PrimaryKeyOfAgnostic(modelEntityConverter.EntityType()))
       //   as IQueryable<IEntity>
       //   ?? throw new InvalidOperationException();
@@ -179,8 +176,8 @@ public class AgnosticQueries(
     else
     {
       var orderByDesc = orderByDescClause is not null
-        ? queryable.OrderByDescendingDynamic(orderByDescClause)
-        : queryable;
+        ? filtered.OrderByDescendingDynamic(orderByDescClause)
+        : filtered;
       ordered = orderByAscClause is not null
         ? orderByDesc.OrderByDescendingDynamic(orderByAscClause)
         : orderByDesc;

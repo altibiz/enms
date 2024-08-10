@@ -89,6 +89,12 @@ dev *args:
     $env.DOTNET_ENVIRONMENT = "Development"; \
     dotnet watch --project '{{servercsproj}}' {{args}}
 
+dev-sql *args:
+  $env.ASPNETCORE_ENVIRONMENT = "Development"; \
+    $env.DOTNET_ENVIRONMENT = "Development"; \
+    $env.ENMS_LOG_SQL = "true"; \
+    dotnet watch --project '{{servercsproj}}' {{args}}
+
 fake *args:
   $env.ASPNETCORE_ENVIRONMENT = "Development"; \
     $env.DOTNET_ENVIRONMENT = "Development"; \

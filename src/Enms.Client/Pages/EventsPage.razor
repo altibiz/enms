@@ -1,0 +1,34 @@
+@page "/events"
+
+@namespace Enms.Client.Pages
+
+@attribute [Navigation(Title = "Events")]
+@attribute [Authorize]
+@using Enms.Business.Models.Base
+@using Enms.Business.Queries
+@using Enms.Client.Attributes
+@using Enms.Client.Shared.Models
+@using Enms.Client.Shared.Streaming
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.Extensions.DependencyInjection
+@using MudBlazor
+@inherits Enms.Client.Base.EnmsOwningComponentBase
+
+<Paging T="EventModel">
+  <Summary Context="model">
+    @{
+      var href = $"event/{model.Id}";
+
+      <MudCard>
+        <MudCardContent>
+          <EventSummary Model="@model"/>
+        </MudCardContent>
+        <MudCardActions>
+          <MudNavLink Href="@href">
+            @Translate("Details")
+          </MudNavLink>
+        </MudCardActions>
+      </MudCard>
+    }
+  </Summary>
+</Paging>

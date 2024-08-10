@@ -1,11 +1,12 @@
 using System.ComponentModel.DataAnnotations;
 using Enms.Business.Capabilities.Abstractions;
+using Enms.Business.Capabilities.Base;
 using Enms.Business.Models.Abstractions;
 using Enms.Data;
 
 namespace Enms.Business.Models.Base;
 
-public abstract class LineModel : AuditableModel, ILine
+public class LineModel : AuditableModel, ILine
 {
   [Required]
   public required float ConnectionPower_W { get; set; }
@@ -40,7 +41,7 @@ public abstract class LineModel : AuditableModel, ILine
   [Required]
   public required string MeterId { get; set; }
 
-  public abstract ILineCapabilities Capabilities { get; }
+  public virtual ILineCapabilities Capabilities { get => new LineCapabilities(); }
 
   public override IEnumerable<ValidationResult> Validate(
     ValidationContext validationContext)
