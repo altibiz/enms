@@ -76,7 +76,7 @@ public class CascadingDeleteInterceptor : ServedSaveChangesInterceptor
         .GetQueryable(relationship.DeclaringEntityType.ClrType)
         .Where(
           context.ForeignKeyEqualsAgnostic(
-            relationship.PrincipalEntityType.ClrType,
+            relationship.DeclaringEntityType.ClrType,
             relationship.GetNavigation(true)?.Name
             ?? throw new InvalidOperationException(
               "No navigation property found"),
