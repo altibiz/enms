@@ -74,7 +74,7 @@ public static class DbContextExtensions
       .ToList();
   }
 
-  private static EntityEntry FindEntry(
+  public static EntityEntry FindEntry(
     this DbContext context,
     object entity
   )

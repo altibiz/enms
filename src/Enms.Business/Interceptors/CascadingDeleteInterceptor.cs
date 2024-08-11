@@ -50,10 +50,16 @@ public class CascadingDeleteInterceptor : ServedSaveChangesInterceptor
 
   private async Task CascadingDelete(
     DbContextEventData eventData,
-    EntityEntry<IIdentifiableEntity> entry)
+    EntityEntry entry)
   {
     var context = eventData.Context as EnmsDataDbContext;
     if (context is null)
+    {
+      return;
+    }
+
+    var entity = entry.Entity as IIdentifiableEntity;
+    if (entity is null)
     {
       return;
     }
@@ -80,13 +86,13 @@ public class CascadingDeleteInterceptor : ServedSaveChangesInterceptor
             relationship.GetNavigation(true)?.Name
             ?? throw new InvalidOperationException(
               "No navigation property found"),
-            entry.Entity.Id))
+            entity.Id))
         .ToListAsync();
 
       foreach (var declaring in declarers)
       {
-        var declaringEntry = context.Entry((IIdentifiableEntity)declaring);
-        entry.State = EntityState.Deleted;
+        var declaringEntry = context.FindEntry(declaring);
+        declaringEntry.State = EntityState.Deleted;
 
         await CascadingDelete(
           eventData,
