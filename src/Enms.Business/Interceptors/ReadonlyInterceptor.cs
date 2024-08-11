@@ -2,8 +2,6 @@ using Enms.Data.Entities.Abstractions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 
-// TODO: check if this is the right way to do it
-
 namespace Enms.Business.Interceptors;
 
 public class ReadonlyInterceptor : ServedSaveChangesInterceptor
@@ -40,11 +38,12 @@ public class ReadonlyInterceptor : ServedSaveChangesInterceptor
       .Entries<IReadonlyEntity>()
       .ToList();
 
-    if (entries.Exists(
+    if (entries.Find(
       entry =>
-        entry.State is EntityState.Modified or EntityState.Deleted))
+        entry.State is EntityState.Modified or EntityState.Deleted) is { } entry)
     {
-      throw new InvalidOperationException("Cannot modify readonly entity.");
+      throw new InvalidOperationException(
+        $"Cannot modify readonly entity {entry.Entity.GetType().Name}.");
     }
 
     return result;
