@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.Globalization;
+using Enms.Business.Math;
 using Enms.Business.Models.Abstractions;
 using Enms.Business.Models.Enums;
 using Enms.Business.Time;
@@ -53,6 +54,58 @@ public abstract class AggregateModel : IAggregate
 
   [Required]
   public required long Count { get; init; } = 0;
+
+  public abstract SpanningMeasure<decimal> ActiveEnergySpan_Wh { get; }
+
+  public abstract SpanningMeasure<decimal> ReactiveEnergySpan_VARh { get; }
+
+  public abstract SpanningMeasure<decimal> ApparentEnergySpan_VAh { get; }
+
+  public abstract TariffMeasure<decimal> Current_A { get; }
+
+  public abstract TariffMeasure<decimal> Voltage_V { get; }
+
+  public virtual TariffMeasure<decimal> ActivePower_W
+  {
+    get
+    {
+      return ActiveEnergySpan_Wh.SpanDifferential(
+        (decimal)Interval.ToTimeSpan(Timestamp).TotalHours);
+    }
+  }
+
+  public virtual TariffMeasure<decimal> ReactivePower_VAR
+  {
+    get
+    {
+      return ReactiveEnergySpan_VARh.SpanDifferential(
+        (decimal)Interval.ToTimeSpan(Timestamp).TotalHours);
+    }
+  }
+
+  public virtual TariffMeasure<decimal> ApparentPower_VA
+  {
+    get
+    {
+      return ApparentEnergySpan_VAh.SpanDifferential(
+        (decimal)Interval.ToTimeSpan(Timestamp).TotalHours);
+    }
+  }
+
+  public virtual TariffMeasure<decimal> ActiveEnergy_Wh
+  {
+    get { return ActiveEnergySpan_Wh.SpanMax(); }
+  }
+
+  public virtual TariffMeasure<decimal> ReactiveEnergy_VARh
+  {
+    get { return ReactiveEnergySpan_VARh.SpanMax(); }
+  }
+
+  public virtual TariffMeasure<decimal> ApparentEnergy_VAh
+  {
+    get { return ApparentEnergySpan_VAh.SpanMax(); }
+  }
 
   public virtual IEnumerable<ValidationResult> Validate(
     ValidationContext validationContext)

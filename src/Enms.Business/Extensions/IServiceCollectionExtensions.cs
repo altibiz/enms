@@ -1,15 +1,17 @@
 using System.Reflection;
 using Enms.Business.Activation.Abstractions;
 using Enms.Business.Activation.Agnostic;
-using Enms.Business.Aggregation;
 using Enms.Business.Aggregation.Abstractions;
 using Enms.Business.Aggregation.Agnostic;
 using Enms.Business.Conversion.Abstractions;
 using Enms.Business.Conversion.Agnostic;
-using Enms.Business.Iot;
 using Enms.Business.Localization;
 using Enms.Business.Localization.Abstractions;
 using Enms.Business.Mutations.Abstractions;
+using Enms.Business.Naming.Abstractions;
+using Enms.Business.Naming.Agnostic;
+using Enms.Business.Pushing;
+using Enms.Business.Pushing.Abstractions;
 using Enms.Business.Queries.Abstractions;
 using Enms.Data;
 using Enms.Data.Concurrency;
@@ -39,9 +41,15 @@ public static class IServiceCollectionExtensions
     services.AddSingleton(typeof(AgnosticPushRequestMeasurementConverter));
     services.AddTransientAssignableTo(typeof(IModelActivator));
     services.AddSingleton(typeof(AgnosticModelActivator));
+    services.AddTransientAssignableTo(typeof(ILineNamingConvention));
+    services.AddSingleton(typeof(AgnosticLineNamingConvention));
 
-    services.AddScoped<EnmsIotHandler>();
-    services.AddScoped<BatchAggregatedMeasurementUpserter>();
+    services.AddScoped<IMeasurementPusher, MeasurementPusher>();
+    services.AddSingleton<MeasurementPublisher>();
+    services.AddSingleton<IMeasurementPublisher>(services => services
+      .GetRequiredService<MeasurementPublisher>());
+    services.AddSingleton<IMeasurementSubscriber>(services => services
+      .GetRequiredService<MeasurementPublisher>());
 
     services.AddSingleton<ILocalizer, Localizer>();
 

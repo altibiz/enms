@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using Enms.Business.Math;
 using Enms.Business.Models.Base;
 
 namespace Enms.Business.Models;
@@ -40,4 +41,63 @@ public class EgaugeAggregateModel : AggregateModel
 
   [Required]
   public required decimal ApparentPowerL3NetT0Avg_W { get; set; }
+
+  public override TariffMeasure<decimal> Current_A =>
+    new UnaryTariffMeasure<decimal>(
+      new AnyDuplexMeasure<decimal>(
+        new TriPhasicMeasure<decimal>(
+          CurrentL1AnyT0Avg_A,
+          CurrentL2AnyT0Avg_A,
+          CurrentL3AnyT0Avg_A
+        )
+      )
+    );
+
+  public override TariffMeasure<decimal> Voltage_V =>
+    new UnaryTariffMeasure<decimal>(
+      new AnyDuplexMeasure<decimal>(
+        new TriPhasicMeasure<decimal>(
+          VoltageL1AnyT0Avg_V,
+          VoltageL2AnyT0Avg_V,
+          VoltageL3AnyT0Avg_V
+        )
+      )
+    );
+
+  public override TariffMeasure<decimal> ActivePower_W =>
+    new CompositeTariffMeasure<decimal>([
+      base.ActivePower_W,
+      new UnaryTariffMeasure<decimal>(
+        new NetDuplexMeasure<decimal>(
+          new TriPhasicMeasure<decimal>(
+            ActivePowerL1NetT0Avg_W,
+            ActivePowerL2NetT0Avg_W,
+            ActivePowerL3NetT0Avg_W
+          )
+        )
+      )
+    ]);
+
+  public override TariffMeasure<decimal> ApparentPower_VA =>
+    new CompositeTariffMeasure<decimal>([
+      base.ApparentPower_VA,
+      new UnaryTariffMeasure<decimal>(
+        new NetDuplexMeasure<decimal>(
+          new TriPhasicMeasure<decimal>(
+            ApparentPowerL1NetT0Avg_W,
+            ApparentPowerL2NetT0Avg_W,
+            ApparentPowerL3NetT0Avg_W
+          )
+        )
+      )
+    ]);
+
+  public override SpanningMeasure<decimal> ActiveEnergySpan_Wh =>
+    SpanningMeasure<decimal>.Null;
+
+  public override SpanningMeasure<decimal> ReactiveEnergySpan_VARh =>
+    SpanningMeasure<decimal>.Null;
+
+  public override SpanningMeasure<decimal> ApparentEnergySpan_VAh =>
+    SpanningMeasure<decimal>.Null;
 }

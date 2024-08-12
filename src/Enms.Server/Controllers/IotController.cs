@@ -1,25 +1,28 @@
 using System.IO.Compression;
-using Enms.Business.Iot;
+using Enms.Business.Conversion.Agnostic;
+using Enms.Business.Pushing.Abstractions;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Enms.Server.Controllers;
 
 [IgnoreAntiforgeryToken]
-public class IotController : Controller
+public class IotController(
+  AgnosticPushRequestMeasurementConverter pushRequestMeasurementConverter,
+  IMeasurementPusher measurementPusher
+) : Controller
 {
-  private readonly EnmsIotHandler _iotHandler;
-
-  public IotController(EnmsIotHandler iotHandler)
-  {
-    _iotHandler = iotHandler;
-  }
-
   [HttpPost]
   public async Task<IActionResult> Push(string id)
   {
     var message = new GZipStream(Request.Body, CompressionMode.Decompress);
 
-    await _iotHandler.OnPush(id, message);
+    var measurements = await pushRequestMeasurementConverter.ToMeasurements(
+      id,
+      DateTimeOffset.UtcNow,
+      message
+    );
+
+    await measurementPusher.Push(measurements);
 
     return Ok();
   }

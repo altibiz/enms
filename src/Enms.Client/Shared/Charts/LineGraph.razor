@@ -1,11 +1,13 @@
 @using ApexCharts
 @using Enms.Business.Models.Abstractions
+@using Enms.Business.Queries.Agnostic
 @using Enms.Client.Base
-@using System.Timers
+@using Microsoft.Extensions.DependencyInjection
 @using MudBlazor
-
 @using Color = MudBlazor.Color
 @using Icons = MudBlazor.Icons
+
+@namespace Enms.Client.Shared.Charts
 
 @inherits EnmsOwningComponentBase
 
@@ -19,7 +21,7 @@
 <MudHidden Breakpoint="Breakpoint.MdAndUp">
   <MudPaper Class="d-flex align-center justify-stat mud-width-full pa-1 pb-3 flex-column">
     <MudItem Class="d-flex justify-center align-center" Style="font-size: large; font-weight: bold;">
-      @Translate(_dataTitle) @Translate("for"): @Source
+      @Translate(_dataTitle) @Translate("for"): @Model.Id
     </MudItem>
     <MudContainer Class="d-flex flex-column" MaxWidth="MaxWidth.Small">
       <ApexChart TItem="ChartData"
@@ -90,7 +92,7 @@
 <MudHidden Breakpoint="Breakpoint.SmAndDown">
   <MudPaper Class="d-flex align-center justify-center mud-width-full py-8 px-8 flex-column" Height="450px">
     <MudItem Class="d-flex justify-center align-center" Style="font-size: large; font-weight: bold;">
-      @Translate(_dataTitle) @Translate("for"): @Source
+      @Translate(_dataTitle) @Translate("for"): @Model.Id
     </MudItem>
     <MudContainer Class="d-flex flex-column" MaxWidth="MaxWidth.Medium">
       @if (_graphValues is not null)
@@ -162,11 +164,26 @@
   [Parameter]
   public ILine Model { get; set; } = default!;
 
+  [Parameter]
+  public ChartMeasure? Measure { get; set; } = default!;
+
+  [Parameter]
+  public DateTimeOffset? Timestamp { get; set; } = default!;
+
+  [Parameter]
+  public ChartResolution? Resolution { get; set; } = default!;
+
+  [Parameter]
+  public int? Multiplier { get; set; } = default!;
+
+  [Parameter]
+  public bool Refresh { get; set; } = default!;
+
   AnnotationsYAxis _annotation = new();
   private ApexChartOptions<ChartData> graphOptions = NewApexChartOptions<ChartData>();
   private ApexChartOptions<ChartData> graphOptionsMob = NewApexChartOptions<ChartData>();
-  EnmsAggregateQueries aggregateQueries = default!;
-  EnmsMeasurementQueries measureQueries = default!;
+  AggregateQueries aggregateQueries = default!;
+  MeasurementQueries measureQueries = default!;
 
   private List<(DataEnum type, string name)> _displayType = new();
 
@@ -181,10 +198,6 @@
 
   private ApexChart<ChartData> chart = default!;
 
-  @* TIME STUFF *@
-  private bool timerInitialized;
-  private Timer timer = new();
-  private int updateMillisecond = 10000;
   private DateTimeOffset now = DateTimeOffset.UtcNow.LocalDateTime;
 
   private enum DataEnum
@@ -207,8 +220,8 @@
       (DataEnum.Apparent_Power, Translate("Apparent Power"))
     };
 
-    aggregateQueries = ScopedServices.GetRequiredService<OzdsAggregateQueries>();
-    measureQueries = ScopedServices.GetRequiredService<OzdsMeasurementQueries>();
+    aggregateQueries = ScopedServices.GetRequiredService<AggregateQueries>();
+    measureQueries = ScopedServices.GetRequiredService<MeasurementQueries>();
 
     SetGraphOptionsStart();
     await DataMenuItemClicked(DataEnum.Active_Power);
@@ -274,9 +287,11 @@
   {
     IEnumerable<IMeasurement> measures;
     if (timeSpanMins > 60)
-      measures = await aggregateQueries.ReadAgnostic(new[] { "x => x.Interval == 0", $"x => x.LineId == \"{Source}\"" }, fromDate, toDate, 1, 9000);
+      measures = await aggregateQueries.ReadAgnostic(
+        fromDate, toDate, lineId: Model.Id);
     else
-      measures = await measureQueries.ReadAgnostic(new[] { $"x => x.LineId == \"{Source}\"" }, fromDate, toDate, 1, 3000);
+      measures = await measureQueries.ReadAgnostic(
+        fromDate, toDate, lineId: Model.Id);
     measures = measures.OrderBy(x => x.Timestamp).ToList();
     switch (_dataTitle)
     {
@@ -565,31 +580,20 @@
 
   private void SetAnnotationStart()
   {
-    if (_line is not null)
-      connectionMaxPower = _line.ConnectionPower_W * 3;
+    if (Model is not null)
+      connectionMaxPower = Model.ConnectionPower_W * 3;
 
     _annotation = new AnnotationsYAxis
     {
       Label = new Label
       {
-        Text = Translate("CONNECTED POWER"),
+        Text = Translate("CONNECTION POWER"),
         Style = new Style { Background = "red", Color = "white", FontSize = "12px" }
       },
       Y = connectionMaxPower,
       BorderColor = "red",
       StrokeDashArray = 0
     };
-  }
-
-  protected override void OnAfterRender(bool firstRender)
-  {
-    if (firstRender && !timerInitialized)
-    {
-      timerInitialized = true;
-      timer = new Timer(updateMillisecond);
-      timer.Elapsed += async delegate { await UpdateChartSeries(); };
-      timer.Enabled = true;
-    }
   }
 
   private async Task UpdateChartSeries()
@@ -610,24 +614,7 @@
     }
   }
 
-  public class ChartDataComparer : IEqualityComparer<ChartData>
-  {
-    public bool Equals(ChartData? x, ChartData? y)
-    {
-      if (y is null || x is null)
-        return false;
-      return x.date == y.date;
-    }
-
-    public int GetHashCode(ChartData obj)
-    {
-      return obj.date.GetHashCode();
-    }
-  }
-
   void IDisposable.Dispose()
   {
-    timer?.Dispose();
   }
-
 }

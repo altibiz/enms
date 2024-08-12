@@ -1,4 +1,4 @@
-namespace Enms.Business.Iot;
+namespace Enms.Business.Pushing.Requests;
 
 public readonly record struct EgaugePushRequest(
   List<EgaugeRegister> Registers,

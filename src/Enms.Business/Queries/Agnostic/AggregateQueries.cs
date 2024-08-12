@@ -3,8 +3,8 @@ using Enms.Business.Extensions;
 using Enms.Business.Models;
 using Enms.Business.Models.Abstractions;
 using Enms.Business.Models.Enums;
+using Enms.Business.Naming.Agnostic;
 using Enms.Business.Queries.Abstractions;
-using Enms.Data;
 using Enms.Data.Concurrency;
 using Enms.Data.Entities.Base;
 using Microsoft.EntityFrameworkCore;
@@ -13,13 +13,15 @@ namespace Enms.Business.Queries.Agnostic;
 
 public class AggregateQueries(
   EnmsDataDbContextMutex mutex,
-  AgnosticModelEntityConverter modelEntityConverter
+  AgnosticModelEntityConverter modelEntityConverter,
+  AgnosticLineNamingConvention lineNamingConvention
 ) : IQueries
 {
   public async Task<PaginatedList<T>> Read<T>(
-    IntervalModel interval,
     DateTimeOffset fromDate,
     DateTimeOffset toDate,
+    string? lineId = null,
+    IntervalModel? interval = null,
     string? whereClause = null,
     int pageNumber = QueryConstants.StartingPage,
     int pageCount = QueryConstants.DefaultPageCount
@@ -28,9 +30,10 @@ public class AggregateQueries(
   {
     var result = await ReadDynamic(
       typeof(T),
-      interval,
       fromDate,
       toDate,
+      lineId,
+      interval,
       whereClause,
       pageNumber,
       pageCount
@@ -39,29 +42,53 @@ public class AggregateQueries(
   }
 
   public async Task<List<IAggregate>> ReadAgnostic(
-    IntervalModel interval,
     DateTimeOffset fromDate,
     DateTimeOffset toDate,
+    string? lineId = null,
+    IntervalModel? interval = null,
     string? whereClause = null,
     int pageNumber = QueryConstants.StartingPage,
     int pageCount = QueryConstants.DefaultPageCount)
   {
     var result = new List<IAggregate>();
 
-    foreach (var type in typeof(IAggregate).Assembly
-      .GetTypes()
-      .Where(type => type.IsAssignableTo(typeof(IAggregate))))
+    if (lineId is not null)
     {
-      var model = await ReadDynamic(
-        type,
-        interval,
+      var aggregateType = lineNamingConvention
+        .AggregateTypeForLineId(lineId);
+      var aggregates = await ReadDynamic(
+        aggregateType,
         fromDate,
         toDate,
+        lineId,
+        interval,
         whereClause,
         pageNumber,
         pageCount
       );
-      result.AddRange(model.Items);
+      result.AddRange(aggregates.Items);
+    }
+    else
+    {
+      foreach (var type in typeof(IAggregate).Assembly
+        .GetTypes()
+        .Where(type =>
+          !type.IsGenericType &&
+          !type.IsAbstract &&
+          type.IsAssignableTo(typeof(IAggregate))))
+      {
+        var model = await ReadDynamic(
+          type,
+          fromDate,
+          toDate,
+          lineId,
+          interval,
+          whereClause,
+          pageNumber,
+          pageCount
+        );
+        result.AddRange(model.Items);
+      }
     }
 
     return result;
@@ -69,9 +96,10 @@ public class AggregateQueries(
 
   public async Task<PaginatedList<IAggregate>> ReadDynamic(
     Type aggregateType,
-    IntervalModel interval,
     DateTimeOffset fromDate,
     DateTimeOffset toDate,
+    string? lineId = null,
+    IntervalModel? interval = null,
     string? whereClause = null,
     int pageNumber = QueryConstants.StartingPage,
     int pageCount = QueryConstants.DefaultPageCount
@@ -86,23 +114,33 @@ public class AggregateQueries(
       ?? throw new InvalidOperationException(
         $"No DbSet found for {dbSetType}");
 
-    var filtered = whereClause is null
+    var whereFiltered = whereClause is null
       ? queryable
       : queryable.WhereDynamic(whereClause);
 
-    var timeFiltered = filtered
-      .Where(aggregate => aggregate.Interval >= interval.ToEntity())
+    var timeFiltered = whereFiltered
       .Where(aggregate => aggregate.Timestamp >= fromDate)
       .Where(aggregate => aggregate.Timestamp < toDate);
 
-    var count = await timeFiltered.CountAsync();
+    var intervalEntity = interval?.ToEntity();
+    var intervalFiltered = intervalEntity is null
+      ? timeFiltered
+      : timeFiltered.Where(aggregate => aggregate.Interval == intervalEntity);
 
-    var ordered = timeFiltered
+    var filtered = lineId is null
+      ? intervalFiltered
+      : intervalFiltered.Where(aggregate => aggregate.LineId == lineId);
+
+    var ordered = filtered
       .OrderByDescending(aggregate => aggregate.Timestamp);
+
+    var count = await filtered.CountAsync();
+
     var items = await ordered
       .Skip((pageNumber - 1) * pageCount)
       .Take(pageCount)
       .ToListAsync();
+
     return items
       .Select(modelEntityConverter.ToModel)
       .OfType<IAggregate>()

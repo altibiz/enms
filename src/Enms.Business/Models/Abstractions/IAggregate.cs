@@ -1,17 +1,17 @@
-using System.ComponentModel.DataAnnotations;
+using Enms.Business.Math;
 using Enms.Business.Models.Enums;
 
 namespace Enms.Business.Models.Abstractions;
 
-public interface IAggregate : IValidatableObject, IReadonly
+public interface IAggregate : IMeasurement
 {
-  public string MeterId { get; }
-
-  public string LineId { get; }
-
-  public DateTimeOffset Timestamp { get; }
-
   public IntervalModel Interval { get; }
 
   public long Count { get; }
+
+  public SpanningMeasure<decimal> ActiveEnergySpan_Wh { get; }
+
+  public SpanningMeasure<decimal> ReactiveEnergySpan_VARh { get; }
+
+  public SpanningMeasure<decimal> ApparentEnergySpan_VAh { get; }
 }

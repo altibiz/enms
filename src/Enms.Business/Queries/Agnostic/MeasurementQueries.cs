@@ -2,6 +2,7 @@ using Enms.Business.Conversion.Agnostic;
 using Enms.Business.Extensions;
 using Enms.Business.Models;
 using Enms.Business.Models.Abstractions;
+using Enms.Business.Naming.Agnostic;
 using Enms.Business.Queries.Abstractions;
 using Enms.Data.Concurrency;
 using Enms.Data.Entities.Base;
@@ -11,23 +12,26 @@ namespace Enms.Business.Queries.Agnostic;
 
 public class MeasurementQueries(
   EnmsDataDbContextMutex mutex,
-  AgnosticModelEntityConverter modelEntityConverter
+  AgnosticModelEntityConverter modelEntityConverter,
+  AgnosticLineNamingConvention lineNamingConvention
 ) : IQueries
 {
   public async Task<PaginatedList<T>> Read<T>(
-    string? whereClause,
     DateTimeOffset fromDate,
     DateTimeOffset toDate,
+    string? lineId = null,
+    string? whereClause = null,
     int pageNumber = QueryConstants.StartingPage,
-    int pageCount = QueryConstants.DefaultPageCount
+    int pageCount = QueryConstants.MeasurementPageCount
   )
     where T : class, IMeasurement
   {
     var result = await ReadDynamic(
       typeof(T),
-      whereClause,
       fromDate,
       toDate,
+      lineId,
+      whereClause,
       pageNumber,
       pageCount
     );
@@ -35,27 +39,51 @@ public class MeasurementQueries(
   }
 
   public async Task<List<IMeasurement>> ReadAgnostic(
-    string? whereClause,
     DateTimeOffset fromDate,
     DateTimeOffset toDate,
+    string? lineId = null,
+    string? whereClause = null,
     int pageNumber = QueryConstants.StartingPage,
-    int pageCount = QueryConstants.DefaultPageCount)
+    int pageCount = QueryConstants.MeasurementPageCount
+  )
   {
     var result = new List<IMeasurement>();
 
-    foreach (var type in typeof(IMeasurement).Assembly
-      .GetTypes()
-      .Where(type => type.IsAssignableTo(typeof(IMeasurement))))
+    if (lineId is not null)
     {
-      var model = await ReadDynamic(
-        type,
-        whereClause,
+      var measurementType = lineNamingConvention
+        .MeasurementTypeForLineId(lineId);
+      var measurements = await ReadDynamic(
+        measurementType,
         fromDate,
         toDate,
+        lineId,
+        whereClause,
         pageNumber,
         pageCount
       );
-      result.AddRange(model.Items);
+      result.AddRange(measurements.Items);
+    }
+    else
+    {
+      foreach (var type in typeof(IMeasurement).Assembly
+        .GetTypes()
+        .Where(type =>
+          !type.IsGenericType &&
+          !type.IsAbstract &&
+          type.IsAssignableTo(typeof(IMeasurement))))
+      {
+        var measurements = await ReadDynamic(
+          type,
+          fromDate,
+          toDate,
+          lineId,
+          whereClause,
+          pageNumber,
+          pageCount
+        );
+        result.AddRange(measurements.Items);
+      }
     }
 
     return result;
@@ -63,11 +91,12 @@ public class MeasurementQueries(
 
   public async Task<PaginatedList<IMeasurement>> ReadDynamic(
     Type aggregateType,
-    string? whereClause,
     DateTimeOffset fromDate,
     DateTimeOffset toDate,
+    string? lineId = null,
+    string? whereClause = null,
     int pageNumber = QueryConstants.StartingPage,
-    int pageCount = QueryConstants.DefaultPageCount
+    int pageCount = QueryConstants.MeasurementPageCount
   )
   {
     using var @lock = await mutex.LockAsync();
@@ -79,18 +108,22 @@ public class MeasurementQueries(
       ?? throw new InvalidOperationException(
         $"No DbSet found for {dbSetType}");
 
-    var filtered = whereClause is null
+    var whereFiltered = whereClause is null
       ? queryable
       : queryable.WhereDynamic(whereClause);
 
-    var timeFiltered = filtered
+    var timeFiltered = whereFiltered
       .Where(aggregate => aggregate.Timestamp >= fromDate)
       .Where(aggregate => aggregate.Timestamp < toDate);
 
-    var ordered = timeFiltered
+    var filtered = lineId is null
+      ? timeFiltered
+      : timeFiltered.Where(aggregate => aggregate.LineId == lineId);
+
+    var ordered = filtered
       .OrderByDescending(aggregate => aggregate.Timestamp);
 
-    var count = await timeFiltered.CountAsync();
+    var count = await filtered.CountAsync();
 
     var items = await ordered
       .Skip((pageNumber - 1) * pageCount)
