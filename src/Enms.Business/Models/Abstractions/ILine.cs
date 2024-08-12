@@ -9,4 +9,6 @@ public interface ILine : IAuditable
   public string MeterId { get; }
 
   public ILineCapabilities Capabilities { get; }
+
+  public decimal ConnectionPower_W { get; }
 }
