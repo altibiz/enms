@@ -12,6 +12,7 @@ using Enms.Business.Localization.Abstractions;
 using Enms.Business.Mutations.Abstractions;
 using Enms.Business.Queries.Abstractions;
 using Enms.Data;
+using Enms.Data.Concurrency;
 using Enms.Data.Extensions;
 
 namespace Enms.Business.Extensions;
@@ -86,6 +87,8 @@ public static class IServiceCollectionExtensions
             services
           );
       });
+
+    services.AddScoped<EnmsDataDbContextMutex>();
   }
 
   private static void AddScopedAssignableTo(
