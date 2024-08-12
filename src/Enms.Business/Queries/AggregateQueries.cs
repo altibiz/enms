@@ -5,13 +5,14 @@ using Enms.Business.Models.Abstractions;
 using Enms.Business.Models.Enums;
 using Enms.Business.Queries.Abstractions;
 using Enms.Data;
+using Enms.Data.Concurrency;
 using Enms.Data.Entities.Base;
 using Microsoft.EntityFrameworkCore;
 
 namespace Enms.Business.Queries.Agnostic;
 
 public class AggregateQueries(
-  EnmsDataDbContext context,
+  EnmsDataDbContextMutex mutex,
   AgnosticModelEntityConverter modelEntityConverter
 ) : IQueries
 {
@@ -76,6 +77,9 @@ public class AggregateQueries(
     int pageCount = QueryConstants.DefaultPageCount
   )
   {
+    using var @lock = await mutex.LockAsync();
+    var context = @lock.Context;
+
     var dbSetType = modelEntityConverter.EntityType(aggregateType);
     var queryable = context.GetQueryable(dbSetType)
         as IQueryable<AggregateEntity>

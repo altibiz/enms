@@ -3,14 +3,14 @@ using Enms.Business.Extensions;
 using Enms.Business.Models;
 using Enms.Business.Models.Abstractions;
 using Enms.Business.Queries.Abstractions;
-using Enms.Data;
+using Enms.Data.Concurrency;
 using Enms.Data.Entities.Base;
 using Microsoft.EntityFrameworkCore;
 
 namespace Enms.Business.Queries.Agnostic;
 
 public class MeasurementQueries(
-  EnmsDataDbContext context,
+  EnmsDataDbContextMutex mutex,
   AgnosticModelEntityConverter modelEntityConverter
 ) : IQueries
 {
@@ -70,24 +70,33 @@ public class MeasurementQueries(
     int pageCount = QueryConstants.DefaultPageCount
   )
   {
+    using var @lock = await mutex.LockAsync();
+    var context = @lock.Context;
+
     var dbSetType = modelEntityConverter.EntityType(aggregateType);
     var queryable = context.GetQueryable(dbSetType)
         as IQueryable<MeasurementEntity>
       ?? throw new InvalidOperationException(
         $"No DbSet found for {dbSetType}");
+
     var filtered = whereClause is null
       ? queryable
       : queryable.WhereDynamic(whereClause);
+
     var timeFiltered = filtered
       .Where(aggregate => aggregate.Timestamp >= fromDate)
       .Where(aggregate => aggregate.Timestamp < toDate);
-    var count = await timeFiltered.CountAsync();
+
     var ordered = timeFiltered
       .OrderByDescending(aggregate => aggregate.Timestamp);
+
+    var count = await timeFiltered.CountAsync();
+
     var items = await ordered
       .Skip((pageNumber - 1) * pageCount)
       .Take(pageCount)
       .ToListAsync();
+
     return items
       .Select(modelEntityConverter.ToModel)
       .OfType<IMeasurement>()

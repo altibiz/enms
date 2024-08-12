@@ -3,6 +3,7 @@ using Enms.Business.Extensions;
 using Enms.Business.Models.Abstractions;
 using Enms.Business.Queries.Abstractions;
 using Enms.Data;
+using Enms.Data.Concurrency;
 using Enms.Data.Entities.Abstractions;
 using Microsoft.EntityFrameworkCore;
 
@@ -12,11 +13,9 @@ namespace Enms.Business.Queries.Agnostic;
 // when ordering by primary key
 
 public class AgnosticQueries(
-  EnmsDataDbContext context,
+  EnmsDataDbContextMutex mutex,
   IServiceProvider serviceProvider) : IQueries
 {
-  private static readonly SemaphoreSlim Semaphore = new(1, 1);
-
   public async Task<T?> ReadSingle<T>(string id)
     where T : IIdentifiable
   {
@@ -28,18 +27,17 @@ public class AgnosticQueries(
       ?? throw new InvalidOperationException(
         $"No model entity converter found for model {typeof(T)}");
 
+    using var @lock = await mutex.LockAsync();
+    var context = @lock.Context;
+
     var queryable = context.GetQueryable(modelEntityConverter.EntityType())
         as IQueryable<IIdentifiableEntity>
       ?? throw new InvalidOperationException();
-
-    await Semaphore.WaitAsync();
 
     var item = await queryable
       .Where(
         context.PrimaryKeyEqualsAgnostic(modelEntityConverter.EntityType(), id))
       .FirstOrDefaultAsync();
-
-    Semaphore.Release();
 
     return item is null
       ? default
@@ -62,18 +60,17 @@ public class AgnosticQueries(
       ?? throw new InvalidOperationException(
         $"No model entity converter found for model {typeof(T)}");
 
+    using var @lock = await mutex.LockAsync();
+    var context = @lock.Context;
+
     var queryable = context.GetQueryable(modelEntityConverter.EntityType())
         as IQueryable<IIdentifiableEntity>
       ?? throw new InvalidOperationException();
-
-    await Semaphore.WaitAsync();
 
     var item = await queryable
       .Where(
         context.PrimaryKeyEqualsAgnostic(modelEntityConverter.EntityType(), id))
       .FirstOrDefaultAsync();
-
-    Semaphore.Release();
 
     return item is null
       ? default
@@ -96,6 +93,9 @@ public class AgnosticQueries(
             .CanConvertToEntity(typeof(T)))
       ?? throw new InvalidOperationException(
         $"No model entity converter found for model {typeof(T)}");
+
+    using var @lock = await mutex.LockAsync();
+    var context = @lock.Context;
 
     var queryable = context.GetQueryable(modelEntityConverter.EntityType())
         as IQueryable<IEntity>
@@ -125,16 +125,12 @@ public class AgnosticQueries(
         : orderByDesc;
     }
 
-    await Semaphore.WaitAsync();
-
     var count = await filtered.CountAsync();
 
     var items = await ordered
       .Skip((pageNumber - 1) * pageCount)
       .Take(pageCount)
       .ToListAsync();
-
-    Semaphore.Release();
 
     return items
       .Select(modelEntityConverter.ToModel)
@@ -164,6 +160,9 @@ public class AgnosticQueries(
       ?? throw new InvalidOperationException(
         $"No model entity converter found for model {typeof(T)}");
 
+    using var @lock = await mutex.LockAsync();
+    var context = @lock.Context;
+
     var queryable = context.GetQueryable(modelEntityConverter.EntityType())
         as IQueryable<IEntity>
       ?? throw new InvalidOperationException();
@@ -192,16 +191,12 @@ public class AgnosticQueries(
         : orderByDesc;
     }
 
-    await Semaphore.WaitAsync();
-
     var count = await filtered.CountAsync();
 
     var items = await ordered
       .Skip((pageNumber - 1) * pageCount)
       .Take(pageCount)
       .ToListAsync();
-
-    Semaphore.Release();
 
     return items
       .Select(modelEntityConverter.ToModel)
