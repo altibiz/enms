@@ -65,3 +65,7 @@ words:
   - antiforgery
   - unfound
   - unlocalized
+  - xaxis
+  - yaxis
+  - zoomin
+  - zoomout

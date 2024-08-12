@@ -29,9 +29,9 @@ public class AggregateQueries(
     where T : class, IAggregate
   {
     var result = await ReadDynamic(
-      typeof(T),
       fromDate,
       toDate,
+      typeof(T),
       lineId,
       interval,
       whereClause,
@@ -57,9 +57,9 @@ public class AggregateQueries(
       var aggregateType = lineNamingConvention
         .AggregateTypeForLineId(lineId);
       var aggregates = await ReadDynamic(
-        aggregateType,
         fromDate,
         toDate,
+        aggregateType,
         lineId,
         interval,
         whereClause,
@@ -78,9 +78,9 @@ public class AggregateQueries(
           type.IsAssignableTo(typeof(IAggregate))))
       {
         var model = await ReadDynamic(
-          type,
           fromDate,
           toDate,
+          type,
           lineId,
           interval,
           whereClause,
@@ -95,9 +95,9 @@ public class AggregateQueries(
   }
 
   public async Task<PaginatedList<IAggregate>> ReadDynamic(
-    Type aggregateType,
     DateTimeOffset fromDate,
     DateTimeOffset toDate,
+    Type? aggregateType = null,
     string? lineId = null,
     IntervalModel? interval = null,
     string? whereClause = null,
@@ -107,6 +107,13 @@ public class AggregateQueries(
   {
     using var @lock = await mutex.LockAsync();
     var context = @lock.Context;
+
+    if (aggregateType is null)
+    {
+      aggregateType = lineNamingConvention
+        .AggregateTypeForLineId(lineId
+          ?? throw new ArgumentNullException(nameof(lineId)));
+    }
 
     var dbSetType = modelEntityConverter.EntityType(aggregateType);
     var queryable = context.GetQueryable(dbSetType)

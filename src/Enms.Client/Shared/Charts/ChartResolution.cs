@@ -14,7 +14,24 @@ public enum ChartResolution
 
 public static class ChartResolutionExtensions
 {
-  public static string ToString(this ChartResolution resolution, int multiplier)
+  public static int MaxMultiplier(this ChartResolution resolution)
+  {
+    return resolution switch
+    {
+      ChartResolution.Minute => 60,
+      ChartResolution.Hour => 24,
+      ChartResolution.Day => 30,
+      ChartResolution.Week => 4,
+      ChartResolution.Month => 12,
+      ChartResolution.Year => 10,
+      _ => throw new ArgumentOutOfRangeException(
+        nameof(resolution),
+        resolution,
+        null)
+    };
+  }
+
+  public static string ToTitle(this ChartResolution resolution, int multiplier)
   {
     if (multiplier == 1)
     {
@@ -26,7 +43,10 @@ public static class ChartResolutionExtensions
         ChartResolution.Week => "Week",
         ChartResolution.Month => "Month",
         ChartResolution.Year => "Year",
-        _ => throw new ArgumentOutOfRangeException(nameof(resolution), resolution, null)
+        _ => throw new ArgumentOutOfRangeException(
+          nameof(resolution),
+          resolution,
+          null)
       };
     }
 
@@ -38,7 +58,10 @@ public static class ChartResolutionExtensions
       ChartResolution.Week => "Weeks",
       ChartResolution.Month => "Months",
       ChartResolution.Year => "Years",
-      _ => throw new ArgumentOutOfRangeException(nameof(resolution), resolution, null)
+      _ => throw new ArgumentOutOfRangeException(
+        nameof(resolution),
+        resolution,
+        null)
     };
   }
 
@@ -58,7 +81,10 @@ public static class ChartResolutionExtensions
         (DateTimeOffset start, DateTimeOffset end) => (end - start) * multiplier
       },
       ChartResolution.Year => TimeSpan.FromDays(365) * multiplier,
-      _ => throw new ArgumentOutOfRangeException(nameof(resolution), resolution, null)
+      _ => throw new ArgumentOutOfRangeException(
+        nameof(resolution),
+        resolution,
+        null)
     };
   }
 }

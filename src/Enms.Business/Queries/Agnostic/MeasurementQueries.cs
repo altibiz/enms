@@ -27,9 +27,9 @@ public class MeasurementQueries(
     where T : class, IMeasurement
   {
     var result = await ReadDynamic(
-      typeof(T),
       fromDate,
       toDate,
+      typeof(T),
       lineId,
       whereClause,
       pageNumber,
@@ -54,9 +54,9 @@ public class MeasurementQueries(
       var measurementType = lineNamingConvention
         .MeasurementTypeForLineId(lineId);
       var measurements = await ReadDynamic(
-        measurementType,
         fromDate,
         toDate,
+        measurementType,
         lineId,
         whereClause,
         pageNumber,
@@ -74,9 +74,9 @@ public class MeasurementQueries(
           type.IsAssignableTo(typeof(IMeasurement))))
       {
         var measurements = await ReadDynamic(
-          type,
           fromDate,
           toDate,
+          type,
           lineId,
           whereClause,
           pageNumber,
@@ -90,9 +90,9 @@ public class MeasurementQueries(
   }
 
   public async Task<PaginatedList<IMeasurement>> ReadDynamic(
-    Type aggregateType,
     DateTimeOffset fromDate,
     DateTimeOffset toDate,
+    Type? measurementType = null,
     string? lineId = null,
     string? whereClause = null,
     int pageNumber = QueryConstants.StartingPage,
@@ -102,7 +102,14 @@ public class MeasurementQueries(
     using var @lock = await mutex.LockAsync();
     var context = @lock.Context;
 
-    var dbSetType = modelEntityConverter.EntityType(aggregateType);
+    if (measurementType is null)
+    {
+      measurementType = lineNamingConvention
+        .MeasurementTypeForLineId(lineId
+          ?? throw new ArgumentNullException(nameof(lineId)));
+    }
+
+    var dbSetType = modelEntityConverter.EntityType(measurementType);
     var queryable = context.GetQueryable(dbSetType)
         as IQueryable<MeasurementEntity>
       ?? throw new InvalidOperationException(

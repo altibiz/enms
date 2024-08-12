@@ -1,6 +1,7 @@
 @using Enms.Business.Models
 @using Enms.Business.Queries.Agnostic
 @using Enms.Client.Shared.Streaming
+@using Enms.Client.Shared.Fields
 @using Microsoft.Extensions.DependencyInjection
 @using MudBlazor
 @inherits Enms.Client.Base.EnmsOwningComponentBase
@@ -43,22 +44,10 @@
     </Summary>
   </Paging>
 </MudSelect>
-<MudSelect
-  T="PhaseModel"
-  Label="@Translate("Phase")"
-  AnchorOrigin="Origin.BottomCenter"
-  SelectedValuesChanged="@(e => Model.Phases = e.ToHashSet())"
-  MultiSelection="true">
-  <MudSelectItem Value="PhaseModel.L1">
-    L1
-  </MudSelectItem>
-  <MudSelectItem Value="PhaseModel.L2">
-    L2
-  </MudSelectItem>
-  <MudSelectItem Value="PhaseModel.L3">
-    L3
-  </MudSelectItem>
-</MudSelect>
+<MultiEnumPicker
+  @bind-Value="Model.Phases"
+  Title="@Translate("Phase")"
+  Label="x => Translate(x.ToTitle())"/>
 
 @code {
 

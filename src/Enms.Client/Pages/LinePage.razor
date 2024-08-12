@@ -7,6 +7,7 @@
 @using Enms.Business.Models
 @using Enms.Client.Shared.Models
 @using Enms.Client.Shared.Streaming
+@using Enms.Client.Shared.Charts
 @using Microsoft.AspNetCore.Authorization
 @inherits Enms.Client.Base.EnmsOwningComponentBase
 
@@ -16,6 +17,7 @@
   </Edit>
   <Details Context="model">
     <EgaugeLineDetails Model="@model"/>
+    <LineGraph Model="@model"/>
   </Details>
 </Mutating>
 

@@ -1,0 +1,29 @@
+@using MudBlazor
+
+@namespace Enms.Client.Shared.Fields
+
+@typeparam T where T : struct, Enum
+
+<MudSelect
+  T="T"
+  Label="@Title"
+  SelectedValuesChanged="@(e => Value = e.ToHashSet())"
+  MultiSelection>
+  @foreach (var value in Enum.GetValues<T>())
+  {
+    <MudSelectItem Value="value">
+      @Label(value)
+    </MudSelectItem>
+  }
+</MudSelect>
+
+@code {
+  [Parameter]
+  public HashSet<T> Value { get; set; } = default!;
+
+  [Parameter]
+  public string Title { get; set; } = default!;
+
+  [Parameter]
+  public Func<T, string> Label { get; set; } = default!;
+}

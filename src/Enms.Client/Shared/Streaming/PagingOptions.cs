@@ -1,0 +1,7 @@
+namespace Enms.Client.Shared.Streaming;
+
+public record PaginationOptions(
+  int PageCount,
+  int PageNumber,
+  int TotalCount
+);
