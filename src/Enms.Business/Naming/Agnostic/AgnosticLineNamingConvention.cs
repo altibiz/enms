@@ -9,7 +9,7 @@ public class AgnosticLineNamingConvention(IServiceProvider serviceProvider)
     var lineNamingConvention = serviceProvider
       .GetServices<ILineNamingConvention>()
       .FirstOrDefault(x =>
-        lineId.StartsWith(x.MeterIdPrefix)
+        lineId.StartsWith(x.LineIdPrefix)
         && meterId.StartsWith(x.MeterIdPrefix))
       ?? throw new InvalidOperationException(
         $"No LineNamingConvention found for {lineId}");
@@ -22,7 +22,7 @@ public class AgnosticLineNamingConvention(IServiceProvider serviceProvider)
     var lineNamingConvention = serviceProvider
       .GetServices<ILineNamingConvention>()
       .FirstOrDefault(x =>
-        lineId.StartsWith(x.MeterIdPrefix)
+        lineId.StartsWith(x.LineIdPrefix)
         && meterId.StartsWith(x.MeterIdPrefix))
       ?? throw new InvalidOperationException(
         $"No LineNamingConvention found for {lineId}");

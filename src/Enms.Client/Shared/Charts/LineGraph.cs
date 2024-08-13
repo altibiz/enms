@@ -83,7 +83,8 @@ public partial class LineGraph : EnmsOwningComponentBase
       var measurements = await measurementQueries.ReadDynamic(
         Timestamp,
         Timestamp.Add(timeSpan),
-        lineId: Model.Id
+        lineId: Model.LineId,
+        meterId: Model.MeterId
       );
       return measurements;
     }
@@ -94,7 +95,8 @@ public partial class LineGraph : EnmsOwningComponentBase
       Timestamp,
       Timestamp.Add(timeSpan),
       interval: appropriateInterval,
-      lineId: Model.Id
+      lineId: Model.LineId,
+      meterId: Model.MeterId
     );
     var casted = new PaginatedList<IMeasurement>(
       aggregates.Items.Cast<IMeasurement>().ToList(),
@@ -139,8 +141,10 @@ public partial class LineGraph : EnmsOwningComponentBase
         options,
         Translate("CONNECTION POWER"),
         Model.ConnectionPower_W,
-        _measurements.Items.Max(m =>
-          m.ActivePower_W.TariffUnary().DuplexImport().PhaseSum()));
+        _measurements.Items
+          .OrderByDescending(m => m.ActivePower_W.TariffUnary().DuplexImport().PhaseSum())
+          .FirstOrDefault()
+          ?.ActivePower_W.TariffUnary().DuplexImport().PhaseSum());
       options = SetMdAndUpTimeRangeGraphOptions(
         options,
         Resolution,
