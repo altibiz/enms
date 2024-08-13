@@ -1,13 +1,13 @@
 using ApexCharts;
 using Enms.Business.Models;
 using Enms.Business.Models.Abstractions;
+using Enms.Business.Pushing.Abstractions;
 using Enms.Business.Queries.Abstractions;
 using Enms.Business.Queries.Agnostic;
 using Enms.Client.Base;
 using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.DependencyInjection;
 using MudBlazor;
-using YesSql.Services;
 
 namespace Enms.Client.Shared.Charts;
 
@@ -38,12 +38,28 @@ public partial class LineGraph : EnmsOwningComponentBase
   [CascadingParameter]
   public Breakpoint Breakpoint { get; set; } = default!;
 
+  [Inject]
+  public IMeasurementSubscriber MeasurementSubscriber { get; set; } = default!;
+
   private ApexChart<IMeasurement>? _chart = default!;
 
   private PaginatedList<IMeasurement> _measurements = new(new(), 0);
 
   private ApexChartOptions<IMeasurement> _options =
     NewApexChartOptions<IMeasurement>();
+
+  protected override void OnInitialized()
+  {
+    MeasurementSubscriber.OnAfterPublish += OnAfterMeasurementsPublished;
+  }
+
+  protected override void Dispose(bool disposing)
+  {
+    if (disposing)
+    {
+      MeasurementSubscriber.OnAfterPublish -= OnAfterMeasurementsPublished;
+    }
+  }
 
   protected override void OnParametersSet()
   {
@@ -58,11 +74,35 @@ public partial class LineGraph : EnmsOwningComponentBase
   protected override async Task OnParametersSetAsync()
   {
     _measurements = await LoadAsync();
+  }
+
+  protected override async Task OnAfterRenderAsync(bool firstRender)
+  {
+    if (firstRender)
+    {
+      return;
+    }
+
+    _measurements = await LoadAsync();
 
     if (_chart is not null)
     {
-      await _chart.UpdateSeriesAsync();
+      await _chart.UpdateSeriesAsync(true);
     }
+  }
+
+  private void OnAfterMeasurementsPublished(object? _sender, MeasurementPublishEventArgs args)
+  {
+    if (!Refresh)
+    {
+      return;
+    }
+
+    var now = DateTimeOffset.UtcNow;
+    Timestamp = now.Subtract(Resolution.ToTimeSpan(Multiplier, now));
+
+    _options = CreateGraphOptions();
+    InvokeAsync(StateHasChanged);
   }
 
   private async Task<PaginatedList<IMeasurement>> LoadAsync()

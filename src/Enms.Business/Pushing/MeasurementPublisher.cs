@@ -6,9 +6,9 @@ namespace Enms.Business.Pushing;
 public class MeasurementPublisher(ILogger<MeasurementPublisher> logger)
   : IMeasurementPublisher, IMeasurementSubscriber
 {
-  public event EventHandler<PublishEventArgs>? OnBeforePublish;
+  public event EventHandler<MeasurementPublishEventArgs>? OnBeforePublish;
 
-  public event EventHandler<PublishEventArgs>? OnAfterPublish;
+  public event EventHandler<MeasurementPublishEventArgs>? OnAfterPublish;
 
   public void AfterPublish(
     IReadOnlyList<IMeasurement> measurements,
@@ -18,7 +18,7 @@ public class MeasurementPublisher(ILogger<MeasurementPublisher> logger)
     {
       OnAfterPublish?.Invoke(
         this,
-        new PublishEventArgs(measurements, aggregates)
+        new MeasurementPublishEventArgs(measurements, aggregates)
       );
     }
     catch (Exception ex)
@@ -35,7 +35,7 @@ public class MeasurementPublisher(ILogger<MeasurementPublisher> logger)
     {
       OnBeforePublish?.Invoke(
         this,
-        new PublishEventArgs(measurements, aggregates)
+        new MeasurementPublishEventArgs(measurements, aggregates)
       );
     }
     catch (Exception ex)

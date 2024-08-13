@@ -2,7 +2,7 @@ using Enms.Business.Models.Abstractions;
 
 namespace Enms.Business.Pushing.Abstractions;
 
-public class PublishEventArgs(
+public class MeasurementPublishEventArgs(
   IReadOnlyList<IMeasurement> measurements,
   IReadOnlyList<IAggregate> aggregates) : EventArgs
 {
@@ -13,7 +13,7 @@ public class PublishEventArgs(
 
 public interface IMeasurementSubscriber
 {
-  public event EventHandler<PublishEventArgs>? OnBeforePublish;
+  public event EventHandler<MeasurementPublishEventArgs>? OnBeforePublish;
 
-  public event EventHandler<PublishEventArgs>? OnAfterPublish;
+  public event EventHandler<MeasurementPublishEventArgs>? OnAfterPublish;
 }
