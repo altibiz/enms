@@ -10,17 +10,17 @@
 @inherits EnmsOwningComponentBase
 
 <EnumPicker
-  @bind-Value="@Measure"
+  @bind-Value="Measure"
   Label="x => Translate(x.ToTitle())" />
 <EnumPicker
-  @bind-Value="@Resolution"
+  @bind-Value="Resolution"
   Label="x => Translate(x.ToTitle(Multiplier))" />
 <MultiEnumPicker
   @bind-Value="Phases"
   Title="@Translate("Phase")"
   Label="x => Translate(x.ToTitle())"/>
 <MudNumericField
-  @bind-Value="@Multiplier"
+  @bind-Value="Multiplier"
   Label="@Translate("Multiplier")"
   Min="1"
   Max="@Resolution.MaxMultiplier()"

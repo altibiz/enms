@@ -62,7 +62,6 @@ public partial class LineGraph : EnmsOwningComponentBase
     if (_chart is not null)
     {
       await _chart.UpdateSeriesAsync();
-      await _chart.RenderAsync();
     }
   }
 

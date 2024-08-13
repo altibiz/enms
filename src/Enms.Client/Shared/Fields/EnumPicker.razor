@@ -4,7 +4,7 @@
 
 @typeparam T where T : struct, Enum
 
-<MudSelect Label="@Label(Value)" @bind-Value="Value">
+<MudSelect Label="@Label(Value)" Value="Value" ValueChanged="ValueChanged">
   @foreach (var value in Enum.GetValues<T>())
   {
     <MudSelectItem Value="value">
@@ -16,6 +16,9 @@
 @code {
   [Parameter]
   public T Value { get; set; } = default!;
+
+  [Parameter]
+  public EventCallback<T> ValueChanged { get; set; } = default!;
 
   [Parameter]
   public Func<T, string> Label { get; set; } = default!;
