@@ -9,40 +9,40 @@
 
 <main>
   <MudThemeProvider Theme="_theme"/>
+  <MudPopoverProvider />
   <MudDialogProvider/>
   <MudSnackbarProvider/>
 
-  <Loading
-    T="MaybeRepresentingUserModel"
-    LoadAsync="@(() => ReadMaybeRepresentingUser())">
-    <Found Context="maybeRepresentingUser">
-      <CascadingValue Value="maybeRepresentingUser.User">
-        <UserLayout>
-          <Body>
-          <Loading
-            T="RepresentativeModel"
-            Load="@(() => maybeRepresentingUser.MaybeRepresentative)">
-            <Found Context="representative">
-              <CascadingValue Value="representative">
-                <RepresentativeLayout>
-                  <Body>
-                  @Body
-                  </Body>
-                </RepresentativeLayout>
-              </CascadingValue>
-            </Found>
-            <NotFound>
-              @Body
-            </NotFound>
-          </Loading>
-          </Body>
-        </UserLayout>
-      </CascadingValue>
-    </Found>
-  </Loading>
+  <MudBreakpointProvider>
+    <Loading
+      T="MaybeRepresentingUserModel"
+      LoadAsync="ReadMaybeRepresentingUser">
+      <Found Context="maybeRepresentingUser">
+        <CascadingValue Value="maybeRepresentingUser.User">
+          <UserLayout>
+            <Body>
+              @if (maybeRepresentingUser.MaybeRepresentative is { } representative)
+              {
+                <CascadingValue Value="representative">
+                  <RepresentativeLayout>
+                    <Body>
+                    @Body
+                    </Body>
+                  </RepresentativeLayout>
+                </CascadingValue>
+              }
+              else
+              {
+                @Body
+              }
+            </Body>
+          </UserLayout>
+        </CascadingValue>
+      </Found>
+    </Loading>
+  </MudBreakpointProvider>
 </main>
 
 @code {
-
   private readonly Theme _theme = new();
 }

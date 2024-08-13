@@ -107,7 +107,7 @@ public abstract class EnmsComponentBase : ComponentBase
     return withTimezone.ToString("dd. MM. yyyy. HH:mm", cultureInfo);
   }
 
-  protected static DateTimeOffset DateTimeGraph(DateTimeOffset dateTimeOffset)
+  protected static DateTimeOffset DateTimeChart(DateTimeOffset dateTimeOffset)
   {
     return dateTimeOffset.UtcDateTime.Add(
       DateTimeOffsetExtensions.GetOffset(dateTimeOffset));

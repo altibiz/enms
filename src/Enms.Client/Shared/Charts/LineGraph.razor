@@ -15,32 +15,28 @@
 <EnumPicker
   @bind-Value="@Resolution"
   Label="x => Translate(x.ToTitle(Multiplier))" />
+<MultiEnumPicker
+  @bind-Value="Phases"
+  Title="@Translate("Phase")"
+  Label="x => Translate(x.ToTitle())"/>
 <MudNumericField
   @bind-Value="@Multiplier"
   Label="@Translate("Multiplier")"
   Min="1"
   Max="@Resolution.MaxMultiplier()"
   Step="1"/>
-<MultiEnumPicker
-  @bind-Value="Phases"
-  Title="@Translate("Phase")"
-  Label="x => Translate(x.ToTitle())"/>
 
 <ApexChart XAxisType="XAxisType.Datetime"
            Options="@_options"
            @ref="_chart">
-  <Loading LoadAsync="LoadAsync">
-    <Found Context="page">
-      @foreach (var phase in Phases)
-      {
-        <ApexPointSeries
-          Items="@(page.Items)"
-          Name="@(phase.ToTitle())"
-          SeriesType="SeriesType.Line"
-          XValue='x => DateTimeGraph(x.Timestamp)'
-          YValue="x => x.ChartValue(Measure, phase)"
-          Stroke="@(new SeriesStroke { Color = phase.ToColor() })"/>
-      }
-    </Found>
-  </Loading>
+  @foreach (var phase in Phases)
+  {
+    <ApexPointSeries
+      Items="@(_measurements.Items)"
+      Name="@(phase.ToTitle())"
+      SeriesType="SeriesType.Line"
+      XValue='x => DateTimeChart(x.Timestamp)'
+      YValue="x => x.ChartValue(Measure, phase)"
+      Stroke="@(new SeriesStroke { Color = phase.ToColor() })"/>
+  }
 </ApexChart>

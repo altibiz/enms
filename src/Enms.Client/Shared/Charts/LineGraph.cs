@@ -6,6 +6,8 @@ using Enms.Business.Queries.Agnostic;
 using Enms.Client.Base;
 using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.DependencyInjection;
+using MudBlazor;
+using YesSql.Services;
 
 namespace Enms.Client.Shared.Charts;
 
@@ -33,12 +35,15 @@ public partial class LineGraph : EnmsOwningComponentBase
   [Parameter]
   public bool Refresh { get; set; } = true;
 
-  private ApexChart<IMeasurement> _chart = default!;
+  [CascadingParameter]
+  public Breakpoint Breakpoint { get; set; } = default!;
+
+  private PaginatedList<IMeasurement>? _measurements = default;
+
+  private ApexChart<IMeasurement>? _chart = default!;
 
   private ApexChartOptions<IMeasurement> _options =
     NewApexChartOptions<IMeasurement>();
-
-  private AnnotationsYAxis _annotations = new();
 
   protected override void OnParametersSet()
   {
@@ -47,12 +52,18 @@ public partial class LineGraph : EnmsOwningComponentBase
     {
       Timestamp = now.Subtract(Resolution.ToTimeSpan(Multiplier, now));
     }
+    _options = CreateGraphOptions();
   }
 
-  protected override void OnInitialized()
+  protected override async Task OnParametersSetAsync()
   {
-    _options = CreateMdAndUpGraphOptions();
-    _annotations = CreateYAxisAnnotations();
+    _measurements = await LoadAsync();
+
+    if (_chart is not null)
+    {
+      await _chart.UpdateSeriesAsync();
+      await _chart.RenderAsync();
+    }
   }
 
   private async Task<PaginatedList<IMeasurement>> LoadAsync()
@@ -92,7 +103,132 @@ public partial class LineGraph : EnmsOwningComponentBase
     return casted;
   }
 
-  private ApexChartOptions<IMeasurement> CreateSmAndDownGraphOptions()
+  private ApexChartOptions<IMeasurement> CreateGraphOptions()
+  {
+    if (Breakpoint <= Breakpoint.Sm)
+    {
+      var options = CreateSmAndDownGraphOptions(
+        Resolution,
+        Timestamp,
+        Multiplier
+      );
+      options = SetPowerAnnotationGraphOptions(
+        options,
+        Translate("CONMNECTION POWER"),
+        Model.ConnectionPower_W,
+        _measurements.Items.Max(m =>
+          m.ActivePower_W.TariffUnary().DuplexImport().PhaseSum()));
+      options = SetSmAndDownTimeRangeGraphOptions(
+        options,
+        Resolution,
+        Timestamp,
+        Multiplier
+      );
+      return options;
+    }
+    else
+    {
+      var options = CreateMdAndUpGraphOptions(
+        Resolution,
+        Timestamp,
+        Multiplier
+      );
+      options = SetPowerAnnotationGraphOptions(
+        options,
+        Translate("CONMNECTION POWER"),
+        Model.ConnectionPower_W,
+        _measurements.Items.Max(m =>
+          m.ActivePower_W.TariffUnary().DuplexImport().PhaseSum()));
+      options = SetMdAndUpTimeRangeGraphOptions(
+        options,
+        Resolution,
+        Timestamp,
+        Multiplier
+      );
+      return options;
+    }
+  }
+
+  private static ApexChartOptions<IMeasurement> SetSmAndDownTimeRangeGraphOptions(
+    ApexChartOptions<IMeasurement> options,
+    ChartResolution resolution,
+    DateTimeOffset timestamp,
+    int multiplier
+  )
+  {
+    options.Xaxis = new XAxis
+    {
+      Labels = new XAxisLabels { Show = false },
+      Range = resolution.ToTimeSpan(multiplier, timestamp).TotalMilliseconds
+    };
+
+    return options;
+  }
+
+  private static ApexChartOptions<IMeasurement> SetMdAndUpTimeRangeGraphOptions(
+    ApexChartOptions<IMeasurement> options,
+    ChartResolution resolution,
+    DateTimeOffset timestamp,
+    int multiplier
+  )
+  {
+    options.Xaxis = new XAxis
+    {
+      Type = XAxisType.Datetime,
+      AxisTicks = new AxisTicks(),
+      Range = resolution.ToTimeSpan(multiplier, timestamp).TotalMilliseconds
+    };
+
+    return options;
+  }
+
+  private static ApexChartOptions<IMeasurement> SetPowerAnnotationGraphOptions(
+    ApexChartOptions<IMeasurement> options,
+    string label,
+    decimal connectionPower,
+    decimal? maxPower)
+  {
+    var annotation = CreateYAxisAnnotations(label, connectionPower);
+
+    if (maxPower is null)
+    {
+      options.Yaxis.Clear();
+      options.Yaxis.Add(
+        new YAxis
+        {
+          Max = maxPower * 1.5M,
+          Labels = new YAxisLabels
+          {
+            Formatter = "function(val, index) { return (val ?? 0).toFixed(0); }"
+          }
+        });
+      options.Annotations = new Annotations
+      {
+        Yaxis = new List<AnnotationsYAxis> { annotation }
+      };
+    }
+    else
+    {
+      options.Annotations = new Annotations();
+      options.Yaxis.Clear();
+      options.Yaxis.Add(
+        new YAxis
+        {
+          Labels = new YAxisLabels
+          {
+            Formatter = "function(val, index) { return (val ?? 0).toFixed(0); }"
+          }
+        });
+    }
+
+    return options;
+  }
+
+  private static ApexChartOptions<IMeasurement> CreateSmAndDownGraphOptions(
+    ChartResolution resolution,
+    DateTimeOffset timestamp,
+    int multiplier
+  )
   {
     var options = NewApexChartOptions<IMeasurement>();
     options.Grid = new Grid
@@ -121,7 +257,7 @@ public partial class LineGraph : EnmsOwningComponentBase
     options.Xaxis = new XAxis
     {
       Labels = new XAxisLabels { Show = false },
-      Range = Resolution.ToTimeSpan(Multiplier, Timestamp).TotalMilliseconds
+      Range = resolution.ToTimeSpan(multiplier, timestamp).TotalMilliseconds
     };
     options.Chart = new Chart
     {
@@ -141,7 +277,11 @@ public partial class LineGraph : EnmsOwningComponentBase
     return options;
   }
 
-  private ApexChartOptions<IMeasurement> CreateMdAndUpGraphOptions()
+  private static ApexChartOptions<IMeasurement> CreateMdAndUpGraphOptions(
+    ChartResolution resolution,
+    DateTimeOffset timestamp,
+    int multiplier
+  )
   {
     var options = NewApexChartOptions<IMeasurement>();
     options.Grid = new Grid
@@ -186,19 +326,22 @@ public partial class LineGraph : EnmsOwningComponentBase
     {
       Type = XAxisType.Datetime,
       AxisTicks = new AxisTicks(),
-      Range = Resolution.ToTimeSpan(Multiplier, Timestamp).TotalMilliseconds
+      Range = resolution.ToTimeSpan(multiplier, timestamp).TotalMilliseconds
     };
 
     return options;
   }
 
-  private AnnotationsYAxis CreateYAxisAnnotations()
+  private static AnnotationsYAxis CreateYAxisAnnotations(
+    string label,
+    decimal connectionPower
+  )
   {
     var annotations = new AnnotationsYAxis
     {
       Label = new Label
       {
-        Text = Translate("CONNECTION POWER"),
+        Text = label,
         Style = new Style
         {
           Background = "red",
@@ -206,126 +349,11 @@ public partial class LineGraph : EnmsOwningComponentBase
           FontSize = "12px"
         }
       },
-      Y = Model.ConnectionPower_W * 3,
+      Y = connectionPower * 3,
       BorderColor = "red",
       StrokeDashArray = 0
     };
 
     return annotations;
-  }
-
-  private async Task SetAnnotationGraphOptions()
-  {
-    if (Measure == ChartMeasure.ActivePower)
-    {
-
-    }
-
-    if (_dataTitle == "Active Power")
-    {
-      if (_graphValues is not null && _graphValues.Any() && _graphValues.All(x => x.values.Length > 3))
-      {
-        var graphMaxPower = _graphValues.Select(x => x.values[3]).Max();
-        graphOptions.Yaxis.Clear();
-        graphOptions.Yaxis.Add(
-          new YAxis
-          {
-            Max = graphMaxPower * 1.5M,
-            Labels = new YAxisLabels
-            {
-              Formatter = "function(val, index) { return (val ?? 0).toFixed(0); }"
-            }
-          });
-        graphOptions.Annotations = new Annotations
-        {
-          Yaxis = new List<AnnotationsYAxis> { _annotation }
-        };
-
-        graphOptionsMob.Yaxis.Clear();
-        graphOptionsMob.Yaxis.Add(
-          new YAxis
-          {
-            Max = graphMaxPower * 1.5M,
-            Labels = new YAxisLabels
-            {
-              Formatter = "function(val, index) { return (val ?? 0).toFixed(0); }"
-            }
-          });
-        graphOptionsMob.Annotations = new Annotations
-        {
-          Yaxis = new List<AnnotationsYAxis> { _annotation }
-        };
-
-        if (chart is not null)
-        {
-          await chart.RenderAsync();
-          await chart.AddYAxisAnnotationAsync(_annotation, true);
-        }
-      }
-    }
-    else
-    {
-      graphOptions.Annotations = new Annotations();
-      graphOptions.Yaxis.Clear();
-      graphOptions.Yaxis.Add(
-        new YAxis
-        {
-          Labels = new YAxisLabels
-          {
-            Formatter = "function(val, index) { return (val ?? 0).toFixed(0); }"
-          }
-        });
-
-      graphOptionsMob.Annotations = new Annotations();
-      graphOptionsMob.Yaxis.Clear();
-      graphOptionsMob.Yaxis.Add(
-        new YAxis
-        {
-          Labels = new YAxisLabels
-          {
-            Formatter = "function(val, index) { return (val ?? 0).toFixed(0); }"
-          }
-        });
-
-      if (chart is not null)
-      {
-        await chart.ClearAnnotationsAsync();
-        await chart.RenderAsync();
-      }
-    }
-  }
-  private void SetGraphTimeRange()
-  {
-    graphOptions.Xaxis = new XAxis
-    {
-      Type = XAxisType.Datetime,
-      AxisTicks = new AxisTicks(),
-      Range = 60000 * timeSpanMins
-    };
-
-    graphOptionsMob.Xaxis = new XAxis
-    {
-      Labels = new XAxisLabels { Show = false },
-      Range = 60000 * timeSpanMins
-    };
-  }
-
-
-  private async Task UpdateChartSeries()
-  {
-    if (_graphValues is not null)
-    {
-      var lastGraphValues = _graphValues.OrderByDescending(x => x.date).FirstOrDefault();
-      if (chart is null)
-      {
-        return;
-      }
-
-      if (lastGraphValues is not null)
-      {
-        await GetValues(lastGraphValues.date, DateTimeOffset.UtcNow.LocalDateTime, false);
-        await chart.AppendDataAsync(_graphValues);
-      }
-    }
   }
 }

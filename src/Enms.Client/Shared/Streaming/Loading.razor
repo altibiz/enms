@@ -110,7 +110,7 @@
 
   private LoadingState<T> _state = new();
 
-  protected override void OnParametersSet()
+  protected override void OnInitialized()
   {
     if (Value is not null)
     {
@@ -118,7 +118,7 @@
     }
   }
 
-  protected override void OnInitialized()
+  protected override void OnParametersSet()
   {
     if (_state.State is not LoadingState.Loading or LoadingState.Unfound)
     {
@@ -174,7 +174,7 @@
     }
   }
 
-  protected override async Task OnInitializedAsync()
+  protected override async Task OnParametersSetAsync()
   {
     if (_state.State is not LoadingState.Loading or LoadingState.Unfound)
     {
@@ -249,5 +249,4 @@
       }
     }
   }
-
 }

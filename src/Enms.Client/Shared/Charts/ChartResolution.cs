@@ -23,7 +23,7 @@ public static class ChartResolutionExtensions
       ChartResolution.Day => 30,
       ChartResolution.Week => 4,
       ChartResolution.Month => 12,
-      ChartResolution.Year => 10,
+      ChartResolution.Year => 2,
       _ => throw new ArgumentOutOfRangeException(
         nameof(resolution),
         resolution,
