@@ -4,6 +4,8 @@ public interface ILineNamingConvention
 {
   public string LineIdPrefix { get; }
 
+  public string MeterIdPrefix { get; }
+
   public Type LineType { get; }
 
   public Type MeasurementType { get; }

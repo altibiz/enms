@@ -25,7 +25,7 @@ public class LineModel : AuditableModel, ILine
     get { return $"{LineId}{EnmsDataDbContext.KeyJoin}{MeterId}"; }
     set
     {
-      if (value is null)
+      if (string.IsNullOrEmpty(value))
       {
         LineId = default!;
         MeterId = default!;

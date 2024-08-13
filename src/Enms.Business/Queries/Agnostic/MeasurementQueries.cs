@@ -20,6 +20,7 @@ public class MeasurementQueries(
     DateTimeOffset fromDate,
     DateTimeOffset toDate,
     string? lineId = null,
+    string? meterId = null,
     string? whereClause = null,
     int pageNumber = QueryConstants.StartingPage,
     int pageCount = QueryConstants.MeasurementPageCount
@@ -31,6 +32,7 @@ public class MeasurementQueries(
       toDate,
       typeof(T),
       lineId,
+      meterId,
       whereClause,
       pageNumber,
       pageCount
@@ -42,6 +44,7 @@ public class MeasurementQueries(
     DateTimeOffset fromDate,
     DateTimeOffset toDate,
     string? lineId = null,
+    string? meterId = null,
     string? whereClause = null,
     int pageNumber = QueryConstants.StartingPage,
     int pageCount = QueryConstants.MeasurementPageCount
@@ -49,15 +52,16 @@ public class MeasurementQueries(
   {
     var result = new List<IMeasurement>();
 
-    if (lineId is not null)
+    if (lineId is not null && meterId is not null)
     {
       var measurementType = lineNamingConvention
-        .MeasurementTypeForLineId(lineId);
+        .MeasurementTypeForLineAndMeterId(lineId, meterId);
       var measurements = await ReadDynamic(
         fromDate,
         toDate,
         measurementType,
         lineId,
+        meterId,
         whereClause,
         pageNumber,
         pageCount
@@ -78,6 +82,7 @@ public class MeasurementQueries(
           toDate,
           type,
           lineId,
+          meterId,
           whereClause,
           pageNumber,
           pageCount
@@ -94,6 +99,7 @@ public class MeasurementQueries(
     DateTimeOffset toDate,
     Type? measurementType = null,
     string? lineId = null,
+    string? meterId = null,
     string? whereClause = null,
     int pageNumber = QueryConstants.StartingPage,
     int pageCount = QueryConstants.MeasurementPageCount
@@ -105,8 +111,9 @@ public class MeasurementQueries(
     if (measurementType is null)
     {
       measurementType = lineNamingConvention
-        .MeasurementTypeForLineId(lineId
-          ?? throw new ArgumentNullException(nameof(lineId)));
+        .MeasurementTypeForLineAndMeterId(
+          lineId ?? throw new ArgumentNullException(nameof(lineId)),
+          meterId ?? throw new ArgumentNullException(nameof(meterId)));
     }
 
     var dbSetType = modelEntityConverter.EntityType(measurementType);
@@ -125,7 +132,8 @@ public class MeasurementQueries(
 
     var filtered = lineId is null
       ? timeFiltered
-      : timeFiltered.Where(aggregate => aggregate.LineId == lineId);
+      : timeFiltered.Where(aggregate =>
+          aggregate.LineId == lineId && aggregate.MeterId == meterId);
 
     var ordered = filtered
       .OrderByDescending(aggregate => aggregate.Timestamp);

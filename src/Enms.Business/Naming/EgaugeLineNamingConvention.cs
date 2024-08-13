@@ -5,7 +5,9 @@ namespace Enms.Business.Naming;
 
 public class EgaugeLineNamingConvention : LineNamingConvention
 {
-  public override string LineIdPrefix => "egauge";
+  public override string LineIdPrefix => "e";
+
+  public override string MeterIdPrefix => "egauge";
 
   public override Type LineType => typeof(EgaugeLineModel);
 

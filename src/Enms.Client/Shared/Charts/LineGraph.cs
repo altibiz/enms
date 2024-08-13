@@ -116,8 +116,10 @@ public partial class LineGraph : EnmsOwningComponentBase
         options,
         Translate("CONNECTION POWER"),
         Model.ConnectionPower_W,
-        _measurements.Items.Max(m =>
-          m.ActivePower_W.TariffUnary().DuplexImport().PhaseSum()));
+        _measurements.Items
+          .OrderByDescending(m => m.ActivePower_W.TariffUnary().DuplexImport().PhaseSum())
+          .FirstOrDefault()
+          ?.ActivePower_W.TariffUnary().DuplexImport().PhaseSum());
       options = SetSmAndDownTimeRangeGraphOptions(
         options,
         Resolution,

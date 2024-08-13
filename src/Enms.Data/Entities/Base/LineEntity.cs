@@ -27,6 +27,13 @@ public class LineEntity : AuditableEntity
     get { return $"{_lineId}{EnmsDataDbContext.KeyJoin}{_meterId}"; }
     init
     {
+      if (string.IsNullOrEmpty(value))
+      {
+        LineId = default!;
+        MeterId = default!;
+        return;
+      }
+
       var parts = value.Split(EnmsDataDbContext.KeyJoin);
       _lineId = parts[0];
       _meterId = parts[1];

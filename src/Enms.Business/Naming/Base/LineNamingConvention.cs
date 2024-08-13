@@ -8,6 +8,8 @@ public abstract class LineNamingConvention : ILineNamingConvention
 {
   public abstract string LineIdPrefix { get; }
 
+  public abstract string MeterIdPrefix { get; }
+
   public abstract Type LineType { get; }
 
   public abstract Type MeasurementType { get; }

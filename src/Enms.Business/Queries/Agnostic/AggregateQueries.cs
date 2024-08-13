@@ -21,6 +21,7 @@ public class AggregateQueries(
     DateTimeOffset fromDate,
     DateTimeOffset toDate,
     string? lineId = null,
+    string? meterId = null,
     IntervalModel? interval = null,
     string? whereClause = null,
     int pageNumber = QueryConstants.StartingPage,
@@ -33,6 +34,7 @@ public class AggregateQueries(
       toDate,
       typeof(T),
       lineId,
+      meterId,
       interval,
       whereClause,
       pageNumber,
@@ -45,6 +47,7 @@ public class AggregateQueries(
     DateTimeOffset fromDate,
     DateTimeOffset toDate,
     string? lineId = null,
+    string? meterId = null,
     IntervalModel? interval = null,
     string? whereClause = null,
     int pageNumber = QueryConstants.StartingPage,
@@ -52,15 +55,16 @@ public class AggregateQueries(
   {
     var result = new List<IAggregate>();
 
-    if (lineId is not null)
+    if (lineId is not null && meterId is not null)
     {
       var aggregateType = lineNamingConvention
-        .AggregateTypeForLineId(lineId);
+        .AggregateTypeForLineAndMeterId(lineId, meterId);
       var aggregates = await ReadDynamic(
         fromDate,
         toDate,
         aggregateType,
         lineId,
+        meterId,
         interval,
         whereClause,
         pageNumber,
@@ -82,6 +86,7 @@ public class AggregateQueries(
           toDate,
           type,
           lineId,
+          meterId,
           interval,
           whereClause,
           pageNumber,
@@ -99,6 +104,7 @@ public class AggregateQueries(
     DateTimeOffset toDate,
     Type? aggregateType = null,
     string? lineId = null,
+    string? meterId = null,
     IntervalModel? interval = null,
     string? whereClause = null,
     int pageNumber = QueryConstants.StartingPage,
@@ -111,8 +117,9 @@ public class AggregateQueries(
     if (aggregateType is null)
     {
       aggregateType = lineNamingConvention
-        .AggregateTypeForLineId(lineId
-          ?? throw new ArgumentNullException(nameof(lineId)));
+        .AggregateTypeForLineAndMeterId(
+          lineId ?? throw new ArgumentNullException(nameof(lineId)),
+          meterId ?? throw new ArgumentNullException(nameof(meterId)));
     }
 
     var dbSetType = modelEntityConverter.EntityType(aggregateType);
@@ -136,7 +143,8 @@ public class AggregateQueries(
 
     var filtered = lineId is null
       ? intervalFiltered
-      : intervalFiltered.Where(aggregate => aggregate.LineId == lineId);
+      : intervalFiltered.Where(aggregate =>
+          aggregate.LineId == lineId && aggregate.MeterId == meterId);
 
     var ordered = filtered
       .OrderByDescending(aggregate => aggregate.Timestamp);
