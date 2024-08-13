@@ -38,9 +38,9 @@ public partial class LineGraph : EnmsOwningComponentBase
   [CascadingParameter]
   public Breakpoint Breakpoint { get; set; } = default!;
 
-  private PaginatedList<IMeasurement>? _measurements = default;
-
   private ApexChart<IMeasurement>? _chart = default!;
+
+  private PaginatedList<IMeasurement> _measurements = new(new(), 0);
 
   private ApexChartOptions<IMeasurement> _options =
     NewApexChartOptions<IMeasurement>();
@@ -114,7 +114,7 @@ public partial class LineGraph : EnmsOwningComponentBase
       );
       options = SetPowerAnnotationGraphOptions(
         options,
-        Translate("CONMNECTION POWER"),
+        Translate("CONNECTION POWER"),
         Model.ConnectionPower_W,
         _measurements.Items.Max(m =>
           m.ActivePower_W.TariffUnary().DuplexImport().PhaseSum()));
@@ -135,7 +135,7 @@ public partial class LineGraph : EnmsOwningComponentBase
       );
       options = SetPowerAnnotationGraphOptions(
         options,
-        Translate("CONMNECTION POWER"),
+        Translate("CONNECTION POWER"),
         Model.ConnectionPower_W,
         _measurements.Items.Max(m =>
           m.ActivePower_W.TariffUnary().DuplexImport().PhaseSum()));
