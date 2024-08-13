@@ -51,9 +51,7 @@ public class MeasurementPusher(
   {
     return measurements
       .SelectMany(
-        model => typeof(IntervalModel)
-          .GetEnumValues()
-          .Cast<IntervalModel>()
+        model => Enum.GetValues<IntervalModel>()
           .Select(interval => aggregateConverter.ToAggregate(model, interval)))
       .OfType<IAggregate>()
       .GroupBy(
@@ -151,7 +149,7 @@ public class MeasurementPusher(
     IEnumerable<IAggregate> aggregates)
   {
     foreach (var group in aggregates
-      .OfType<IAggregateEntity>()
+      .Select(modelEntityConverter.ToEntity)
       .GroupBy(entity => entity.GetType()))
     {
       var enumerableCastMethod = typeof(Enumerable)
