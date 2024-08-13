@@ -37,6 +37,6 @@
       SeriesType="SeriesType.Line"
       XValue='x => DateTimeChart(x.Timestamp)'
       YValue="x => x.ChartValue(Measure, phase)"
-      Stroke="@(new SeriesStroke { Color = phase.ToColor() })"/>
+      Stroke="@(new SeriesStroke { Color = phase.ToColor(), Width = 4 })"/>
   }
 </ApexChart>

@@ -69,11 +69,7 @@ public partial class LineGraph : EnmsOwningComponentBase
   {
     var timeSpan = Resolution.ToTimeSpan(Multiplier, Timestamp);
     var appropriateInterval = QueryConstants
-      .AppropriateInterval(
-        timeSpan,
-        Timestamp,
-        Multiplier
-      );
+      .AppropriateInterval(timeSpan, Timestamp);
 
     if (appropriateInterval is null)
     {
