@@ -1,6 +1,7 @@
 using System.IO.Compression;
 using Enms.Business.Conversion.Agnostic;
 using Enms.Business.Pushing.Abstractions;
+using Enms.Business.Pushing.EventArgs;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Enms.Business.Controllers;
@@ -8,7 +9,7 @@ namespace Enms.Business.Controllers;
 [IgnoreAntiforgeryToken]
 public class IotController(
   AgnosticPushRequestMeasurementConverter pushRequestMeasurementConverter,
-  IMeasurementPusher measurementPusher
+  IMeasurementPublisher publisher
 ) : Controller
 {
   [HttpPost]
@@ -22,7 +23,7 @@ public class IotController(
       message
     );
 
-    await measurementPusher.Push(measurements);
+    publisher.PublishPush(new MeasurementPushEventArgs(measurements.ToList()));
 
     return Ok();
   }

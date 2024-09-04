@@ -1,5 +1,6 @@
 @namespace Enms.Client.Shared.Layout
 @using Enms.Client.State
+@using System.Globalization
 @using Microsoft.AspNetCore.Components.Routing
 @using MudBlazor
 @inherits Enms.Client.Base.EnmsLayoutComponentBase
@@ -13,20 +14,29 @@
         Edge="Edge.Start"
         OnClick="e => _drawerOpen = !_drawerOpen"/>
     </MudHidden>
-    <MudImage Src="/helb.svg" Alt="HELB" Style="height: 50%"/>
+    <MudHidden Breakpoint="Breakpoint.Xs">
+      <MudImage
+        @onclick="@(() => Home())"
+        Src="/logo.svg"
+        Alt="HelbEx"
+        Style="height: 50%;padding-left: 20px;"/>
+    </MudHidden>
     <MudSpacer/>
     <MudMenu AnchorOrigin="Origin.CenterLeft" Dense="true" Class="mt-1 ml-4">
       <ActivatorContent>
+        <MudButton Variant="Variant.Outlined" Class="mx-2" Style="color: white; border-color: white;">
+          @Culture.TwoLetterISOLanguageName.ToUpper()
+        </MudButton>
       </ActivatorContent>
       <ChildContent>
-        <MudListItem Text="Account" Icon="@Icons.Material.Outlined.Person" Href="account" ForceLoad="true"/>
-        <MudListItem Text="Logout" Icon="@Icons.Material.Outlined.Login" Href="login" ForceLoad="true"/>
+        <MudListItem Text="HR" OnClick="@(e => Culture = new CultureInfo("hr-HR"))" />
+        <MudListItem Text="EN" OnClick="@(e => Culture = new CultureInfo("en-US"))" />
       </ChildContent>
     </MudMenu>
   </MudAppBar>
   <MudDrawer @bind-Open="_drawerOpen" Elevation="25" ClipMode="DrawerClipMode.Always">
     <MudNavMenu>
-      @foreach (var route in MainLayout.GetNavigationDescriptors())
+      @foreach (var route in GetNavigationDescriptors())
       {
         <MudNavLink Href="@route.Route" Match="NavLinkMatch.All">
           @Translate(route.Title)

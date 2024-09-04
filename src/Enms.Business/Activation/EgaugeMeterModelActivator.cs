@@ -1,4 +1,5 @@
 using Enms.Business.Activation.Base;
+using Enms.Business.Activation.Complex;
 using Enms.Business.Models;
 
 namespace Enms.Business.Activation;
@@ -22,7 +23,8 @@ public class EgaugeMeterModelActivator : ModelActivator<EgaugeMeterModel>
       LastUpdatedById = default!,
       IsDeleted = false,
       DeletedOn = null,
-      DeletedById = null
+      DeletedById = null,
+      InactivityDuration = TimeSpanModelActivator.New()
     };
   }
 }

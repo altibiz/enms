@@ -1,112 +1,42 @@
-using Enms.Data.Entities.Abstractions;
 using Enms.Data.Observers.Abstractions;
 using Enms.Data.Observers.EventArgs;
-using Humanizer;
 
 namespace Enms.Data.Observers;
 
 public class EntityChangesObserver
   : IEntityChangesPublisher, IEntityChangesSubscriber
 {
-  private event EventHandler<EntityAddedEventArgs>? OnEntityAdded;
+  private event EventHandler<EntitiesChangingEventArgs>? OnEntitiesChanging;
 
-  private event EventHandler<EntityAddingEventArgs>? OnEntityAdding;
+  private event EventHandler<EntitiesChangedEventArgs>? OnEntitiesChanged;
 
-  private event EventHandler<EntityModifiedEventArgs>? OnEntityModified;
-
-  private event EventHandler<EntityModifyingEventArgs>? OnEntityModifying;
-
-  private event EventHandler<EntityRemovedEventArgs>? OnEntityRemoved;
-
-  private event EventHandler<EntityRemovingEventArgs>? OnEntityRemoving;
-
-  public void PublishEntityAdded(EntityAddedEventArgs eventArgs)
+  public void PublishEntitiesChanged(EntitiesChangedEventArgs eventArgs)
   {
-    OnEntityAdded?.Invoke(this, eventArgs);
+    OnEntitiesChanged?.Invoke(this, eventArgs);
   }
 
-  public void PublishEntityAdding(EntityAddingEventArgs eventArgs)
+  public void PublishEntitiesChanging(EntitiesChangingEventArgs eventArgs)
   {
-    OnEntityAdding?.Invoke(this, eventArgs);
+    OnEntitiesChanging?.Invoke(this, eventArgs);
   }
 
-  public void PublishEntityModified(EntityModifiedEventArgs eventArgs)
+  public void SubscribeEntitiesChanging(EventHandler<EntitiesChangingEventArgs> handler)
   {
-    OnEntityModified?.Invoke(this, eventArgs);
+    OnEntitiesChanging += handler;
   }
 
-  public void PublishEntityModifying(EntityModifyingEventArgs eventArgs)
+  public void UnsubscribeEntitiesChanging(EventHandler<EntitiesChangingEventArgs> handler)
   {
-    OnEntityModifying?.Invoke(this, eventArgs);
+    OnEntitiesChanging -= handler;
   }
 
-  public void PublishEntityRemoved(EntityRemovedEventArgs eventArgs)
+  public void SubscribeEntitiesChanged(EventHandler<EntitiesChangedEventArgs> handler)
   {
-    OnEntityRemoved?.Invoke(this, eventArgs);
+    OnEntitiesChanged += handler;
   }
 
-  public void PublishEntityRemoving(EntityRemovingEventArgs eventArgs)
+  public void UnsubscribeEntitiesChanged(EventHandler<EntitiesChangedEventArgs> handler)
   {
-    OnEntityRemoving?.Invoke(this, eventArgs);
-  }
-
-  public void SubscribeEntityAdded(EventHandler<EntityAddedEventArgs> handler)
-  {
-    OnEntityAdded += handler;
-  }
-
-  public void SubscribeEntityAdding(EventHandler<EntityAddingEventArgs> handler)
-  {
-    OnEntityAdding += handler;
-  }
-
-  public void SubscribeEntityModified(EventHandler<EntityModifiedEventArgs> handler)
-  {
-    OnEntityModified += handler;
-  }
-
-  public void SubscribeEntityModifying(EventHandler<EntityModifyingEventArgs> handler)
-  {
-    OnEntityModifying += handler;
-  }
-
-  public void SubscribeEntityRemoved(EventHandler<EntityRemovedEventArgs> handler)
-  {
-    OnEntityRemoved += handler;
-  }
-
-  public void SubscribeEntityRemoving(EventHandler<EntityRemovingEventArgs> handler)
-  {
-    OnEntityRemoving += handler;
-  }
-
-  public void UnsubscribeEntityAdded(EventHandler<EntityAddedEventArgs> handler)
-  {
-    OnEntityAdded -= handler;
-  }
-
-  public void UnsubscribeEntityAdding(EventHandler<EntityAddingEventArgs> handler)
-  {
-    OnEntityAdding -= handler;
-  }
-
-  public void UnsubscribeEntityModified(EventHandler<EntityModifiedEventArgs> handler)
-  {
-    OnEntityModified -= handler;
-  }
-
-  public void UnsubscribeEntityModifying(EventHandler<EntityModifyingEventArgs> handler)
-  {
-    OnEntityModifying -= handler;
-  }
-
-  public void UnsubscribeEntityRemoved(EventHandler<EntityRemovedEventArgs> handler)
-  {
-    OnEntityRemoved -= handler;
-  }
-
-  public void UnsubscribeEntityRemoving(EventHandler<EntityRemovingEventArgs> handler)
-  {
-    OnEntityRemoving -= handler;
+    OnEntitiesChanged -= handler;
   }
 }

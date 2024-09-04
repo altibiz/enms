@@ -1,6 +1,7 @@
 using Enms.Data.Entities.Abstractions;
 using Enms.Data.Observers.Abstractions;
 using Enms.Data.Observers.EventArgs;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 
 namespace Enms.Data.Interceptors;
@@ -8,6 +9,11 @@ namespace Enms.Data.Interceptors;
 public class EntityChangesPublishingInterceptor(IServiceProvider serviceProvider)
   : ServedSaveChangesInterceptor(serviceProvider)
 {
+  public override int Order
+  {
+    get { return 0; }
+  }
+
   public override async ValueTask<InterceptionResult<int>> SavingChangesAsync(
     DbContextEventData eventData,
     InterceptionResult<int> result,
@@ -27,29 +33,44 @@ public class EntityChangesPublishingInterceptor(IServiceProvider serviceProvider
         continue;
       }
 
-      _entries.Add(new EntityChangesEntry(EntityChanges.Added, entity));
+      if (entry.State is not EntityState.Added
+        or EntityState.Modified
+        or EntityState.Deleted)
+      {
+        continue;
+      }
+
+      _entries.Add(new EntityChangesEntry(
+        entry.State switch
+        {
+          EntityState.Added => EntityChanges.Added,
+          EntityState.Modified => EntityChanges.Modified,
+          EntityState.Deleted => EntityChanges.Deleted,
+          _ => throw new NotImplementedException(),
+        },
+        entity));
     }
 
     var publisher = serviceProvider
       .GetRequiredService<IEntityChangesPublisher>();
 
-    foreach (var entry in _entries)
+    publisher.PublishEntitiesChanging(new EntitiesChangingEventArgs()
     {
-      if (entry.State == EntityChanges.Added)
-      {
-        publisher.PublishEntityAdding(new EntityAddingEventArgs { Entity = entry.Entity });
-      }
-
-      if (entry.State == EntityChanges.Modified)
-      {
-        publisher.PublishEntityModifying(new EntityModifyingEventArgs { Entity = entry.Entity });
-      }
-
-      if (entry.State == EntityChanges.Deleted)
-      {
-        publisher.PublishEntityRemoving(new EntityRemovingEventArgs { Entity = entry.Entity });
-      }
-    }
+      Entities = _entries
+        .Select(
+          entry => new EntityChangingRecord(
+            entry.State switch
+            {
+              EntityChanges.Added => EntityChangingState.Adding,
+              EntityChanges.Modified => EntityChangingState.Modifying,
+              EntityChanges.Deleted => EntityChangingState.Removing,
+              _ => throw new NotImplementedException(),
+            },
+            entry.Entity
+          )
+        )
+        .ToList()
+    });
 
     return await base.SavingChangesAsync(eventData, result, cancellationToken);
   }
@@ -67,23 +88,23 @@ public class EntityChangesPublishingInterceptor(IServiceProvider serviceProvider
     var publisher = serviceProvider
       .GetRequiredService<IEntityChangesPublisher>();
 
-    foreach (var entry in _entries)
+    publisher.PublishEntitiesChanged(new EntitiesChangedEventArgs()
     {
-      if (entry.State == EntityChanges.Added)
-      {
-        publisher.PublishEntityAdded(new EntityAddedEventArgs { Entity = entry.Entity });
-      }
-
-      if (entry.State == EntityChanges.Modified)
-      {
-        publisher.PublishEntityModified(new EntityModifiedEventArgs { Entity = entry.Entity });
-      }
-
-      if (entry.State == EntityChanges.Deleted)
-      {
-        publisher.PublishEntityRemoved(new EntityRemovedEventArgs { Entity = entry.Entity });
-      }
-    }
+      Entities = _entries
+        .Select(
+          entry => new EntityChangedEntry(
+            entry.State switch
+            {
+              EntityChanges.Added => EntityChangedState.Added,
+              EntityChanges.Modified => EntityChangedState.Modified,
+              EntityChanges.Deleted => EntityChangedState.Removed,
+              _ => throw new NotImplementedException(),
+            },
+            entry.Entity
+          )
+        )
+        .ToList()
+    });
 
     return base.SavedChanges(eventData, result);
   }

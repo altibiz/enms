@@ -13,7 +13,7 @@ public class ReadonlyInterceptor : ServedSaveChangesInterceptor
 
   public override int Order
   {
-    get { return 0; }
+    get { return -100; }
   }
 
   public override InterceptionResult<int> SavingChanges(

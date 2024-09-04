@@ -1,3 +1,4 @@
+using Enms.Data.Entities.Complex;
 using Enms.Data.Extensions;
 using Microsoft.EntityFrameworkCore;
 
@@ -24,6 +25,8 @@ public class MeterEntity : AuditableEntity
     get;
     set;
   } = default!;
+
+  public TimeSpanEntity InactivityDuration { get; set; } = default!;
 }
 
 public class
@@ -38,5 +41,7 @@ public class
       .UseTphMappingStrategy()
       .ToTable("meters")
       .HasDiscriminator<string>("kind");
+
+    builder.ComplexProperty(nameof(MeterEntity.InactivityDuration));
   }
 }

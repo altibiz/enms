@@ -16,7 +16,7 @@
   <MudBreakpointProvider>
     <Loading
       T="MaybeRepresentingUserModel"
-      LoadAsync="ReadMaybeRepresentingUser">
+      LoadAsync="LoadAsync">
       <Found Context="maybeRepresentingUser">
         <CascadingValue Value="maybeRepresentingUser.User">
           <UserLayout>
@@ -42,7 +42,3 @@
     </Loading>
   </MudBreakpointProvider>
 </main>
-
-@code {
-  private readonly Theme _theme = new();
-}

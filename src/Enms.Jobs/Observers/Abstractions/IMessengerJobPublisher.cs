@@ -1,6 +1,8 @@
+using Enms.Jobs.Observers.EventArgs;
+
 namespace Enms.Jobs.Observers.Abstractions;
 
 public interface IMeterJobPublisher : IPublisher<IMeterJobSubscriber>
 {
-  public void PublishInactivity(string id);
+  public void PublishInactivity(MeterInactivityEventArgs eventArgs);
 }

@@ -14,6 +14,11 @@ namespace Enms.Data.Interceptors;
 public class AuditingInterceptor(IServiceProvider serviceProvider)
   : ServedSaveChangesInterceptor(serviceProvider)
 {
+  public override int Order
+  {
+    get { return 20; }
+  }
+
   public override InterceptionResult<int> SavingChanges(
     DbContextEventData eventData,
     InterceptionResult<int> result

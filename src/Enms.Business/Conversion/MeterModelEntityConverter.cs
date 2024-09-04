@@ -1,4 +1,5 @@
 using Enms.Business.Conversion.Base;
+using Enms.Business.Conversion.Complex;
 using Enms.Business.Models;
 using Enms.Business.Models.Base;
 using Enms.Data.Entities;
@@ -39,7 +40,8 @@ public static class MeterModelEntityConverterExtensions
       LastUpdatedById = model.LastUpdatedById,
       IsDeleted = model.IsDeleted,
       DeletedById = model.DeletedById,
-      DeletedOn = model.DeletedOn
+      DeletedOn = model.DeletedOn,
+      InactivityDuration = model.InactivityDuration.ToEntity()
     };
   }
 
@@ -60,7 +62,8 @@ public static class MeterModelEntityConverterExtensions
       LastUpdatedById = entity.LastUpdatedById,
       IsDeleted = entity.IsDeleted,
       DeletedById = entity.DeletedById,
-      DeletedOn = entity.DeletedOn
+      DeletedOn = entity.DeletedOn,
+      InactivityDuration = entity.InactivityDuration.ToModel()
     };
   }
 }

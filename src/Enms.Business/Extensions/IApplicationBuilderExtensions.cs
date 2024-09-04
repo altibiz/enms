@@ -7,12 +7,28 @@ public static class IApplicationBuilderExtensions
     IEndpointRouteBuilder endpoints)
   {
     endpoints.MapAreaControllerRoute(
-      "Enms.Business.Controllers.Iot.Push",
-      "Enms.Business",
-      "/iot/push/{id}",
-      new { controller = "Iot", action = "Push" }
+      "iot/push/{id}",
+      typeof(Controllers.IotController),
+      nameof(Controllers.IotController.Push)
     );
 
     return app;
+  }
+
+  private static void MapAreaControllerRoute(
+    this IEndpointRouteBuilder endpoints,
+    string pattern,
+    Type controller,
+    string action)
+  {
+    endpoints.MapControllerRoute(
+      name: $"{controller.Namespace}.{controller.Name}.{action}",
+      pattern: pattern,
+      defaults: new
+      {
+        controller = controller.Name,
+        action = action
+      }
+    );
   }
 }

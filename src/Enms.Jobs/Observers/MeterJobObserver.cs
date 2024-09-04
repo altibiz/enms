@@ -1,4 +1,5 @@
 using Enms.Jobs.Observers.Abstractions;
+using Enms.Jobs.Observers.EventArgs;
 
 namespace Enms.Jobs.Observers;
 
@@ -6,19 +7,19 @@ public class MessengerJobManager :
   IMeterJobPublisher,
   IMeterJobSubscriber
 {
-  private EventHandler<string>? OnInactivity { get; set; }
+  private EventHandler<MeterInactivityEventArgs>? OnInactivity { get; set; }
 
-  public void PublishInactivity(string id)
+  public void PublishInactivity(MeterInactivityEventArgs eventArgs)
   {
-    OnInactivity?.Invoke(this, id);
+    OnInactivity?.Invoke(this, eventArgs);
   }
 
-  public void SubscribeInactivity(EventHandler<string> handler)
+  public void SubscribeInactivity(EventHandler<MeterInactivityEventArgs> handler)
   {
     OnInactivity += handler;
   }
 
-  public void UnsubscribeInactivity(EventHandler<string> handler)
+  public void UnsubscribeInactivity(EventHandler<MeterInactivityEventArgs> handler)
   {
     OnInactivity -= handler;
   }

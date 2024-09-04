@@ -1,4 +1,5 @@
 using Enms.Business.Conversion.Base;
+using Enms.Business.Conversion.Complex;
 using Enms.Business.Models;
 using Enms.Data.Entities;
 
@@ -33,7 +34,8 @@ public static class EgaugeMeterModelEntityConverterExtensions
       LastUpdatedById = model.LastUpdatedById,
       IsDeleted = model.IsDeleted,
       DeletedOn = model.DeletedOn,
-      DeletedById = model.DeletedById
+      DeletedById = model.DeletedById,
+      InactivityDuration = model.InactivityDuration.ToEntity()
     };
   }
 
@@ -49,7 +51,8 @@ public static class EgaugeMeterModelEntityConverterExtensions
       LastUpdatedById = entity.LastUpdatedById,
       IsDeleted = entity.IsDeleted,
       DeletedOn = entity.DeletedOn,
-      DeletedById = entity.DeletedById
+      DeletedById = entity.DeletedById,
+      InactivityDuration = entity.InactivityDuration.ToModel()
     };
   }
 }

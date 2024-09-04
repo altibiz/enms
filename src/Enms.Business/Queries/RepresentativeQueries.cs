@@ -8,6 +8,7 @@ using Enms.Business.Queries.Abstractions;
 using Enms.Data.Context;
 using Enms.Data.Entities;
 using Enms.Data.Entities.Enums;
+using Enms.Data.Extensions;
 using Enms.Users.Queries;
 using Microsoft.EntityFrameworkCore;
 
@@ -104,7 +105,7 @@ public class RepresentativeQueries(
           MaybeRepresentative = representatives
               .FirstOrDefault(
                 context.PrimaryKeyInCompiled<RepresentativeEntity>(ids)) is
-            { } representative
+          { } representative
             ? representative.ToModel()
             : null
         })

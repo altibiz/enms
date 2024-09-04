@@ -10,11 +10,12 @@ using Enms.Data.Context;
 using Enms.Data.Entities;
 using Enms.Data.Entities.Base;
 using Enms.Data.Entities.Enums;
-using Enms.Jobs.Manager.Abstractions;
+using Enms.Data.Extensions;
 using Enms.Jobs.Observers.Abstractions;
+using Enms.Jobs.Observers.EventArgs;
 using Microsoft.EntityFrameworkCore;
 
-namespace Enms.Business.Services;
+namespace Enms.Business.Workers;
 
 // TODO: handle null meter
 // TODO: meter paging
@@ -22,66 +23,54 @@ namespace Enms.Business.Services;
 
 public class MeterInactivityWorker(
   IMeterJobSubscriber subscriber,
-  IMeterJobManager manager,
   IServiceScopeFactory serviceScopeFactory
 ) : BackgroundService, IWorker
 {
-  private static readonly JsonSerializerOptions
-    EventContentSerializationOptions = new()
-    {
-      WriteIndented = true
-    };
-
-  private readonly Channel<string> inactive =
-    Channel.CreateUnbounded<string>();
 
   public override async Task StartAsync(CancellationToken cancellationToken)
   {
-    await using (var scope = serviceScopeFactory.CreateAsyncScope())
-    {
-      var context = scope.ServiceProvider.GetRequiredService<DataDbContext>();
-      var messengers = await context.Meters.ToListAsync();
-      foreach (var messenger in messengers)
-      {
-        await manager.EnsureInactivityMonitorJob(
-          messenger.Id,
-          TimeSpan.FromMinutes(5)
-        );
-      }
-    }
-
     subscriber.SubscribeInactivity(OnInactivity);
+
     await base.StartAsync(cancellationToken);
   }
 
   public override Task StopAsync(CancellationToken cancellationToken)
   {
     subscriber.UnsubscribeInactivity(OnInactivity);
+
     return base.StopAsync(cancellationToken);
   }
 
   protected override async Task ExecuteAsync(CancellationToken stoppingToken)
   {
-    while (!stoppingToken.IsCancellationRequested)
+    await foreach (var eventArgs in channel.Reader.ReadAllAsync(stoppingToken))
     {
-      var id = await inactive.Reader.ReadAsync(stoppingToken);
       await using var scope = serviceScopeFactory.CreateAsyncScope();
-      await Notify(scope.ServiceProvider, id);
+      await Handle(scope.ServiceProvider, eventArgs);
     }
   }
 
-  private void OnInactivity(object? sender, string id)
+  private void OnInactivity(object? sender, MeterInactivityEventArgs eventArgs)
   {
-    inactive.Writer.TryWrite(id);
+    channel.Writer.TryWrite(eventArgs);
   }
 
-  private async Task Notify(IServiceProvider serviceProvider, string id)
+  private static readonly JsonSerializerOptions
+    EventContentSerializationOptions = new()
+    {
+      WriteIndented = true
+    };
+
+  private readonly Channel<MeterInactivityEventArgs> channel =
+    Channel.CreateUnbounded<MeterInactivityEventArgs>();
+
+  private static async Task Handle(IServiceProvider serviceProvider, MeterInactivityEventArgs eventArgs)
   {
     var sender = serviceProvider.GetRequiredService<INotificationSender>();
     var context = serviceProvider.GetRequiredService<DataDbContext>();
 
     var meter = (await context.Meters
-        .FirstOrDefaultAsync(context.PrimaryKeyEquals<MeterEntity>(id)))
+        .FirstOrDefaultAsync(context.PrimaryKeyEquals<MeterEntity>(eventArgs.Id)))
       ?.ToModel();
 
     if (meter is null)

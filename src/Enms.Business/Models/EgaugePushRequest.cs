@@ -1,4 +1,21 @@
-namespace Enms.Business.Pushing.Requests;
+namespace Enms.Business.Models;
+
+public readonly record struct EgaugePushRequest(
+  List<EgaugePushRequestRegister> Registers,
+  List<EgaugePushRequestRange> Ranges
+);
+
+public readonly record struct EgaugePushRequestRegister(
+  string Name,
+  string Type,
+  decimal Did
+);
+
+public readonly record struct EgaugePushRequestRange(
+  string Ts,
+  decimal Delta,
+  List<List<string>> Rows
+);
 
 public enum EgaugeRegisterType
 {
@@ -21,6 +38,28 @@ public enum EgaugeRegisterType
   RelativeHumidity,
   Speed,
   Charge
+}
+
+public enum EgaugeRegisterUnit
+{
+  WattsPerSquareMeter,
+  Hertz,
+  Ampere,
+  VoltAmpereReactive,
+  Pascal,
+  Watt,
+  Mm3ps,
+  GramPerSecond,
+  Ohm,
+  VoltAmpere,
+  Percent,
+  Celsius,
+  Volt,
+  None,
+  CurrencyPerSecond,
+  Degrees,
+  MeterPerSecond,
+  AmpereHours
 }
 
 public static class EgaugeRegisterTypeExtensions

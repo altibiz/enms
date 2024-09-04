@@ -1,49 +1,77 @@
 using System.Data;
 using System.Reflection;
+using System.Threading.Channels;
 using Enms.Business.Aggregation.Agnostic;
 using Enms.Business.Conversion.Agnostic;
 using Enms.Business.Models.Abstractions;
 using Enms.Business.Models.Enums;
 using Enms.Business.Pushing.Abstractions;
+using Enms.Business.Pushing.EventArgs;
+using Enms.Business.Workers.Abstractions;
 using Enms.Data.Context;
 using Enms.Data.Entities.Abstractions;
 using Microsoft.EntityFrameworkCore;
 using Npgsql;
 
-// FIXME: duplicates make averages incorrect
+namespace Enms.Business.Workers;
 
-namespace Enms.Business.Pushing;
-
-public class MeasurementPusher(
+public class MeasurementUpsertWorker(
   AgnosticMeasurementAggregateConverter aggregateConverter,
   AgnosticModelEntityConverter modelEntityConverter,
   AgnosticAggregateUpserter aggregateUpserter,
-  DataDbContext context,
-  IMeasurementPublisher publisher
-) : IMeasurementPusher
+  IMeasurementSubscriber subscriber,
+  IServiceScopeFactory serviceScopeFactory
+) : BackgroundService, IWorker
 {
-  private static readonly SemaphoreSlim Semaphore = new(1, 1);
-
-  public async Task Push(IEnumerable<IMeasurement> measurements)
+  public override async Task StartAsync(CancellationToken cancellationToken)
   {
-    IReadOnlyList<IMeasurement> publishMeasurements = measurements.ToList();
+    subscriber.SubscribePush(OnPush);
+
+    await base.StartAsync(cancellationToken);
+  }
+
+  public override Task StopAsync(CancellationToken cancellationToken)
+  {
+    subscriber.UnsubscribePush(OnPush);
+
+    return base.StopAsync(cancellationToken);
+  }
+
+  protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+  {
+    await foreach (var eventArgs in channel.Reader.ReadAllAsync(stoppingToken))
+    {
+      await using var scope = serviceScopeFactory.CreateAsyncScope();
+      await Handle(scope.ServiceProvider, eventArgs);
+    }
+  }
+
+  private void OnPush(object? sender, MeasurementPushEventArgs eventArgs)
+  {
+    channel.Writer.TryWrite(eventArgs);
+  }
+
+  private readonly Channel<MeasurementPushEventArgs> channel =
+    Channel.CreateUnbounded<MeasurementPushEventArgs>();
+
+  private async Task Handle(
+    IServiceProvider serviceProvider,
+    MeasurementPushEventArgs eventArgs
+  )
+  {
+    IReadOnlyList<IMeasurement> publishMeasurements =
+      eventArgs.Measurements.ToList();
 
     IReadOnlyList<IAggregate> publishAggregates =
       MakeAggregates(publishMeasurements).ToList();
 
-    publisher.BeforePush(publishMeasurements, publishAggregates);
+    var context = serviceProvider.GetRequiredService<DataDbContext>();
 
-    var tasks = MakeUpsertMeasurementTasks(publishMeasurements)
-      .Concat(MakeUpsertAggregateTasks(publishAggregates))
+    var tasks = MakeUpsertMeasurementTasks(context, publishMeasurements)
+      .Concat(MakeUpsertAggregateTasks(context, publishAggregates))
       .ToList();
 
-    await Semaphore.WaitAsync();
-
-    await ExecuteTransactionCommands(tasks);
-
-    Semaphore.Release();
-
-    publisher.AfterPush(publishMeasurements, publishAggregates);
+    await ExecuteTransactionCommands(context, tasks);
   }
 
   private IEnumerable<IAggregate> MakeAggregates(
@@ -65,7 +93,9 @@ public class MeasurementPusher(
       .Select(group => group.Aggregate(aggregateUpserter.UpsertModelAgnostic));
   }
 
-  private async Task ExecuteTransactionCommands(IEnumerable<Func<Task>> tasks)
+  private async Task ExecuteTransactionCommands(
+    DataDbContext context,
+    IEnumerable<Func<Task>> tasks)
   {
     while (true)
     {
@@ -110,6 +140,7 @@ public class MeasurementPusher(
   }
 
   private IEnumerable<Func<Task>> MakeUpsertMeasurementTasks(
+    DataDbContext context,
     IEnumerable<IMeasurement> measurements)
   {
     foreach (var group in measurements
@@ -123,7 +154,7 @@ public class MeasurementPusher(
           ?.MakeGenericMethod(group.Key)
         ?? throw new InvalidOperationException(
           $"Cannot find method {nameof(Enumerable.Cast)}.");
-      var upsertMeasurementsMethod = typeof(MeasurementPusher)
+      var upsertMeasurementsMethod = typeof(MeasurementUpsertWorker)
           .GetMethod(
             nameof(UpsertMeasurements),
 #pragma warning disable S3011
@@ -147,6 +178,7 @@ public class MeasurementPusher(
   }
 
   private IEnumerable<Func<Task>> MakeUpsertAggregateTasks(
+    DataDbContext context,
     IEnumerable<IAggregate> aggregates)
   {
     foreach (var group in aggregates
@@ -160,7 +192,7 @@ public class MeasurementPusher(
           ?.MakeGenericMethod(group.Key)
         ?? throw new InvalidOperationException(
           $"Cannot find method {nameof(Enumerable.Cast)}.");
-      var upsertAggregatesMethod = typeof(MeasurementPusher)
+      var upsertAggregatesMethod = typeof(MeasurementUpsertWorker)
           .GetMethod(
             nameof(UpsertAggregates),
 #pragma warning disable S3011

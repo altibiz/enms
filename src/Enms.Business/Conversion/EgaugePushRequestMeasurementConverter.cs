@@ -3,7 +3,6 @@ using System.Text.Json;
 using Enms.Business.Conversion.Base;
 using Enms.Business.Models;
 using Enms.Business.Models.Abstractions;
-using Enms.Business.Pushing.Requests;
 
 namespace Enms.Business.Conversion;
 
@@ -223,87 +222,87 @@ public sealed class
 
     var request = new EgaugePushRequest(
       lineIds
-        .SelectMany<string, EgaugeRegister>(
+        .SelectMany<string, EgaugePushRequestRegister>(
           lineId =>
           [
-            new EgaugeRegister(
+            new EgaugePushRequestRegister(
               Register(nameof(EgaugeMeasurementModel.VoltageL1AnyT0_V))
               + Separator
               + lineId,
               EgaugeRegisterTypeString.Voltage,
               default
             ),
-            new EgaugeRegister(
+            new EgaugePushRequestRegister(
               Register(nameof(EgaugeMeasurementModel.VoltageL2AnyT0_V))
               + Separator
               + lineId,
               EgaugeRegisterTypeString.Voltage,
               default
             ),
-            new EgaugeRegister(
+            new EgaugePushRequestRegister(
               Register(nameof(EgaugeMeasurementModel.VoltageL3AnyT0_V))
               + Separator
               + lineId,
               EgaugeRegisterTypeString.Voltage,
               default
             ),
-            new EgaugeRegister(
+            new EgaugePushRequestRegister(
               Register(nameof(EgaugeMeasurementModel.CurrentL1AnyT0_A))
               + Separator
               + lineId,
               EgaugeRegisterTypeString.Current,
               default
             ),
-            new EgaugeRegister(
+            new EgaugePushRequestRegister(
               Register(nameof(EgaugeMeasurementModel.CurrentL2AnyT0_A))
               + Separator
               + lineId,
               EgaugeRegisterTypeString.Current,
               default
             ),
-            new EgaugeRegister(
+            new EgaugePushRequestRegister(
               Register(nameof(EgaugeMeasurementModel.CurrentL3AnyT0_A))
               + Separator
               + lineId,
               EgaugeRegisterTypeString.Current,
               default
             ),
-            new EgaugeRegister(
+            new EgaugePushRequestRegister(
               Register(nameof(EgaugeMeasurementModel.ActivePowerL1NetT0_W))
               + Separator
               + lineId,
               EgaugeRegisterTypeString.Power,
               default
             ),
-            new EgaugeRegister(
+            new EgaugePushRequestRegister(
               Register(nameof(EgaugeMeasurementModel.ActivePowerL2NetT0_W))
               + Separator
               + lineId,
               EgaugeRegisterTypeString.Power,
               default
             ),
-            new EgaugeRegister(
+            new EgaugePushRequestRegister(
               Register(nameof(EgaugeMeasurementModel.ActivePowerL3NetT0_W))
               + Separator
               + lineId,
               EgaugeRegisterTypeString.Power,
               default
             ),
-            new EgaugeRegister(
+            new EgaugePushRequestRegister(
               Register(nameof(EgaugeMeasurementModel.ApparentPowerL1NetT0_W))
               + Separator
               + lineId,
               EgaugeRegisterTypeString.ApparentPower,
               default
             ),
-            new EgaugeRegister(
+            new EgaugePushRequestRegister(
               Register(nameof(EgaugeMeasurementModel.ApparentPowerL2NetT0_W))
               + Separator
               + lineId,
               EgaugeRegisterTypeString.ApparentPower,
               default
             ),
-            new EgaugeRegister(
+            new EgaugePushRequestRegister(
               Register(nameof(EgaugeMeasurementModel.ApparentPowerL3NetT0_W))
               + Separator
               + lineId,
@@ -348,7 +347,7 @@ public sealed class
             registers[startingIndex + 11] =
               m.ApparentPowerL3NetT0_W.ToString(CultureInfo.InvariantCulture);
 
-            return new EgaugeRange(
+            return new EgaugePushRequestRange(
               m.Timestamp
                 .ToUniversalTime()
                 .ToUnixTimeSeconds()
