@@ -1,6 +1,7 @@
 using ApexCharts;
 using Enms.Business.Models;
 using Enms.Business.Models.Abstractions;
+using Enms.Business.Models.Enums;
 using Enms.Business.Pushing.Abstractions;
 using Enms.Business.Queries.Abstractions;
 using Enms.Business.Queries.Agnostic;
@@ -20,10 +21,10 @@ public partial class LineGraph : EnmsOwningComponentBase
   public DateTimeOffset Timestamp { get; set; } = default!;
 
   [Parameter]
-  public ChartMeasure Measure { get; set; } = ChartMeasure.ActivePower;
+  public MeasureModel Measure { get; set; } = MeasureModel.ActivePower;
 
   [Parameter]
-  public ChartResolution Resolution { get; set; } = ChartResolution.Minute;
+  public ResolutionModel Resolution { get; set; } = ResolutionModel.Minute;
 
   [Parameter]
   public HashSet<PhaseModel> Phases { get; set; } =
@@ -192,7 +193,7 @@ public partial class LineGraph : EnmsOwningComponentBase
 
   private static ApexChartOptions<IMeasurement> SetSmAndDownTimeRangeGraphOptions(
     ApexChartOptions<IMeasurement> options,
-    ChartResolution resolution,
+    ResolutionModel resolution,
     DateTimeOffset timestamp,
     int multiplier
   )
@@ -208,7 +209,7 @@ public partial class LineGraph : EnmsOwningComponentBase
 
   private static ApexChartOptions<IMeasurement> SetMdAndUpTimeRangeGraphOptions(
     ApexChartOptions<IMeasurement> options,
-    ChartResolution resolution,
+    ResolutionModel resolution,
     DateTimeOffset timestamp,
     int multiplier
   )
@@ -266,7 +267,7 @@ public partial class LineGraph : EnmsOwningComponentBase
   }
 
   private static ApexChartOptions<IMeasurement> CreateSmAndDownGraphOptions(
-    ChartResolution resolution,
+    ResolutionModel resolution,
     DateTimeOffset timestamp,
     int multiplier
   )
@@ -319,7 +320,7 @@ public partial class LineGraph : EnmsOwningComponentBase
   }
 
   private static ApexChartOptions<IMeasurement> CreateMdAndUpGraphOptions(
-    ChartResolution resolution,
+    ResolutionModel resolution,
     DateTimeOffset timestamp,
     int multiplier
   )
