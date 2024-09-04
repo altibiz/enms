@@ -4,11 +4,11 @@ namespace Enms.Business.Pushing.Abstractions;
 
 public interface IMeasurementPublisher
 {
-  public void BeforePublish(
+  public void BeforePush(
     IReadOnlyList<IMeasurement> measurements,
     IReadOnlyList<IAggregate> aggregates);
 
-  public void AfterPublish(
+  public void AfterPush(
     IReadOnlyList<IMeasurement> measurements,
     IReadOnlyList<IAggregate> aggregates);
 }

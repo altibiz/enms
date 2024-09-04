@@ -13,6 +13,7 @@
 
   <PropertyGroup>
     <OrchardVersion>1.8.1</OrchardVersion>
+    <EntityFrameworkCoreVersion>8.0.2</EntityFrameworkCoreVersion>
   </PropertyGroup>
 
   <ItemGroup>

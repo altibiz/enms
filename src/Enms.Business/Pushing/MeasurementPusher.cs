@@ -5,7 +5,7 @@ using Enms.Business.Conversion.Agnostic;
 using Enms.Business.Models.Abstractions;
 using Enms.Business.Models.Enums;
 using Enms.Business.Pushing.Abstractions;
-using Enms.Data;
+using Enms.Data.Context;
 using Enms.Data.Entities.Abstractions;
 using Microsoft.EntityFrameworkCore;
 using Npgsql;
@@ -18,7 +18,7 @@ public class MeasurementPusher(
   AgnosticMeasurementAggregateConverter aggregateConverter,
   AgnosticModelEntityConverter modelEntityConverter,
   AgnosticAggregateUpserter aggregateUpserter,
-  EnmsDataDbContext context,
+  DataDbContext context,
   IMeasurementPublisher publisher
 ) : IMeasurementPusher
 {
@@ -31,7 +31,7 @@ public class MeasurementPusher(
     IReadOnlyList<IAggregate> publishAggregates =
       MakeAggregates(publishMeasurements).ToList();
 
-    publisher.BeforePublish(publishMeasurements, publishAggregates);
+    publisher.BeforePush(publishMeasurements, publishAggregates);
 
     var tasks = MakeUpsertMeasurementTasks(publishMeasurements)
       .Concat(MakeUpsertAggregateTasks(publishAggregates))
@@ -43,7 +43,7 @@ public class MeasurementPusher(
 
     Semaphore.Release();
 
-    publisher.AfterPublish(publishMeasurements, publishAggregates);
+    publisher.AfterPush(publishMeasurements, publishAggregates);
   }
 
   private IEnumerable<IAggregate> MakeAggregates(
@@ -77,6 +77,7 @@ public class MeasurementPusher(
         {
           await task();
         }
+
         await context.Database.CommitTransactionAsync();
         break;
       }
@@ -184,7 +185,7 @@ public class MeasurementPusher(
   }
 
   private static async Task UpsertMeasurements<T>(
-    EnmsDataDbContext context,
+    DataDbContext context,
     IEnumerable<T> measurements
   )
     where T : class, IMeasurementEntity
@@ -203,7 +204,7 @@ public class MeasurementPusher(
   }
 
   private static async Task UpsertAggregates<T>(
-    EnmsDataDbContext context,
+    DataDbContext context,
     IEnumerable<T> aggregates,
     AgnosticAggregateUpserter upserter)
     where T : class, IAggregateEntity

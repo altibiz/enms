@@ -7,6 +7,11 @@ public class EgaugeLineModelActivator : ModelActivator<EgaugeLineModel>
 {
   public override EgaugeLineModel ActivateConcrete()
   {
+    return New();
+  }
+
+  public static EgaugeLineModel New()
+  {
     return new EgaugeLineModel
     {
       Id = default!,

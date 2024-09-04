@@ -6,10 +6,9 @@
 
 	<ItemGroup>
 	  <ProjectReference Include="../../src/Enms.Data/Enms.Data.csproj" />
+	  <ProjectReference Include="../../src/Enms.Jobs/Enms.Jobs.csproj" />
+	  <ProjectReference Include="../../src/Enms.Email/Enms.Email.csproj" />
+	  <ProjectReference Include="../../src/Enms.Users/Enms.Users.csproj" />
 	</ItemGroup>
-
-  <ItemGroup>
-		<PackageReference Include="OrchardCore.Users" Version="$(OrchardVersion)" />
-  </ItemGroup>
 
 </Project>

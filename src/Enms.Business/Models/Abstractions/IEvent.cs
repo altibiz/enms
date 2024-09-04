@@ -1,3 +1,4 @@
+using System.Text.Json;
 using Enms.Business.Models.Enums;
 
 namespace Enms.Business.Models.Abstractions;
@@ -8,5 +9,7 @@ public interface IEvent : IIdentifiable, IReadonly
 
   public LevelModel Level { get; }
 
-  public string Description { get; }
+  public JsonDocument Content { get; }
+
+  public HashSet<CategoryModel> Categories { get; }
 }

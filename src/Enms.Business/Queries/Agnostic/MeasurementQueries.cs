@@ -1,17 +1,16 @@
 using Enms.Business.Conversion.Agnostic;
-using Enms.Business.Extensions;
-using Enms.Business.Models;
 using Enms.Business.Models.Abstractions;
 using Enms.Business.Naming.Agnostic;
 using Enms.Business.Queries.Abstractions;
 using Enms.Data.Concurrency;
 using Enms.Data.Entities.Base;
+using Enms.Data.Extensions;
 using Microsoft.EntityFrameworkCore;
 
 namespace Enms.Business.Queries.Agnostic;
 
 public class MeasurementQueries(
-  EnmsDataDbContextMutex mutex,
+  DataDbContextMutex mutex,
   AgnosticModelEntityConverter modelEntityConverter,
   AgnosticLineNamingConvention lineNamingConvention
 ) : IQueries
@@ -72,10 +71,11 @@ public class MeasurementQueries(
     {
       foreach (var type in typeof(IMeasurement).Assembly
         .GetTypes()
-        .Where(type =>
-          !type.IsGenericType &&
-          !type.IsAbstract &&
-          type.IsAssignableTo(typeof(IMeasurement))))
+        .Where(
+          type =>
+            !type.IsGenericType &&
+            !type.IsAbstract &&
+            type.IsAssignableTo(typeof(IMeasurement))))
       {
         var measurements = await ReadDynamic(
           fromDate,
@@ -132,7 +132,8 @@ public class MeasurementQueries(
 
     var filtered = lineId is null
       ? timeFiltered
-      : timeFiltered.Where(aggregate =>
+      : timeFiltered.Where(
+        aggregate =>
           aggregate.LineId == lineId && aggregate.MeterId == meterId);
 
     var ordered = filtered

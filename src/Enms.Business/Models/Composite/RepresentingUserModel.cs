@@ -1,3 +1,5 @@
+using Enms.Business.Activation;
+
 namespace Enms.Business.Models.Composite;
 
 public record RepresentingUserModel(
@@ -9,6 +11,6 @@ public record RepresentingUserModel(
   public override RepresentativeModel? MaybeRepresentative
   {
     get { return Representative; }
-    set { Representative = value ?? RepresentativeModel.New(User); }
+    set { Representative = value ?? RepresentativeModelActivator.New(User); }
   }
 }

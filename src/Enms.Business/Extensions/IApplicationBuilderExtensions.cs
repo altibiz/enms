@@ -1,16 +1,18 @@
-using Enms.Data;
-using Microsoft.EntityFrameworkCore;
-
 namespace Enms.Business.Extensions;
 
 public static class IApplicationBuilderExtensions
 {
-  public static IApplicationBuilder MigrateEnmsData(
-    this IApplicationBuilder app)
+  public static IApplicationBuilder UseEnmsBusiness(
+    this IApplicationBuilder app,
+    IEndpointRouteBuilder endpoints)
   {
-    using var scope = app.ApplicationServices.CreateScope();
-    scope.ServiceProvider.GetRequiredService<EnmsDataDbContext>().Database
-      .Migrate();
+    endpoints.MapAreaControllerRoute(
+      "Enms.Business.Controllers.Iot.Push",
+      "Enms.Business",
+      "/iot/push/{id}",
+      new { controller = "Iot", action = "Push" }
+    );
+
     return app;
   }
 }

@@ -17,7 +17,26 @@ services:
       interval: 1m
       timeout: 10s
       retries: 10
+  mailserver:
+    image: mailhog/mailhog:v1.0.1
+    ports:
+      - 1025:1025
+      - 8025:8025
+    environment:
+      MH_STORAGE: maildir
+      MH_MAILDIR_PATH: /var/lib/mailhog
+      MH_AUTH_FILE: /etc/mailhog/mailhog.auth
+    volumes:
+      - mailserver_data:/var/lib/mailhog
+      - ./scripts/mailserver:/etc/mailhog
+    healthcheck:
+      test: curl --fail http://localhost:8025 || exit 1
+      interval: 30s
+      timeout: 10s
+      retries: 5
 
 volumes:
   postgres_data:
+    driver: local
+  mailserver_data:
     driver: local

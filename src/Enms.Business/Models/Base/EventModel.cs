@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json;
 using Enms.Business.Models.Abstractions;
 using Enms.Business.Models.Enums;
 
@@ -19,7 +20,10 @@ public class EventModel : IEvent
   public required LevelModel Level { get; init; }
 
   [Required]
-  public required string Description { get; init; }
+  public required JsonDocument Content { get; init; }
+
+  [Required]
+  public required HashSet<CategoryModel> Categories { get; set; }
 
   public virtual IEnumerable<ValidationResult> Validate(
     ValidationContext validationContext)

@@ -1,21 +1,18 @@
-@using ApexCharts
-@using MudBlazor
-@using Microsoft.Extensions.DependencyInjection
-@using Enms.Business.Models
-@using Enms.Business.Models.Enums;
-@using Enms.Client.Base
-@using Enms.Client.Shared.Streaming
-@using Enms.Client.Shared.Fields
 @namespace Enms.Client.Shared.Charts
 
-@inherits EnmsOwningComponentBase
+@using ApexCharts
+@using Enms.Business.Models
+@using Enms.Business.Models.Enums
+@using Enms.Client.Shared.Fields
+@using MudBlazor
+@inherits Enms.Client.Base.EnmsOwningComponentBase
 
 <EnumPicker
   @bind-Value="Measure"
-  Label="x => Translate(x.ToTitle())" />
+  Label="x => Translate(x.ToTitle())"/>
 <EnumPicker
   @bind-Value="Resolution"
-  Label="x => Translate(x.ToTitle(Multiplier))" />
+  Label="x => Translate(x.ToTitle(Multiplier))"/>
 <MultiEnumPicker
   @bind-Value="Phases"
   Title="@Translate("Phase")"

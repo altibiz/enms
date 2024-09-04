@@ -1,5 +1,6 @@
 @namespace Enms.Client.Shared.Layout
 @using Enms.Client.State
+@using Microsoft.AspNetCore.Components.Routing
 @using MudBlazor
 @inherits Enms.Client.Base.EnmsLayoutComponentBase
 
@@ -10,7 +11,7 @@
         Icon="@Icons.Material.Outlined.Menu"
         Color="Color.Inherit"
         Edge="Edge.Start"
-        OnClick="e => DrawerToggle()"/>
+        OnClick="e => _drawerOpen = !_drawerOpen"/>
     </MudHidden>
     <MudImage Src="/helb.svg" Alt="HELB" Style="height: 50%"/>
     <MudSpacer/>
@@ -27,8 +28,8 @@
     <MudNavMenu>
       @foreach (var route in MainLayout.GetNavigationDescriptors())
       {
-        <MudNavLink Href="@route.Route">
-          @route.Title
+        <MudNavLink Href="@route.Route" Match="NavLinkMatch.All">
+          @Translate(route.Title)
         </MudNavLink>
       }
     </MudNavMenu>
@@ -36,7 +37,11 @@
   <MudMainContent>
     <MudHidden Breakpoint="Breakpoint.SmAndDown">
       <MudToolBar DisableGutters="true">
-        <MudIconButton Icon="@Icons.Material.Outlined.Menu" Color="Color.Inherit" OnClick="@(e => DrawerToggle())" Class="ml-3"/>
+        <MudIconButton
+          Icon="@Icons.Material.Outlined.Menu"
+          Color="Color.Inherit"
+          OnClick="e => _drawerOpen = !_drawerOpen"
+          Class="ml-3"/>
       </MudToolBar>
     </MudHidden>
     <MudContainer MaxWidth="MaxWidth.Large" Class="mt-4">
@@ -51,10 +56,4 @@
   public UserState? UserState { get; set; } = default!;
 
   public bool _drawerOpen = true;
-
-  void DrawerToggle()
-  {
-    _drawerOpen = !_drawerOpen;
-  }
-
 }

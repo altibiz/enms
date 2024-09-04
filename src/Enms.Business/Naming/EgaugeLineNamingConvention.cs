@@ -5,17 +5,38 @@ namespace Enms.Business.Naming;
 
 public class EgaugeLineNamingConvention : LineNamingConvention
 {
-  public override string LineIdPrefix => "e";
+  public override string LineIdPrefix
+  {
+    get { return "e"; }
+  }
 
-  public override string MeterIdPrefix => "egauge";
+  public override string MeterIdPrefix
+  {
+    get { return "egauge"; }
+  }
 
-  public override Type LineType => typeof(EgaugeLineModel);
+  public override Type LineType
+  {
+    get { return typeof(EgaugeLineModel); }
+  }
 
-  public override Type MeasurementType => typeof(EgaugeMeasurementModel);
+  public override Type MeasurementType
+  {
+    get { return typeof(EgaugeMeasurementModel); }
+  }
 
-  public override Type AggregateType => typeof(EgaugeAggregateModel);
+  public override Type AggregateType
+  {
+    get { return typeof(EgaugeAggregateModel); }
+  }
 
-  public override Type MeasurementValidatorType => typeof(EgaugeMeasurementValidatorModel);
+  public override Type MeasurementValidatorType
+  {
+    get { return typeof(EgaugeMeasurementValidatorModel); }
+  }
 
-  public override Type MeterType => typeof(EgaugeMeterModel);
+  public override Type MeterType
+  {
+    get { return typeof(EgaugeMeterModel); }
+  }
 }

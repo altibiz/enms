@@ -1,22 +1,19 @@
 using Enms.Business.Conversion;
-using Enms.Business.Models;
 using Enms.Business.Models.Composite;
 using Enms.Business.Mutations.Abstractions;
-using Enms.Data;
-using Microsoft.AspNetCore.Identity;
-using OrchardCore.Users;
+using Enms.Data.Context;
+using Enms.Users.Mutations.Abstractions;
 
 namespace Enms.Business.Mutations;
 
 public class RepresentativeMutations(
-  EnmsDataDbContext context,
-  UserManager<IUser> userManager
+  DataDbContext context,
+  IUserMutations userMutations
 ) : IMutations
 {
   public async Task Create(MaybeRepresentingUserModel model)
   {
-    var user = model.User.ToUser();
-    await userManager.CreateAsync(user);
+    await userMutations.Create(model.User.ToEntity());
 
     var representative = model.MaybeRepresentative?.ToEntity();
     if (representative is not null)
@@ -28,8 +25,7 @@ public class RepresentativeMutations(
 
   public async Task Update(MaybeRepresentingUserModel model)
   {
-    var user = model.User.ToUser();
-    await userManager.UpdateAsync(user);
+    await userMutations.Update(model.User.ToEntity());
 
     var representative = model.MaybeRepresentative?.ToEntity();
     if (representative is not null)
@@ -41,8 +37,7 @@ public class RepresentativeMutations(
 
   public async Task Delete(MaybeRepresentingUserModel model)
   {
-    var user = model.User.ToUser();
-    await userManager.DeleteAsync(user);
+    await userMutations.Delete(model.User.ToEntity());
 
     var representative = model.MaybeRepresentative?.ToEntity();
     if (representative is not null)

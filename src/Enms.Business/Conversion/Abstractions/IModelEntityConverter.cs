@@ -1,5 +1,4 @@
 using Enms.Business.Models.Abstractions;
-using Enms.Data.Entities.Abstractions;
 
 namespace Enms.Business.Conversion.Abstractions;
 
@@ -9,9 +8,9 @@ public interface IModelEntityConverter
 
   bool CanConvertToModel(Type entityType);
 
-  IEntity ToEntity(IModel model);
+  object ToEntity(IModel model);
 
-  IModel ToModel(IEntity entity);
+  IModel ToModel(object entity);
 
   Type EntityType();
 }

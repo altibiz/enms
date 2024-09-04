@@ -361,6 +361,8 @@ cython_debug/
 .direnv
 .jb
 src/Enms.Server/Localization
+src/Enms.Server/App_Data/Sites/**/DataProtection-Keys
+src/Enms.Server/App_Data/logs
 plantuml-images/
 docs/wiki/**/book
 mdbook-plantuml-img/

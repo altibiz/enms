@@ -1,5 +1,9 @@
 using Enms.Data.Entities.Base;
+using Enms.Data.Entities.Complex;
 using Enms.Data.Entities.Enums;
+using Enms.Data.Entities.Joins;
+using Enms.Data.Extensions;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Enms.Data.Entities;
 
@@ -25,17 +29,33 @@ public class RepresentativeEntity : AuditableEntity
   } =
     default!;
 
-  public string Name { get; set; } = default!;
+  public virtual ICollection<NotificationRecipientEntity> NotificationRecipients
+  {
+    get;
+    set;
+  } = default!;
 
-  public string SocialSecurityNumber { get; set; } = default!;
+  public virtual ICollection<NotificationEntity> Notifications { get; set; } =
+    default!;
 
-  public string Address { get; set; } = default!;
+  public virtual ICollection<ResolvableNotificationEntity> ResolvedNotifications
+  {
+    get;
+    set;
+  } = default!;
 
-  public string PostalCode { get; set; } = default!;
+  public PhysicalPersonEntity PhysicalPerson { get; set; } = default!;
 
-  public string City { get; set; } = default!;
+  public List<TopicEntity> Topics { get; set; } = default!;
+}
 
-  public string Email { get; set; } = default!;
-
-  public string PhoneNumber { get; set; } = default!;
+public class
+  RepresentativeEntityTypeConfiguration : EntityTypeConfiguration<
+  RepresentativeEntity>
+{
+  public override void Configure(
+    EntityTypeBuilder<RepresentativeEntity> builder)
+  {
+    builder.ComplexProperty(nameof(RepresentativeEntity.PhysicalPerson));
+  }
 }

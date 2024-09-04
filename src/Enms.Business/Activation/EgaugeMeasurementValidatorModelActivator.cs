@@ -9,6 +9,11 @@ public class
 {
   public override EgaugeMeasurementValidatorModel ActivateConcrete()
   {
+    return New();
+  }
+
+  public static EgaugeMeasurementValidatorModel New()
+  {
     return new EgaugeMeasurementValidatorModel
     {
       Id = default!,

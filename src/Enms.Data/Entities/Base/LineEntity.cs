@@ -1,3 +1,4 @@
+using Enms.Data.Context;
 using Enms.Data.Entities.Enums;
 using Enms.Data.Extensions;
 using Microsoft.EntityFrameworkCore;
@@ -24,7 +25,7 @@ public class LineEntity : AuditableEntity
 
   public override string Id
   {
-    get { return $"{_lineId}{EnmsDataDbContext.KeyJoin}{_meterId}"; }
+    get { return $"{_lineId}{DataDbContext.KeyJoin}{_meterId}"; }
     init
     {
       if (string.IsNullOrEmpty(value))
@@ -34,7 +35,7 @@ public class LineEntity : AuditableEntity
         return;
       }
 
-      var parts = value.Split(EnmsDataDbContext.KeyJoin);
+      var parts = value.Split(DataDbContext.KeyJoin);
       _lineId = parts[0];
       _meterId = parts[1];
     }

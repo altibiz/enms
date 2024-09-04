@@ -5,31 +5,21 @@ using Enms.Business.Extensions;
 using Enms.Business.Models;
 using Enms.Business.Models.Composite;
 using Enms.Business.Queries.Abstractions;
-using Enms.Data;
-using Enms.Data.Concurrency;
+using Enms.Data.Context;
 using Enms.Data.Entities;
 using Enms.Data.Entities.Enums;
-using Microsoft.AspNetCore.Identity;
+using Enms.Users.Queries;
 using Microsoft.EntityFrameworkCore;
-using OrchardCore.Users;
-using OrchardCore.Users.Indexes;
-using OrchardCore.Users.Models;
-using YesSql;
-using ISession = YesSql.ISession;
 
 namespace Enms.Business.Queries;
 
 public class RepresentativeQueries(
-  EnmsDataDbContextMutex mutex,
-  UserManager<IUser> userManager,
-  ISession session
+  DataDbContext context,
+  UserQueries userQueries
 ) : IQueries
 {
   public async Task<RepresentativeModel?> RepresentativeById(string id)
   {
-    using var @lock = await mutex.LockAsync();
-    var context = @lock.Context;
-
     return await context.Representatives
       .Where(context.PrimaryKeyEquals<RepresentativeEntity>(id))
       .FirstOrDefaultAsync() is { } entity
@@ -43,59 +33,20 @@ public class RepresentativeQueries(
     int pageCount = QueryConstants.DefaultPageCount
   )
   {
-    using var @lock = await mutex.LockAsync();
-    var context = @lock.Context;
-
     return await context.Representatives
       .Where(entity => entity.Role == RoleEntity.OperatorRepresentative)
+      .OrderBy(context.PrimaryKeyOf<RepresentativeEntity>())
       .QueryPaged(
         RepresentativeModelEntityConverterExtensions.ToModel,
         filter,
         pageNumber,
         pageCount
       );
-  }
-
-  public async Task<PaginatedList<RepresentativeModel>> UserRepresentatives(
-    Expression<Func<RepresentativeEntity, bool>>? filter = null,
-    int pageNumber = QueryConstants.StartingPage,
-    int pageCount = QueryConstants.DefaultPageCount
-  )
-  {
-    using var @lock = await mutex.LockAsync();
-    var context = @lock.Context;
-
-    return await context.Representatives
-      .Where(entity => entity.Role == RoleEntity.UserRepresentative)
-      .QueryPaged(
-        RepresentativeModelEntityConverterExtensions.ToModel,
-        filter,
-        pageNumber,
-        pageCount
-      );
-  }
-
-  public async Task<UserModel?> UserByClaimsPrincipal(
-    ClaimsPrincipal principal)
-  {
-    return await userManager.GetUserAsync(principal) is { } user
-      ? user.ToModel()
-      : null;
-  }
-
-  public async Task<UserModel?> UserByUserId(string userId)
-  {
-    return await userManager.FindByIdAsync(userId) is { } user
-      ? user.ToModel()
-      : null;
   }
 
   public async Task<RepresentativeModel?> RepresentativeByUserId(
     string userId)
   {
-    using var @lock = await mutex.LockAsync();
-    var context = @lock.Context;
-
     return await context.Representatives
       .Where(context.PrimaryKeyEquals<RepresentativeEntity>(userId))
       .FirstOrDefaultAsync() is { } entity
@@ -105,24 +56,13 @@ public class RepresentativeQueries(
 
   public async Task<PaginatedList<MaybeRepresentingUserModel>>
     MaybeRepresentingUsers(
-      Expression<Func<UserIndex, bool>>? filter = null,
       int pageNumber = QueryConstants.StartingPage,
       int pageCount = QueryConstants.DefaultPageCount)
   {
-    var users = await session
-      .Query<User, UserIndex>()
-      .QueryPaged(
-        UserModelExtensions.ToModel,
-        filter,
-        pageNumber,
-        pageCount
-      );
+    var users = await userQueries.Users(pageNumber, pageCount);
     var userIds = users.Items
       .Select(user => user.Id)
       .ToList();
-
-    using var @lock = await mutex.LockAsync();
-    var context = @lock.Context;
 
     var representatives = await context.Representatives
       .Where(context.PrimaryKeyIn<RepresentativeEntity>(userIds))
@@ -130,39 +70,26 @@ public class RepresentativeQueries(
 
     return users.Items
       .Select(
-        user => new MaybeRepresentingUserModel(
-          user
-        )
+        user => new MaybeRepresentingUserModel(user.ToModel())
         {
-          MaybeRepresentative =
-            representatives.FirstOrDefault(
+          MaybeRepresentative = representatives
+              .FirstOrDefault(
                 context.PrimaryKeyEqualsCompiled<RepresentativeEntity>(user.Id))
-              is { } representative
-              ? representative.ToModel()
-              : null
+            is { } representative
+            ? representative.ToModel()
+            : null
         })
       .ToPaginatedList(users.TotalCount);
   }
 
   public async Task<PaginatedList<RepresentingUserModel>> RepresentingUsers(
-    Expression<Func<UserIndex, bool>>? filter = null,
     int pageNumber = QueryConstants.StartingPage,
     int pageCount = QueryConstants.DefaultPageCount)
   {
-    var users = await session
-      .Query<User, UserIndex>()
-      .QueryPaged(
-        UserModelExtensions.ToModel,
-        filter,
-        pageNumber,
-        pageCount
-      );
+    var users = await userQueries.Users(pageNumber, pageCount);
     var ids = users.Items
       .Select(user => user.Id)
       .ToList();
-
-    using var @lock = await mutex.LockAsync();
-    var context = @lock.Context;
 
     var representatives = await context.Representatives
       .Where(context.PrimaryKeyIn<RepresentativeEntity>(ids))
@@ -171,14 +98,13 @@ public class RepresentativeQueries(
     return users.Items
       .Select(
         user => new MaybeRepresentingUserModel(
-          user
+          user.ToModel()
         )
         {
           MaybeRepresentative = representatives
               .FirstOrDefault(
-                context
-                  .PrimaryKeyEqualsCompiled<RepresentativeEntity>(user.Id)) is
-          { } representative
+                context.PrimaryKeyInCompiled<RepresentativeEntity>(ids)) is
+            { } representative
             ? representative.ToModel()
             : null
         })
@@ -198,127 +124,130 @@ public class RepresentativeQueries(
   public async Task<RepresentingUserModel?>
     RepresentingUserByClaimsPrincipal(ClaimsPrincipal claimsPrincipal)
   {
-    var user = await userManager.GetUserAsync(claimsPrincipal);
+    var user = await userQueries.UserByClaimsPrincipal(claimsPrincipal);
     if (user is null)
     {
       return null;
     }
 
-    using var @lock = await mutex.LockAsync();
-    var context = @lock.Context;
-
     var representative =
       await context.Representatives
-        .Where(context.PrimaryKeyEquals<RepresentativeEntity>(user.GetId()))
+        .Where(context.PrimaryKeyEquals<RepresentativeEntity>(user.Id))
         .FirstOrDefaultAsync();
-
-    return representative is null
-      ? null
-      : new RepresentingUserModel(user.ToModel())
-      {
-        Representative = representative.ToModel()
-      };
-  }
-
-  public async Task<RepresentingUserModel?> RepresentingUserByUserId(
-    string id)
-  {
-    var user = await userManager.FindByIdAsync(id);
-    if (user is null)
-    {
-      return null;
-    }
-
-    using var @lock = await mutex.LockAsync();
-    var context = @lock.Context;
-
-    var representative =
-      await context.Representatives
-        .Where(context.PrimaryKeyEquals<RepresentativeEntity>(id))
-        .FirstOrDefaultAsync();
-
-    return representative is null
-      ? null
-      : new RepresentingUserModel(user.ToModel())
-      {
-        Representative = representative.ToModel()
-      };
-  }
-
-  public async Task<RepresentingUserModel?>
-    RepresentingUserByRepresentativeId(string id)
-  {
-    var representative = default(RepresentativeEntity);
-    using (var @lock = await mutex.LockAsync())
-    {
-      var context = @lock.Context;
-      representative =
-        await context.Representatives
-          .Where(context.PrimaryKeyEquals<RepresentativeEntity>(id))
-          .FirstOrDefaultAsync();
-    }
-
     if (representative is null)
     {
       return null;
     }
 
-    var user = await userManager.FindByIdAsync(representative.Id);
-    return user is null
-      ? null
-      : new RepresentingUserModel(user.ToModel())
-      {
-        Representative = representative.ToModel()
-      };
+    return new RepresentingUserModel(
+      user.ToModel()
+    )
+    {
+      Representative = representative.ToModel()
+    };
   }
 
-  public async Task<MaybeRepresentingUserModel?>
-    MaybeRepresentingUserByClaimsPrincipal(ClaimsPrincipal claimsPrincipal)
+  public async Task<RepresentingUserModel?> RepresentingUserByUserId(
+    string id)
   {
-    var user = await userManager.GetUserAsync(claimsPrincipal);
+    var user = await userQueries.UserByUserId(id);
     if (user is null)
     {
       return null;
     }
 
-    using var @lock = await mutex.LockAsync();
-    var context = @lock.Context;
-
     var representative =
       await context.Representatives
-        .Where(context.PrimaryKeyEquals<RepresentativeEntity>(user.GetId()))
+        .Where(context.PrimaryKeyEquals<RepresentativeEntity>(id))
         .FirstOrDefaultAsync();
+    if (representative is null)
+    {
+      return null;
+    }
 
-    return new MaybeRepresentingUserModel(
+    return new RepresentingUserModel(
       user.ToModel()
     )
     {
-      MaybeRepresentative = representative?.ToModel()
+      Representative = representative.ToModel()
+    };
+  }
+
+  public async Task<RepresentingUserModel?>
+    RepresentingUserByRepresentativeId(string id)
+  {
+    var representative =
+      await context.Representatives
+        .Where(context.PrimaryKeyEquals<RepresentativeEntity>(id))
+        .FirstOrDefaultAsync();
+    if (representative is null)
+    {
+      return null;
+    }
+
+    var user = await userQueries.UserByUserId(representative.Id);
+    if (user is null)
+    {
+      return null;
+    }
+
+    return new RepresentingUserModel(
+      user.ToModel()
+    )
+    {
+      Representative = representative.ToModel()
+    };
+  }
+
+  public async Task<MaybeRepresentingUserModel?>
+    MaybeRepresentingUserByClaimsPrincipal(ClaimsPrincipal claimsPrincipal)
+  {
+    var user = await userQueries.UserByClaimsPrincipal(claimsPrincipal);
+    if (user is null)
+    {
+      return null;
+    }
+
+    var representative =
+      await context.Representatives
+        .Where(context.PrimaryKeyEquals<RepresentativeEntity>(user.Id))
+        .FirstOrDefaultAsync();
+    if (representative is null)
+    {
+      return new MaybeRepresentingUserModel(user.ToModel());
+    }
+
+    return new RepresentingUserModel(
+      user.ToModel()
+    )
+    {
+      Representative = representative.ToModel()
     };
   }
 
   public async Task<MaybeRepresentingUserModel?>
     MaybeRepresentingUserByUserId(string id)
   {
-    var user = await userManager.FindByIdAsync(id);
+    var user = await userQueries.UserByUserId(id);
     if (user is null)
     {
       return null;
     }
 
-    using var @lock = await mutex.LockAsync();
-    var context = @lock.Context;
-
     var representative =
       await context.Representatives
         .Where(context.PrimaryKeyEquals<RepresentativeEntity>(id))
         .FirstOrDefaultAsync();
+    if (representative is null)
+    {
+      return new MaybeRepresentingUserModel(user.ToModel());
+    }
 
-    return new MaybeRepresentingUserModel(
+    return new RepresentingUserModel(
       user.ToModel()
     )
     {
-      MaybeRepresentative = representative?.ToModel()
+      Representative = representative.ToModel()
     };
   }
 }

@@ -1,10 +1,11 @@
+using Enms.Data.Context;
+
 namespace Enms.Data.Concurrency;
 
-public class EnmsDataDbContextMutex(EnmsDataDbContext context)
+public class DataDbContextMutex(DataDbContext context)
 {
+  private readonly DataDbContext _context = context;
   private readonly SemaphoreSlim semaphore = new(1, 1);
-
-  private readonly EnmsDataDbContext _context = context;
 
   public EnmsDataDbContextLock Lock()
   {
@@ -19,10 +20,13 @@ public class EnmsDataDbContextMutex(EnmsDataDbContext context)
   }
 
 #pragma warning disable S3881 // "IDisposable" should be implemented correctly
-  public class EnmsDataDbContextLock(EnmsDataDbContextMutex mutex) : IDisposable
+  public class EnmsDataDbContextLock(DataDbContextMutex mutex) : IDisposable
 #pragma warning restore S3881 // "IDisposable" should be implemented correctly
   {
-    public EnmsDataDbContext Context => mutex._context;
+    public DataDbContext Context
+    {
+      get { return mutex._context; }
+    }
 
 #pragma warning disable CA1816 // Dispose methods should call SuppressFinalize
     public void Dispose()

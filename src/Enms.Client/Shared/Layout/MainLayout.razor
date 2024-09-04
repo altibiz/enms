@@ -1,7 +1,6 @@
 @namespace Enms.Client.Shared.Layout
 
 @inherits Enms.Client.Base.EnmsLayoutComponentBase
-@using Enms.Business.Models
 @using Enms.Business.Models.Composite
 @using Enms.Client.Shared.Streaming
 @using MudBlazor
@@ -22,20 +21,20 @@
         <CascadingValue Value="maybeRepresentingUser.User">
           <UserLayout>
             <Body>
-              @if (maybeRepresentingUser.MaybeRepresentative is { } representative)
-              {
-                <CascadingValue Value="representative">
-                  <RepresentativeLayout>
-                    <Body>
-                    @Body
-                    </Body>
-                  </RepresentativeLayout>
-                </CascadingValue>
-              }
-              else
-              {
-                @Body
-              }
+            @if (maybeRepresentingUser.MaybeRepresentative is { } representative)
+            {
+              <CascadingValue Value="representative">
+                <RepresentativeLayout>
+                  <Body>
+                  @Body
+                  </Body>
+                </RepresentativeLayout>
+              </CascadingValue>
+            }
+            else
+            {
+              @Body
+            }
             </Body>
           </UserLayout>
         </CascadingValue>

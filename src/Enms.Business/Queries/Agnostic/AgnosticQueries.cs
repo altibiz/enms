@@ -1,10 +1,9 @@
 using Enms.Business.Conversion.Abstractions;
-using Enms.Business.Extensions;
 using Enms.Business.Models.Abstractions;
 using Enms.Business.Queries.Abstractions;
-using Enms.Data;
 using Enms.Data.Concurrency;
 using Enms.Data.Entities.Abstractions;
+using Enms.Data.Extensions;
 using Microsoft.EntityFrameworkCore;
 
 namespace Enms.Business.Queries.Agnostic;
@@ -13,7 +12,7 @@ namespace Enms.Business.Queries.Agnostic;
 // when ordering by primary key
 
 public class AgnosticQueries(
-  EnmsDataDbContextMutex mutex,
+  DataDbContextMutex mutex,
   IServiceProvider serviceProvider) : IQueries
 {
   public async Task<T?> ReadSingle<T>(string id)

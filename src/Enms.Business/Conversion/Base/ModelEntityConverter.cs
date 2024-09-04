@@ -2,14 +2,13 @@ using System.ComponentModel;
 using System.Globalization;
 using Enms.Business.Conversion.Abstractions;
 using Enms.Business.Models.Abstractions;
-using Enms.Data.Entities.Abstractions;
 
 namespace Enms.Business.Conversion.Base;
 
 public abstract class ModelEntityConverter<TModel, TEntity> : TypeConverter,
   IModelEntityConverter
   where TModel : class, IModel
-  where TEntity : class, IEntity
+  where TEntity : class
 {
   public bool CanConvertToEntity(Type modelType)
   {
@@ -21,14 +20,14 @@ public abstract class ModelEntityConverter<TModel, TEntity> : TypeConverter,
     return entityType.IsAssignableTo(typeof(TEntity));
   }
 
-  public IEntity ToEntity(IModel model)
+  public object ToEntity(IModel model)
   {
     return ToEntity(
       model as TModel ??
       throw new ArgumentNullException(nameof(model)));
   }
 
-  public IModel ToModel(IEntity entity)
+  public IModel ToModel(object entity)
   {
     return ToModel(
       entity as TEntity ??

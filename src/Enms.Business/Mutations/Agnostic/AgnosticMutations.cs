@@ -2,14 +2,14 @@ using System.ComponentModel.DataAnnotations;
 using Enms.Business.Conversion.Abstractions;
 using Enms.Business.Models.Abstractions;
 using Enms.Business.Mutations.Abstractions;
-using Enms.Data;
+using Enms.Data.Context;
 
 // TODO: check representative model user id
 
 namespace Enms.Business.Mutations.Agnostic;
 
 public class AgnosticMutations(
-  EnmsDataDbContext context,
+  DataDbContext context,
   IServiceProvider serviceProvider
 ) : IMutations
 {

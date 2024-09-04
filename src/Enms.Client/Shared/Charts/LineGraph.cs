@@ -12,8 +12,18 @@ using MudBlazor;
 
 namespace Enms.Client.Shared.Charts;
 
+#pragma warning disable S3881 // "IDisposable" should be implemented correctly
 public partial class LineGraph : EnmsOwningComponentBase
+#pragma warning restore S3881 // "IDisposable" should be implemented correctly
 {
+  private ApexChart<IMeasurement>? _chart = default!;
+
+  private PaginatedList<IMeasurement> _measurements = new(
+    new List<IMeasurement>(), 0);
+
+  private ApexChartOptions<IMeasurement> _options =
+    NewApexChartOptions<IMeasurement>();
+
   [Parameter]
   public ILine Model { get; set; } = default!;
 
@@ -42,23 +52,17 @@ public partial class LineGraph : EnmsOwningComponentBase
   [Inject]
   public IMeasurementSubscriber MeasurementSubscriber { get; set; } = default!;
 
-  private ApexChart<IMeasurement>? _chart = default!;
-
-  private PaginatedList<IMeasurement> _measurements = new(new(), 0);
-
-  private ApexChartOptions<IMeasurement> _options =
-    NewApexChartOptions<IMeasurement>();
-
   protected override void OnInitialized()
   {
-    MeasurementSubscriber.OnAfterPublish += OnAfterMeasurementsPublished;
+    MeasurementSubscriber.SubscribeAfterPush(OnAfterMeasurementsPublished);
   }
 
   protected override void Dispose(bool disposing)
   {
     if (disposing)
     {
-      MeasurementSubscriber.OnAfterPublish -= OnAfterMeasurementsPublished;
+      MeasurementSubscriber.UnsubscribeAfterPush(
+        OnAfterMeasurementsPublished);
     }
   }
 
@@ -69,6 +73,7 @@ public partial class LineGraph : EnmsOwningComponentBase
     {
       Timestamp = now.Subtract(Resolution.ToTimeSpan(Multiplier, now));
     }
+
     _options = CreateGraphOptions();
   }
 
@@ -88,11 +93,13 @@ public partial class LineGraph : EnmsOwningComponentBase
 
     if (_chart is not null)
     {
-      await _chart.UpdateSeriesAsync(true);
+      await _chart.UpdateSeriesAsync();
     }
   }
 
-  private void OnAfterMeasurementsPublished(object? _sender, MeasurementPublishEventArgs args)
+  private void OnAfterMeasurementsPublished(
+    object? _sender,
+    MeasurementPublishEventArgs args)
   {
     if (!Refresh)
     {
@@ -155,7 +162,8 @@ public partial class LineGraph : EnmsOwningComponentBase
         Translate("CONNECTION POWER"),
         Model.ConnectionPower_W,
         _measurements.Items
-          .OrderByDescending(m => m.ActivePower_W.TariffUnary().DuplexImport().PhaseSum())
+          .OrderByDescending(
+            m => m.ActivePower_W.TariffUnary().DuplexImport().PhaseSum())
           .FirstOrDefault()
           ?.ActivePower_W.TariffUnary().DuplexImport().PhaseSum());
       options = SetSmAndDownTimeRangeGraphOptions(
@@ -178,7 +186,8 @@ public partial class LineGraph : EnmsOwningComponentBase
         Translate("CONNECTION POWER"),
         Model.ConnectionPower_W,
         _measurements.Items
-          .OrderByDescending(m => m.ActivePower_W.TariffUnary().DuplexImport().PhaseSum())
+          .OrderByDescending(
+            m => m.ActivePower_W.TariffUnary().DuplexImport().PhaseSum())
           .FirstOrDefault()
           ?.ActivePower_W.TariffUnary().DuplexImport().PhaseSum());
       options = SetMdAndUpTimeRangeGraphOptions(
@@ -191,12 +200,13 @@ public partial class LineGraph : EnmsOwningComponentBase
     }
   }
 
-  private static ApexChartOptions<IMeasurement> SetSmAndDownTimeRangeGraphOptions(
-    ApexChartOptions<IMeasurement> options,
-    ResolutionModel resolution,
-    DateTimeOffset timestamp,
-    int multiplier
-  )
+  private static ApexChartOptions<IMeasurement>
+    SetSmAndDownTimeRangeGraphOptions(
+      ApexChartOptions<IMeasurement> options,
+      ResolutionModel resolution,
+      DateTimeOffset timestamp,
+      int multiplier
+    )
   {
     options.Xaxis = new XAxis
     {

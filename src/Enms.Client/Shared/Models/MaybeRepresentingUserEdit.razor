@@ -1,5 +1,5 @@
 @namespace Enms.Client.Shared.Models
-@using Enms.Business.Models
+@using Enms.Business.Activation
 @using Enms.Business.Models.Composite
 @using Enms.Business.Models.Enums
 @using MudBlazor
@@ -43,36 +43,20 @@
   </MudSelect>
   <MudTextField
     Label="Name"
-    @bind-Value="Model.MaybeRepresentative.Name"
-    For="@(() => Model.MaybeRepresentative.Name)"/>
-  <MudTextField
-    Label="SocialSecurityNumber"
-    @bind-Value="Model.MaybeRepresentative.SocialSecurityNumber"
-    For="@(() => Model.MaybeRepresentative.SocialSecurityNumber)"/>
-  <MudTextField
-    Label="Address"
-    @bind-Value="Model.MaybeRepresentative.Address"
-    For="@(() => Model.MaybeRepresentative.Address)"/>
-  <MudTextField
-    Label="City"
-    @bind-Value="Model.MaybeRepresentative.City"
-    For="@(() => Model.MaybeRepresentative.City)"/>
-  <MudTextField
-    Label="PostalCode"
-    @bind-Value="Model.MaybeRepresentative.PostalCode"
-    For="@(() => Model.MaybeRepresentative.PostalCode)"/>
+    @bind-Value="Model.MaybeRepresentative.PhysicalPerson.Name"
+    For="@(() => Model.MaybeRepresentative.PhysicalPerson.Name)"/>
   <MudTextField
     Label="Email"
-    @bind-Value="Model.MaybeRepresentative.Email"
-    For="@(() => Model.MaybeRepresentative.Email)"/>
+    @bind-Value="Model.MaybeRepresentative.PhysicalPerson.Email"
+    For="@(() => Model.MaybeRepresentative.PhysicalPerson.Email)"/>
   <MudTextField
     Label="PhoneNumber"
-    @bind-Value="Model.MaybeRepresentative.PhoneNumber"
-    For="@(() => Model.MaybeRepresentative.PhoneNumber)"/>
+    @bind-Value="Model.MaybeRepresentative.PhysicalPerson.PhoneNumber"
+    For="@(() => Model.MaybeRepresentative.PhysicalPerson.PhoneNumber)"/>
 }
 else
 {
-  <MudButton OnClick="@(() => Model.MaybeRepresentative = RepresentativeModel.New(Model.User))">
+  <MudButton OnClick="@(() => Model.MaybeRepresentative = RepresentativeModelActivator.New(Model.User))">
     @Translate("Create representative")
   </MudButton>
 }

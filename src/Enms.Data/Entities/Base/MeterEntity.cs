@@ -16,6 +16,14 @@ public class MeterEntity : AuditableEntity
   }
 
   public virtual ICollection<LineEntity> Lines { get; set; } = default!;
+
+  public virtual ICollection<MeterEventEntity> Events { get; set; } = default!;
+
+  public virtual ICollection<MeterNotificationEntity> Notifications
+  {
+    get;
+    set;
+  } = default!;
 }
 
 public class

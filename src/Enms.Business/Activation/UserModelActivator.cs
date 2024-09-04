@@ -7,12 +7,16 @@ public class UserModelActivator : ModelActivator<UserModel>
 {
   public override UserModel ActivateConcrete()
   {
+    return New();
+  }
+
+  public static UserModel New()
+  {
     return new UserModel
     {
       Id = default!,
       UserName = "",
-      Email = "",
-      Roles = new List<string>()
+      Email = ""
     };
   }
 }

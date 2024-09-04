@@ -1,4 +1,3 @@
-using System.Reflection;
 using Enms.Business.Activation.Abstractions;
 using Enms.Business.Activation.Agnostic;
 using Enms.Business.Aggregation.Abstractions;
@@ -13,21 +12,16 @@ using Enms.Business.Naming.Agnostic;
 using Enms.Business.Pushing;
 using Enms.Business.Pushing.Abstractions;
 using Enms.Business.Queries.Abstractions;
-using Enms.Data;
-using Enms.Data.Concurrency;
-using Enms.Data.Extensions;
 
 namespace Enms.Business.Extensions;
 
 public static class IServiceCollectionExtensions
 {
-  public static IServiceCollection AddEnmsBusinessClient(
+  public static IServiceCollection AddEnmsBusiness(
     this IServiceCollection services,
     IHostApplicationBuilder builder
   )
   {
-    services.AddData(builder);
-
     services.AddScopedAssignableTo(typeof(IQueries));
     services.AddScopedAssignableTo(typeof(IMutations));
 
@@ -46,57 +40,16 @@ public static class IServiceCollectionExtensions
 
     services.AddScoped<IMeasurementPusher, MeasurementPusher>();
     services.AddSingleton<MeasurementPublisher>();
-    services.AddSingleton<IMeasurementPublisher>(services => services
-      .GetRequiredService<MeasurementPublisher>());
-    services.AddSingleton<IMeasurementSubscriber>(services => services
-      .GetRequiredService<MeasurementPublisher>());
+    services.AddSingleton<IMeasurementPublisher>(
+      services => services
+        .GetRequiredService<MeasurementPublisher>());
+    services.AddSingleton<IMeasurementSubscriber>(
+      services => services
+        .GetRequiredService<MeasurementPublisher>());
 
     services.AddSingleton<ILocalizer, Localizer>();
 
     return services;
-  }
-
-  private static void AddData(
-    this IServiceCollection services,
-    IHostApplicationBuilder builder
-  )
-  {
-    services.AddDbContextFactory<EnmsDataDbContext>(
-      (services, options) =>
-      {
-        var connectionString = services
-            .GetRequiredService<IConfiguration>()
-            .GetConnectionString("Enms")
-          ?? throw new InvalidOperationException(
-            "Enms connection string not found");
-
-        if (builder.Environment.IsDevelopment()
-          && Environment.GetEnvironmentVariable("ENMS_LOG_SQL") is not null)
-        {
-          options.EnableSensitiveDataLogging();
-          options.EnableDetailedErrors();
-          options.UseLoggerFactory(
-            LoggerFactory.Create(builder => builder.AddConsole())
-          );
-        }
-
-        options
-          .UseTimescale(
-            connectionString,
-            options =>
-            {
-              options.MigrationsAssembly(
-                typeof(EnmsDataDbContext).Assembly.GetName().Name);
-              options.MigrationsHistoryTable(
-                $"__{nameof(EnmsDataDbContext)}");
-            })
-          .AddServedSaveChangesInterceptorsFromAssembly(
-            Assembly.GetExecutingAssembly(),
-            services
-          );
-      });
-
-    services.AddScoped<EnmsDataDbContextMutex>();
   }
 
   private static void AddScopedAssignableTo(

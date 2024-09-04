@@ -2,17 +2,17 @@ using System.ComponentModel.DataAnnotations;
 using Enms.Business.Capabilities.Abstractions;
 using Enms.Business.Capabilities.Base;
 using Enms.Business.Models.Abstractions;
-using Enms.Data;
+using Enms.Data.Context;
 
 namespace Enms.Business.Models.Base;
 
 public class LineModel : AuditableModel, ILine
 {
   [Required]
-  public required decimal ConnectionPower_W { get; set; }
+  public required HashSet<PhaseModel> Phases { get; set; } = new();
 
   [Required]
-  public required HashSet<PhaseModel> Phases { get; set; } = new();
+  public required decimal ConnectionPower_W { get; set; }
 
   [Required]
   public required string LineId { get; set; }
@@ -22,7 +22,7 @@ public class LineModel : AuditableModel, ILine
 
   public override required string Id
   {
-    get { return $"{LineId}{EnmsDataDbContext.KeyJoin}{MeterId}"; }
+    get { return $"{LineId}{DataDbContext.KeyJoin}{MeterId}"; }
     set
     {
       if (string.IsNullOrEmpty(value))
@@ -32,7 +32,7 @@ public class LineModel : AuditableModel, ILine
         return;
       }
 
-      var parts = value.Split(EnmsDataDbContext.KeyJoin);
+      var parts = value.Split(DataDbContext.KeyJoin);
       LineId = parts[0];
       MeterId = parts[1];
     }

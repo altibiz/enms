@@ -1,18 +1,17 @@
 using Enms.Business.Conversion.Agnostic;
-using Enms.Business.Extensions;
-using Enms.Business.Models;
 using Enms.Business.Models.Abstractions;
 using Enms.Business.Models.Enums;
 using Enms.Business.Naming.Agnostic;
 using Enms.Business.Queries.Abstractions;
 using Enms.Data.Concurrency;
 using Enms.Data.Entities.Base;
+using Enms.Data.Extensions;
 using Microsoft.EntityFrameworkCore;
 
 namespace Enms.Business.Queries.Agnostic;
 
 public class AggregateQueries(
-  EnmsDataDbContextMutex mutex,
+  DataDbContextMutex mutex,
   AgnosticModelEntityConverter modelEntityConverter,
   AgnosticLineNamingConvention lineNamingConvention
 ) : IQueries
@@ -76,10 +75,11 @@ public class AggregateQueries(
     {
       foreach (var type in typeof(IAggregate).Assembly
         .GetTypes()
-        .Where(type =>
-          !type.IsGenericType &&
-          !type.IsAbstract &&
-          type.IsAssignableTo(typeof(IAggregate))))
+        .Where(
+          type =>
+            !type.IsGenericType &&
+            !type.IsAbstract &&
+            type.IsAssignableTo(typeof(IAggregate))))
       {
         var model = await ReadDynamic(
           fromDate,
@@ -143,7 +143,8 @@ public class AggregateQueries(
 
     var filtered = lineId is null
       ? intervalFiltered
-      : intervalFiltered.Where(aggregate =>
+      : intervalFiltered.Where(
+        aggregate =>
           aggregate.LineId == lineId && aggregate.MeterId == meterId);
 
     var ordered = filtered

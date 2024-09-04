@@ -13,7 +13,15 @@ public class MeasurementPublishEventArgs(
 
 public interface IMeasurementSubscriber
 {
-  public event EventHandler<MeasurementPublishEventArgs>? OnBeforePublish;
+  public void SubscribeBeforePush(
+    EventHandler<MeasurementPublishEventArgs> handler);
 
-  public event EventHandler<MeasurementPublishEventArgs>? OnAfterPublish;
+  public void UnsubscribeBeforePush(
+    EventHandler<MeasurementPublishEventArgs> handler);
+
+  public void SubscribeAfterPush(
+    EventHandler<MeasurementPublishEventArgs> handler);
+
+  public void UnsubscribeAfterPush(
+    EventHandler<MeasurementPublishEventArgs> handler);
 }

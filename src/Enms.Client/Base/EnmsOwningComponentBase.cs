@@ -3,8 +3,9 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Enms.Client.Base;
 
-#pragma warning disable S3881
+#pragma warning disable S3881 // "IDisposable" should be implemented correctly
 public abstract class EnmsOwningComponentBase : EnmsComponentBase, IDisposable
+#pragma warning restore S3881 // "IDisposable" should be implemented correctly
 {
   private AsyncServiceScope? _scope;
 
@@ -34,8 +35,9 @@ public abstract class EnmsOwningComponentBase : EnmsComponentBase, IDisposable
     }
   }
 
-#pragma warning disable CA1816
+#pragma warning disable CA1816 // Dispose methods should call SuppressFinalize
   void IDisposable.Dispose()
+#pragma warning restore CA1816 // Dispose methods should call SuppressFinalize
   {
     if (!IsDisposed)
     {
@@ -45,11 +47,10 @@ public abstract class EnmsOwningComponentBase : EnmsComponentBase, IDisposable
       IsDisposed = true;
     }
   }
-#pragma warning restore CA1816
 
-#pragma warning disable S2953
+#pragma warning disable S2953 // Methods named "Dispose" should implement "IDisposable.Dispose"
   protected virtual void Dispose(bool disposing)
+#pragma warning restore S2953 // Methods named "Dispose" should implement "IDisposable.Dispose"
   {
   }
-#pragma warning restore S2953
 }

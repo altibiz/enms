@@ -7,6 +7,11 @@ public class EgaugeMeterModelActivator : ModelActivator<EgaugeMeterModel>
 {
   public override EgaugeMeterModel ActivateConcrete()
   {
+    return New();
+  }
+
+  public static EgaugeMeterModel New()
+  {
     return new EgaugeMeterModel
     {
       Id = default!,
