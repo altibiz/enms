@@ -1,5 +1,4 @@
 using System.Reflection;
-using Enms.Data.Attributes;
 using Enms.Data.Extensions;
 using Microsoft.EntityFrameworkCore;
 
@@ -24,9 +23,7 @@ public partial class DataDbContext(DbContextOptions<DataDbContext> options)
   {
     modelBuilder
       .HasPostgresExtension("timescaledb")
-      .ApplyModelConfigurationsFromAssembly(Assembly.GetExecutingAssembly())
-      .ApplyPostgresqlEnumAttributes()
-      .ApplyTimescaleHypertableAttributes();
+      .ApplyModelConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
 
     foreach (var relationship in modelBuilder.Model
       .GetEntityTypes()

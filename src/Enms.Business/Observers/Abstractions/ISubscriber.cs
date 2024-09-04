@@ -1,4 +1,4 @@
-namespace Enms.Business.Pushing.Abstractions;
+namespace Enms.Business.Observers.Abstractions;
 
 public interface ISubscriber
 {

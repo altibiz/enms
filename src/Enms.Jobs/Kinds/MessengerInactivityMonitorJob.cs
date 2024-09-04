@@ -1,4 +1,5 @@
 using Enms.Jobs.Observers.Abstractions;
+using Enms.Jobs.Observers.EventArgs;
 using Quartz;
 
 namespace Enms.Jobs.Kinds;
@@ -11,7 +12,7 @@ public class MeterInactivityMonitorJob(
 
   public Task Execute(IJobExecutionContext context)
   {
-    messengerJobPublisher.PublishInactivity(Id);
+    messengerJobPublisher.PublishInactivity(new MeterInactivityEventArgs() { Id = Id });
 
     return Task.CompletedTask;
   }

@@ -1,6 +1,6 @@
 using Enms.Business.Models.Abstractions;
 
-namespace Enms.Business.Pushing.EventArgs;
+namespace Enms.Business.Observers.EventArgs;
 
 public class MeasurementPushEventArgs(IReadOnlyList<IMeasurement> measurements) : System.EventArgs
 {

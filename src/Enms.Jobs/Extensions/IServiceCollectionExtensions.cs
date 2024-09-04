@@ -1,3 +1,5 @@
+using Enms.Jobs.Manager.Abstractions;
+using Enms.Jobs.Observers.Abstractions;
 using Enms.Jobs.Options;
 using Quartz;
 
@@ -40,6 +42,64 @@ public static class IServiceCollectionExtensions
         options.AwaitApplicationStarted = true;
       });
 
+    services.AddSingletonAssignableTo(typeof(IMeterJobManager));
+
+    services.AddObservers();
+
     return services;
+  }
+
+  private static void AddSingletonAssignableTo(
+    this IServiceCollection services,
+    Type assignableTo
+  )
+  {
+    var conversionTypes = typeof(IServiceCollectionExtensions).Assembly
+      .GetTypes()
+      .Where(
+        type =>
+          !type.IsAbstract &&
+          !type.IsGenericType &&
+          type.IsClass &&
+          type.IsAssignableTo(assignableTo));
+
+    foreach (var conversionType in conversionTypes)
+    {
+      services.AddSingleton(assignableTo, conversionType);
+      services.AddSingleton(conversionType);
+    }
+  }
+
+  private static void AddObservers(
+    this IServiceCollection services
+  )
+  {
+    var observerTypes = typeof(IServiceCollectionExtensions).Assembly
+      .GetTypes()
+      .Where(
+        type =>
+          !type.IsAbstract &&
+          !type.IsGenericType &&
+          type.IsClass &&
+          type.IsAssignableTo(typeof(IPublisher)) &&
+          type.IsAssignableTo(typeof(ISubscriber)));
+
+    foreach (var observerType in observerTypes)
+    {
+      var publisherInterfaces = observerType.GetInterfaces()
+        .Where(x => x.IsAssignableTo(typeof(IPublisher)));
+      var subscriberInterfaces = observerType.GetInterfaces()
+        .Where(x => x.IsAssignableTo(typeof(ISubscriber)));
+
+      foreach (var publisherInterface in publisherInterfaces)
+      {
+        services.AddSingleton(publisherInterface, observerType);
+      }
+
+      foreach (var subscriberInterface in subscriberInterfaces)
+      {
+        services.AddSingleton(subscriberInterface, observerType);
+      }
+    }
   }
 }

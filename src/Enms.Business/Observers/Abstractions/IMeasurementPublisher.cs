@@ -1,6 +1,6 @@
-using Enms.Business.Pushing.EventArgs;
+using Enms.Business.Observers.EventArgs;
 
-namespace Enms.Business.Pushing.Abstractions;
+namespace Enms.Business.Observers.Abstractions;
 
 public interface IMeasurementPublisher : IPublisher<IMeasurementSubscriber>
 {

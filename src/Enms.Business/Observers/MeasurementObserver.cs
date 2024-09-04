@@ -1,10 +1,9 @@
-using Enms.Business.Models.Abstractions;
-using Enms.Business.Pushing.Abstractions;
-using Enms.Business.Pushing.EventArgs;
+using Enms.Business.Observers.Abstractions;
+using Enms.Business.Observers.EventArgs;
 
-namespace Enms.Business.Pushing;
+namespace Enms.Business.Observers;
 
-public class MeasurementPublisher : IMeasurementPublisher, IMeasurementSubscriber
+public class MeasurementObserver : IMeasurementPublisher, IMeasurementSubscriber
 {
   public void PublishPush(MeasurementPushEventArgs eventArgs)
   {
