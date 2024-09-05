@@ -28,7 +28,9 @@ public static class IApplicationBuilderExtensions
       pattern,
       new
       {
-        controller = controller.Name, action
+        controller = controller.Name.Remove(
+          nameof(Microsoft.AspNetCore.Mvc.Controller).Length),
+        action
       }
     );
   }

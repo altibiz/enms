@@ -37,9 +37,11 @@ public static class IApplicationBuilderExtensions
     endpoints.MapControllerRoute(
       $"{controller.Namespace}.{controller.Name}.{action}",
       pattern,
-      new
+      defaults: new
       {
-        controller = controller.Name, action
+        controller = controller.Name.Remove(
+          nameof(Microsoft.AspNetCore.Mvc.Controller).Length),
+        action
       }
     );
   }
