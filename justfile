@@ -45,7 +45,7 @@ now := `date now | format date '%Y%m%d%H%M%S'`
 default: prepare
 
 prepare:
-  do -i { dvc install } o+e>| ignore
+  # do -i { dvc install } o+e>| ignore
   dvc pull
   dotnet tool restore
   (not (which prettier | is-empty)) or (npm install -g prettier) | ignore
@@ -89,6 +89,7 @@ prepare:
 lfs:
   dvc add {{fakeassets}}/*.csv
   dvc add {{migrationassets}}/*.sql
+  dvc push
 
 dev *args:
   $env.ASPNETCORE_ENVIRONMENT = "Development"; \
