@@ -58,15 +58,39 @@ public static class IServiceCollectionExtensions
     services.AddSingletonAssignableTo(typeof(INotificationSender));
 
     // Observers
-    services.AddObservers();
+    services.AddSingletonAssignableTo(typeof(IPublisher));
+    services.AddSingletonAssignableTo(typeof(ISubscriber));
 
     // Queries
     services.AddScopedAssignableTo(typeof(IQueries));
 
     // Workers
-    services.AddWorkers();
+    services.AddSingletonAssignableTo(typeof(IWorker));
 
     return services;
+  }
+
+  private static void AddSingletonAssignableTo(
+    this IServiceCollection services,
+    Type assignableTo
+  )
+  {
+    var conversionTypes = typeof(IServiceCollectionExtensions).Assembly
+      .GetTypes()
+      .Where(
+        type =>
+          !type.IsAbstract &&
+          !type.IsGenericType &&
+          type.IsClass &&
+          type.IsAssignableTo(assignableTo));
+
+    foreach (var conversionType in conversionTypes)
+    {
+      foreach (var interfaceType in conversionType.GetInterfaces())
+      {
+        services.AddSingleton(interfaceType, conversionType);
+      }
+    }
   }
 
   private static void AddScopedAssignableTo(
@@ -85,8 +109,10 @@ public static class IServiceCollectionExtensions
 
     foreach (var conversionType in conversionTypes)
     {
-      services.AddScoped(assignableTo, conversionType);
-      services.AddScoped(conversionType);
+      foreach (var interfaceType in conversionType.GetInterfaces())
+      {
+        services.AddScoped(interfaceType, conversionType);
+      }
     }
   }
 
@@ -106,81 +132,10 @@ public static class IServiceCollectionExtensions
 
     foreach (var conversionType in conversionTypes)
     {
-      services.AddTransient(assignableTo, conversionType);
-      services.AddTransient(conversionType);
-    }
-  }
-
-  private static void AddSingletonAssignableTo(
-    this IServiceCollection services,
-    Type assignableTo
-  )
-  {
-    var conversionTypes = typeof(IServiceCollectionExtensions).Assembly
-      .GetTypes()
-      .Where(
-        type =>
-          !type.IsAbstract &&
-          !type.IsGenericType &&
-          type.IsClass &&
-          type.IsAssignableTo(assignableTo));
-
-    foreach (var conversionType in conversionTypes)
-    {
-      services.AddSingleton(assignableTo, conversionType);
-      services.AddSingleton(conversionType);
-    }
-  }
-
-  private static void AddObservers(
-    this IServiceCollection services
-  )
-  {
-    var observerTypes = typeof(IServiceCollectionExtensions).Assembly
-      .GetTypes()
-      .Where(
-        type =>
-          !type.IsAbstract &&
-          !type.IsGenericType &&
-          type.IsClass &&
-          type.IsAssignableTo(typeof(IPublisher)) &&
-          type.IsAssignableTo(typeof(ISubscriber)));
-
-    foreach (var observerType in observerTypes)
-    {
-      var publisherInterfaces = observerType.GetInterfaces()
-        .Where(x => x.IsAssignableTo(typeof(IPublisher)));
-      var subscriberInterfaces = observerType.GetInterfaces()
-        .Where(x => x.IsAssignableTo(typeof(ISubscriber)));
-
-      foreach (var publisherInterface in publisherInterfaces)
+      foreach (var interfaceType in conversionType.GetInterfaces())
       {
-        services.AddSingleton(publisherInterface, observerType);
+        services.AddTransient(interfaceType, conversionType);
       }
-
-      foreach (var subscriberInterface in subscriberInterfaces)
-      {
-        services.AddSingleton(subscriberInterface, observerType);
-      }
-    }
-  }
-
-  private static void AddWorkers(
-    this IServiceCollection services
-  )
-  {
-    var workerTypes = typeof(IServiceCollectionExtensions).Assembly
-      .GetTypes()
-      .Where(
-        type =>
-          !type.IsAbstract &&
-          !type.IsGenericType &&
-          type.IsClass &&
-          type.IsAssignableTo(typeof(IWorker)));
-
-    foreach (var workerType in workerTypes)
-    {
-      services.AddSingleton(typeof(IHostedService), workerType);
     }
   }
 }

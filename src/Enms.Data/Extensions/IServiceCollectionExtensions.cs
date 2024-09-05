@@ -62,40 +62,31 @@ public static class IServiceCollectionExtensions
 
     services.AddScoped<DataDbContextMutex>();
 
-    services.AddObservers();
+    services.AddSingletonAssignableTo(typeof(IPublisher));
+    services.AddSingletonAssignableTo(typeof(ISubscriber));
 
     return services;
   }
 
-  private static void AddObservers(
-    this IServiceCollection services
+  private static void AddSingletonAssignableTo(
+    this IServiceCollection services,
+    Type assignableTo
   )
   {
-    var observerTypes = typeof(IServiceCollectionExtensions).Assembly
+    var conversionTypes = typeof(IServiceCollectionExtensions).Assembly
       .GetTypes()
       .Where(
         type =>
           !type.IsAbstract &&
           !type.IsGenericType &&
           type.IsClass &&
-          type.IsAssignableTo(typeof(IPublisher)) &&
-          type.IsAssignableTo(typeof(ISubscriber)));
+          type.IsAssignableTo(assignableTo));
 
-    foreach (var observerType in observerTypes)
+    foreach (var conversionType in conversionTypes)
     {
-      var publisherInterfaces = observerType.GetInterfaces()
-        .Where(x => x.IsAssignableTo(typeof(IPublisher)));
-      var subscriberInterfaces = observerType.GetInterfaces()
-        .Where(x => x.IsAssignableTo(typeof(ISubscriber)));
-
-      foreach (var publisherInterface in publisherInterfaces)
+      foreach (var interfaceType in conversionType.GetInterfaces())
       {
-        services.AddSingleton(publisherInterface, observerType);
-      }
-
-      foreach (var subscriberInterface in subscriberInterfaces)
-      {
-        services.AddSingleton(subscriberInterface, observerType);
+        services.AddSingleton(interfaceType, conversionType);
       }
     }
   }
