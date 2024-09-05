@@ -1,0 +1,35 @@
+@page "/network-users"
+
+@namespace Enms.Client.Pages
+
+@attribute [Navigation(Title = "Network users")]
+@attribute [Authorize]
+@using Enms.Business.Models
+@using Enms.Client.Shared.Models
+@using Enms.Client.Shared.Streaming
+@using Microsoft.AspNetCore.Authorization
+@using MudBlazor
+@inherits Enms.Client.Base.EnmsOwningComponentBase
+
+<Paging T="NetworkUserModel">
+  <Summary Context="networkUser">
+    @{
+      var href = $"network-user/{networkUser.Id}";
+
+      <MudCard>
+        <MudCardContent>
+          <NetworkUserSummary Model="@networkUser"/>
+        </MudCardContent>
+        <MudCardActions>
+          <MudNavLink Href="@href">
+            @Translate("Details")
+          </MudNavLink>
+        </MudCardActions>
+      </MudCard>
+    }
+  </Summary>
+</Paging>
+
+<MudLink Href="network-user">
+  @Translate("Create")
+</MudLink>

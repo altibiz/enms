@@ -1,0 +1,27 @@
+@page "/network-user/{id?}"
+
+@namespace Enms.Client.Pages
+
+@attribute [Navigation(RouteValue = "id", Parents = new[] { typeof(NetworkUsersPage) })]
+@attribute [Authorize]
+@using Enms.Business.Models
+@using Enms.Client.Shared.Models
+@using Enms.Client.Shared.Streaming
+@using Microsoft.AspNetCore.Authorization
+@inherits Enms.Client.Base.EnmsOwningComponentBase
+
+<Mutating T="NetworkUserModel" Id="@Id">
+  <Edit Context="model">
+    <NetworkUserEdit Model="@model"/>
+  </Edit>
+  <Details Context="model">
+    <NetworkUserDetails Model="@model"/>
+  </Details>
+</Mutating>
+
+@code {
+
+  [Parameter]
+  public string? Id { get; set; }
+
+}

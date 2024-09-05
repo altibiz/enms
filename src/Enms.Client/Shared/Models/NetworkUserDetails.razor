@@ -1,0 +1,42 @@
+@using Enms.Business.Models
+@using MudBlazor
+@namespace Enms.Client.Shared.Models
+
+<MudText>
+  @Model.Id
+</MudText>
+<MudText>
+  @Model.Title
+</MudText>
+<MudText>
+  @Model.LegalPerson.Name
+</MudText>
+<MudText>
+  @Model.LegalPerson.SocialSecurityNumber
+</MudText>
+<MudText>
+  @Model.LegalPerson.Email
+</MudText>
+<MudText>
+  @Model.LegalPerson.Address
+</MudText>
+<MudText>
+  @Model.LegalPerson.PostalCode
+</MudText>
+<MudText>
+  @Model.LegalPerson.City
+</MudText>
+<MudText>
+  @Model.LegalPerson.Email
+</MudText>
+<MudText>
+  @Model.LegalPerson.PhoneNumber
+</MudText>
+
+
+@code {
+
+  [Parameter]
+  public NetworkUserModel Model { get; set; } = default!;
+
+}
