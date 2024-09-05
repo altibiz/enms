@@ -1,18 +1,19 @@
 using Enms.Business.Activation.Base;
+using Enms.Business.Activation.Complex;
 using Enms.Business.Models;
 
 namespace Enms.Business.Activation;
 
-public class EgaugeLineModelActivator : ModelActivator<EgaugeLineModel>
+public class NetworkUserModelActivator : ModelActivator<NetworkUserModel>
 {
-  public override EgaugeLineModel ActivateConcrete()
+  public override NetworkUserModel ActivateConcrete()
   {
     return New();
   }
 
-  public static EgaugeLineModel New()
+  public static NetworkUserModel New()
   {
-    return new EgaugeLineModel
+    return new NetworkUserModel
     {
       Id = default!,
       Title = "",
@@ -23,12 +24,7 @@ public class EgaugeLineModelActivator : ModelActivator<EgaugeLineModel>
       IsDeleted = false,
       DeletedOn = null,
       DeletedById = null,
-      ConnectionPower_W = 0,
-      Phases = new HashSet<PhaseModel>(),
-      MeasurementValidatorId = default!,
-      LineId = default!,
-      MeterId = default!,
-      OwnerId = default!
+      LegalPerson = LegalPersonModelActivator.New(),
     };
   }
 }

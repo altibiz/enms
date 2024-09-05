@@ -34,10 +34,6 @@
 
   @if (representative.Representative.Role == RoleModel.UserRepresentative)
   {
-    <Loading LoadAsync="@(() => ScopedServices.GetRequiredService<AgnosticQueries>())">
-
-    </Loading>
-
     return;
   }
 
