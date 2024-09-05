@@ -90,7 +90,13 @@ public static class IServiceCollectionExtensions
     services.AddDbContext<JobsDbContext>(
       options =>
       {
-        options.UseNpgsql(jobsOptions.ConnectionString);
+        options.UseNpgsql(jobsOptions.ConnectionString, x =>
+        {
+          x.MigrationsAssembly(
+            typeof(JobsDbContext).Assembly.GetName().Name);
+          x.MigrationsHistoryTable(
+            $"__Enms{nameof(JobsDbContext)}");
+        });
       });
   }
 
