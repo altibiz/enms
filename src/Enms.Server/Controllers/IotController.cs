@@ -4,7 +4,7 @@ using Enms.Business.Observers.Abstractions;
 using Enms.Business.Observers.EventArgs;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Enms.Business.Controllers;
+namespace Enms.Server.Controllers;
 
 [IgnoreAntiforgeryToken]
 public class IotController(

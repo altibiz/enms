@@ -5,7 +5,6 @@ using Enms.Email.Extensions;
 using Enms.Jobs.Extensions;
 using Enms.Server.Extensions;
 using Enms.Users.Extensions;
-using Microsoft.AspNetCore.Mvc.ApplicationParts;
 using OrchardCore.Logging;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -13,18 +12,6 @@ if (builder.Environment.IsDevelopment())
 {
   builder.Host.UseNLogHost();
 }
-
-builder.Services
-  .AddControllersWithViews()
-  .ConfigureApplicationPartManager(x =>
-  {
-    foreach (var assembly in AppDomain.CurrentDomain
-      .GetAssemblies()
-      .Where(x => x.FullName?.StartsWith("Enms.") ?? false))
-    {
-      x.ApplicationParts.Add(new AssemblyPart(assembly));
-    }
-  });
 
 builder.Services
   .AddOrchardCms()

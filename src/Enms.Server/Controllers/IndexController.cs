@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 
-namespace Enms.Client.Controllers;
+namespace Enms.Server.Controllers;
 
 public class IndexController : Controller
 {
