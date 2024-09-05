@@ -14,6 +14,47 @@ public static class IServiceCollectionExtensions
     IHostApplicationBuilder builder
   )
   {
+    // Entity Framework Core
+    services.AddEntityFrameworkCore(builder);
+
+    // Concurrency
+    services.AddScoped<DataDbContextMutex>();
+
+    // Observers
+    services.AddSingletonAssignableTo(typeof(IPublisher));
+    services.AddSingletonAssignableTo(typeof(ISubscriber));
+
+    return services;
+  }
+
+  private static void AddSingletonAssignableTo(
+    this IServiceCollection services,
+    Type assignableTo
+  )
+  {
+    var conversionTypes = typeof(IServiceCollectionExtensions).Assembly
+      .GetTypes()
+      .Where(
+        type =>
+          !type.IsAbstract &&
+          !type.IsGenericType &&
+          type.IsClass &&
+          type.IsAssignableTo(assignableTo));
+
+    foreach (var conversionType in conversionTypes)
+    {
+      foreach (var interfaceType in conversionType.GetInterfaces())
+      {
+        services.AddSingleton(interfaceType, conversionType);
+      }
+    }
+  }
+
+  private static void AddEntityFrameworkCore(
+    this IServiceCollection services,
+    IHostApplicationBuilder builder
+  )
+  {
     services.Configure<EnmsDataOptions>(
       builder.Configuration.GetSection("Enms:Data"));
 
@@ -59,35 +100,5 @@ public static class IServiceCollectionExtensions
             services
           );
       });
-
-    services.AddScoped<DataDbContextMutex>();
-
-    services.AddSingletonAssignableTo(typeof(IPublisher));
-    services.AddSingletonAssignableTo(typeof(ISubscriber));
-
-    return services;
-  }
-
-  private static void AddSingletonAssignableTo(
-    this IServiceCollection services,
-    Type assignableTo
-  )
-  {
-    var conversionTypes = typeof(IServiceCollectionExtensions).Assembly
-      .GetTypes()
-      .Where(
-        type =>
-          !type.IsAbstract &&
-          !type.IsGenericType &&
-          type.IsClass &&
-          type.IsAssignableTo(assignableTo));
-
-    foreach (var conversionType in conversionTypes)
-    {
-      foreach (var interfaceType in conversionType.GetInterfaces())
-      {
-        services.AddSingleton(interfaceType, conversionType);
-      }
-    }
   }
 }

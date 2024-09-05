@@ -12,6 +12,17 @@ public static class IServiceCollectionExtensions
     IHostApplicationBuilder builder
   )
   {
+    // Blazor
+    services.AddBlazor(builder);
+
+    return services;
+  }
+
+  private static void AddBlazor(
+    this IServiceCollection services,
+    IHostApplicationBuilder builder
+  )
+  {
     services
       .AddRazorComponents()
       .AddInteractiveServerComponents();
@@ -40,7 +51,5 @@ public static class IServiceCollectionExtensions
     services.AddCascadingAuthenticationState();
     services.AddCascadingValue(_ => default(UserState));
     services.AddCascadingValue(_ => default(RepresentativeState));
-
-    return services;
   }
 }

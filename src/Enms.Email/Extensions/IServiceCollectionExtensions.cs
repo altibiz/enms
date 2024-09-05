@@ -12,13 +12,23 @@ public static class IServiceCollectionExtensions
     IHostApplicationBuilder builder
   )
   {
+    // Options
     services.Configure<EnmsEmailOptions>(
       builder.Configuration.GetSection("Enms:Email"));
 
-    services.AddTransient<ISmtpClient, SmtpClient>();
+    // MailKit
+    services.AddMailKit();
 
+    // Sender
     services.AddTransient<IEmailSender, SmtpSender>();
 
     return services;
+  }
+
+  private static void AddMailKit(
+    this IServiceCollection services
+  )
+  {
+    services.AddTransient<ISmtpClient, SmtpClient>();
   }
 }

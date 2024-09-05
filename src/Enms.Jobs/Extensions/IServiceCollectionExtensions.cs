@@ -12,39 +12,17 @@ public static class IServiceCollectionExtensions
     IHostApplicationBuilder builder
   )
   {
+    // Options
     services.Configure<EnmsJobsOptions>(
       builder.Configuration.GetSection("Enms:Jobs"));
 
-    var jobsOptions = builder.Configuration
-        .GetSection("Enms:Jobs")
-        .Get<EnmsJobsOptions>()
-      ?? throw new InvalidOperationException(
-        "Missing Enms:Jobs configuration");
+    // Quartz
+    services.AddQuartz(builder);
 
-    services.AddQuartz(
-      options =>
-      {
-        options.UsePersistentStore(
-          options =>
-          {
-            options.UseSystemTextJsonSerializer();
-            options.UsePostgres(
-              options =>
-              {
-                options.ConnectionString = jobsOptions.ConnectionString;
-              });
-          });
-      });
-
-    services.AddQuartzHostedService(
-      options =>
-      {
-        options.WaitForJobsToComplete = true;
-        options.AwaitApplicationStarted = true;
-      });
-
+    // Managers
     services.AddSingletonAssignableTo(typeof(IJobManager));
 
+    // Observers
     services.AddSingletonAssignableTo(typeof(IPublisher));
     services.AddSingletonAssignableTo(typeof(ISubscriber));
 
@@ -72,5 +50,39 @@ public static class IServiceCollectionExtensions
         services.AddSingleton(interfaceType, conversionType);
       }
     }
+  }
+
+  private static void AddQuartz(
+    this IServiceCollection services,
+    IHostApplicationBuilder builder
+  )
+  {
+    var jobsOptions = builder.Configuration
+        .GetSection("Enms:Jobs")
+        .Get<EnmsJobsOptions>()
+      ?? throw new InvalidOperationException(
+        "Missing Enms:Jobs configuration");
+
+    services.AddQuartz(
+      options =>
+      {
+        options.UsePersistentStore(
+          options =>
+          {
+            options.UseSystemTextJsonSerializer();
+            options.UsePostgres(
+              options =>
+              {
+                options.ConnectionString = jobsOptions.ConnectionString;
+              });
+          });
+      });
+
+    services.AddQuartzHostedService(
+      options =>
+      {
+        options.WaitForJobsToComplete = true;
+        options.AwaitApplicationStarted = true;
+      });
   }
 }

@@ -12,8 +12,11 @@ public static class IServiceCollectionExtensions
     IHostApplicationBuilder builder
   )
   {
-    services.AddScoped<IUserQueries, UserQueries>();
+    // Mutations
     services.AddScoped<IUserMutations, UserMutations>();
+
+    // Queries
+    services.AddScoped<IUserQueries, UserQueries>();
 
     return services;
   }
