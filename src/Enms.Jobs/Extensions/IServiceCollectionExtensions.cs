@@ -1,7 +1,8 @@
-using System.Reflection;
+using Enms.Jobs.Context;
 using Enms.Jobs.Manager.Abstractions;
 using Enms.Jobs.Observers.Abstractions;
 using Enms.Jobs.Options;
+using Microsoft.EntityFrameworkCore;
 using Quartz;
 
 namespace Enms.Jobs.Extensions;
@@ -84,6 +85,12 @@ public static class IServiceCollectionExtensions
       {
         options.WaitForJobsToComplete = true;
         options.AwaitApplicationStarted = true;
+      });
+
+    services.AddDbContext<JobsDbContext>(
+      options =>
+      {
+        options.UseNpgsql(jobsOptions.ConnectionString);
       });
   }
 
