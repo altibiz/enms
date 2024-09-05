@@ -10,9 +10,10 @@ public static class IServiceCollectionExtensions
     IHostApplicationBuilder builder
   )
   {
-    var hostedServices = services.Where(
-      service => service.ServiceType.IsAssignableTo(typeof(IHostedService))
-    );
+    var hostedServices = services
+      .Where(service =>
+        service.ServiceType.IsAssignableTo(typeof(IHostedService)))
+      .ToList();
 
     foreach (var hostedService in hostedServices)
     {

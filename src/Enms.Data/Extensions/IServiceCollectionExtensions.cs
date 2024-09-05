@@ -1,6 +1,7 @@
 using System.Reflection;
 using Enms.Data.Concurrency;
 using Enms.Data.Context;
+using Enms.Data.Observers.Abstractions;
 using Enms.Data.Options;
 using Npgsql;
 
@@ -61,6 +62,41 @@ public static class IServiceCollectionExtensions
 
     services.AddScoped<DataDbContextMutex>();
 
+    services.AddObservers();
+
     return services;
+  }
+
+  private static void AddObservers(
+    this IServiceCollection services
+  )
+  {
+    var observerTypes = typeof(IServiceCollectionExtensions).Assembly
+      .GetTypes()
+      .Where(
+        type =>
+          !type.IsAbstract &&
+          !type.IsGenericType &&
+          type.IsClass &&
+          type.IsAssignableTo(typeof(IPublisher)) &&
+          type.IsAssignableTo(typeof(ISubscriber)));
+
+    foreach (var observerType in observerTypes)
+    {
+      var publisherInterfaces = observerType.GetInterfaces()
+        .Where(x => x.IsAssignableTo(typeof(IPublisher)));
+      var subscriberInterfaces = observerType.GetInterfaces()
+        .Where(x => x.IsAssignableTo(typeof(ISubscriber)));
+
+      foreach (var publisherInterface in publisherInterfaces)
+      {
+        services.AddSingleton(publisherInterface, observerType);
+      }
+
+      foreach (var subscriberInterface in subscriberInterfaces)
+      {
+        services.AddSingleton(subscriberInterface, observerType);
+      }
+    }
   }
 }
