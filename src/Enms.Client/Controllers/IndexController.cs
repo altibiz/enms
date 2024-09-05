@@ -6,6 +6,13 @@ public class IndexController : Controller
 {
   public IActionResult Index()
   {
-    return RedirectToAction("Index", "App", new { culture = "en" });
+    return RedirectToAction(
+      nameof(AppController).Remove(
+        nameof(AppController).Length - nameof(Controller).Length,
+        nameof(Controller).Length
+      ),
+      nameof(AppController.Catchall),
+      new { culture = "en" }
+    );
   }
 }

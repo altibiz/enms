@@ -34,12 +34,15 @@ public static class IApplicationBuilderExtensions
     Type controller,
     string action)
   {
-    endpoints.MapControllerRoute(
-      $"{controller.Namespace}.{controller.Name}.{action}",
-      pattern,
+    endpoints.MapAreaControllerRoute(
+      areaName: $"{nameof(Enms)}.{nameof(Client)}",
+      name: $"{controller.Namespace}.{controller.Name}.{action}",
+      pattern: pattern,
       defaults: new
       {
         controller = controller.Name.Remove(
+          controller.Name.Length -
+          nameof(Microsoft.AspNetCore.Mvc.Controller).Length,
           nameof(Microsoft.AspNetCore.Mvc.Controller).Length),
         action
       }
