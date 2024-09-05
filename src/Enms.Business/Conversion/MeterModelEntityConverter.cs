@@ -41,7 +41,7 @@ public static class MeterModelEntityConverterExtensions
       IsDeleted = model.IsDeleted,
       DeletedById = model.DeletedById,
       DeletedOn = model.DeletedOn,
-      InactivityDuration = model.InactivityDuration.ToEntity()
+      MaxInactivityPeriod = model.InactivityDuration.ToEntity()
     };
   }
 
@@ -63,7 +63,7 @@ public static class MeterModelEntityConverterExtensions
       IsDeleted = entity.IsDeleted,
       DeletedById = entity.DeletedById,
       DeletedOn = entity.DeletedOn,
-      InactivityDuration = entity.InactivityDuration.ToModel()
+      InactivityDuration = entity.MaxInactivityPeriod.ToModel()
     };
   }
 }
