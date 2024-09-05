@@ -1,5 +1,6 @@
 using Enms.Data.Extensions;
 using Microsoft.EntityFrameworkCore;
+using Npgsql;
 
 namespace Enms.Data.Entities.Enums;
 
@@ -43,5 +44,13 @@ public class LevelEntityTypeConfiguration : IModelConfiguration
   public void Configure(ModelBuilder modelBuilder)
   {
     modelBuilder.HasPostgresEnum<LevelEntity>();
+  }
+}
+
+public class LevelEntityNpgsqlDataSourceConfiguration : INpgsqlDataSourceConfiguration
+{
+  public void Configure(NpgsqlDataSourceBuilder builder)
+  {
+    builder.MapEnum<LevelEntity>();
   }
 }

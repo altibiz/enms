@@ -1,5 +1,6 @@
 using Enms.Data.Extensions;
 using Microsoft.EntityFrameworkCore;
+using Npgsql;
 
 namespace Enms.Data.Entities.Enums;
 
@@ -19,5 +20,13 @@ public class DurationEntityModelConfiguration : IModelConfiguration
   public void Configure(ModelBuilder modelBuilder)
   {
     modelBuilder.HasPostgresEnum<DurationEntity>();
+  }
+}
+
+public class DurationEntityNpgsqlDataSourceConfiguration : INpgsqlDataSourceConfiguration
+{
+  public void Configure(NpgsqlDataSourceBuilder builder)
+  {
+    builder.MapEnum<DurationEntity>();
   }
 }

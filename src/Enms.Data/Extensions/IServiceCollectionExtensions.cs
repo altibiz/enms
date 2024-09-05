@@ -1,6 +1,8 @@
 using System.Reflection;
 using Enms.Data.Concurrency;
 using Enms.Data.Context;
+using Enms.Data.Options;
+using Npgsql;
 
 namespace Enms.Data.Extensions;
 
@@ -11,15 +13,17 @@ public static class IServiceCollectionExtensions
     IHostApplicationBuilder builder
   )
   {
+    services.Configure<EnmsDataOptions>(
+      builder.Configuration.GetSection("Enms:Data"));
+
+    var dataOptions = builder.Configuration.GetValue<EnmsDataOptions>("Enms:Data")
+      ?? throw new InvalidOperationException(
+        "Enms:Data not found in configuration"
+      );
+
     services.AddDbContextFactory<DataDbContext>(
       (services, options) =>
       {
-        var connectionString = services
-            .GetRequiredService<IConfiguration>()
-            .GetConnectionString("Enms")
-          ?? throw new InvalidOperationException(
-            "Enms connection string not found");
-
         if (builder.Environment.IsDevelopment()
           && Environment.GetEnvironmentVariable("ENMS_LOG_SQL") is not null)
         {
@@ -30,9 +34,13 @@ public static class IServiceCollectionExtensions
           );
         }
 
+        var dataSourceBuilder = new NpgsqlDataSourceBuilder(dataOptions.ConnectionString);
+        dataSourceBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
+        var dataSource = dataSourceBuilder.Build();
+
         options
           .UseTimescale(
-            connectionString,
+            dataSource,
             options =>
             {
               options.MigrationsAssembly(

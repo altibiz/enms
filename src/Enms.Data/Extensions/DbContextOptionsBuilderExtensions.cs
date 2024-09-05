@@ -1,3 +1,4 @@
+using System.Data.Common;
 using System.Reflection;
 using Enms.Data.Interceptors;
 using Enms.Data.Timescale;
@@ -13,12 +14,12 @@ public static class DbContextOptionsBuilderExtensions
 {
   public static DbContextOptionsBuilder UseTimescale(
     this DbContextOptionsBuilder builder,
-    string connectionString,
+    DbDataSource dataSource,
     Action<NpgsqlDbContextOptionsBuilder>? npgsqlOptionsAction = null
   )
   {
     return builder
-      .UseNpgsql(connectionString, npgsqlOptionsAction)
+      .UseNpgsql(dataSource, npgsqlOptionsAction)
       .ReplaceService<IMigrationsSqlGenerator, TimescaleMigrationSqlGenerator>()
       .ReplaceService<IRelationalAnnotationProvider,
         TimescaleAnnotationProvider>();
