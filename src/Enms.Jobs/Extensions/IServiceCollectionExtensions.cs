@@ -16,7 +16,8 @@ public static class IServiceCollectionExtensions
       builder.Configuration.GetSection("Enms:Jobs"));
 
     var jobsOptions = builder.Configuration
-        .GetValue<EnmsJobsOptions>("Enms:Jobs")
+        .GetSection("Enms:Jobs")
+        .Get<EnmsJobsOptions>()
       ?? throw new InvalidOperationException(
         "Missing Enms:Jobs configuration");
 

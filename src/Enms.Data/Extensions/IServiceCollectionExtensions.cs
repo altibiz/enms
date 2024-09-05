@@ -17,7 +17,9 @@ public static class IServiceCollectionExtensions
       builder.Configuration.GetSection("Enms:Data"));
 
     var dataOptions =
-      builder.Configuration.GetValue<EnmsDataOptions>("Enms:Data")
+      builder.Configuration
+        .GetSection("Enms:Data")
+        .Get<EnmsDataOptions>()
       ?? throw new InvalidOperationException(
         "Enms:Data not found in configuration"
       );
