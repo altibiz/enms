@@ -196,6 +196,7 @@ dump:
         --exclude-table-data='"User"*' \
         --exclude-table-data='*aggregates' \
         --exclude-table-data='*measurements' \
+        --exclude-table-data='"qrtz_"*' \
         --exclude-table-data='"__"*' \
     out> '{{migrationassets}}/current.sql'
 
@@ -293,12 +294,7 @@ migrate project name:
         --exclude-table-data='"User"*' \
         --exclude-table-data='*aggregates' \
         --exclude-table-data='*measurements' \
-        --exclude-table-data='*invoices' \
-        --exclude-table-data='*calculations' \
-        --exclude-table-data='*state' \
-        --exclude-table-data='outbox_state' \
-        --exclude-table-data='inbox_state' \
-        --exclude-table-data='outbox_message' \
+        --exclude-table-data='"qrtz_"*' \
         --exclude-table-data='"__"*' \
     out> '{{migrationassets}}/{{project}}-{{name}}-{{now}}.sql'
 
