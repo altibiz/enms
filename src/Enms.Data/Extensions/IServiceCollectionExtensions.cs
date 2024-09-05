@@ -43,7 +43,7 @@ public static class IServiceCollectionExtensions
 
     foreach (var conversionType in conversionTypes)
     {
-      foreach (var interfaceType in conversionType.GetInterfaces())
+      foreach (var interfaceType in conversionType.GetAllInterfaces())
       {
         services.AddSingleton(interfaceType, conversionType);
       }
@@ -100,5 +100,14 @@ public static class IServiceCollectionExtensions
             services
           );
       });
+  }
+
+  private static Type[] GetAllInterfaces(this Type type)
+  {
+    return type.GetInterfaces()
+      .Concat(type.GetInterfaces().SelectMany(GetAllInterfaces))
+      .Concat(type.BaseType?.GetAllInterfaces() ?? Array.Empty<Type>())
+      .ToHashSet()
+      .ToArray();
   }
 }
