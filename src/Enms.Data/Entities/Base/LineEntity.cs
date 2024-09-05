@@ -11,7 +11,7 @@ public class LineEntity : AuditableEntity
 
   protected string _meterId = default!;
 
-  protected long _ownerId = default!;
+  protected long? _ownerId = default!;
 
   public virtual string LineId
   {
@@ -25,10 +25,10 @@ public class LineEntity : AuditableEntity
     init { _meterId = value; }
   }
 
-  public virtual string OwnerId
+  public virtual string? OwnerId
   {
-    get { return _ownerId.ToString(); }
-    init { _ownerId = long.Parse(value); }
+    get { return _ownerId?.ToString(); }
+    init { _ownerId = value is { } nonNull ? long.Parse(nonNull) : default!; }
   }
 
   public override string Id
@@ -53,7 +53,7 @@ public class LineEntity : AuditableEntity
 
   public List<PhaseEntity> Phases { get; set; } = default!;
 
-  public virtual NetworkUserEntity Owner { get; set; } = default!;
+  public virtual NetworkUserEntity? Owner { get; set; } = default!;
 }
 
 public class LineEntity<
