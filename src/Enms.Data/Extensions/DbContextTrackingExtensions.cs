@@ -25,7 +25,7 @@ public static class DbContextTrackingExtensions
     entry.State = EntityState.Modified;
   }
 
-  public static void DeleteTracked(
+  public static void RemoveTracked(
     this DbContext context,
     object entity
   )

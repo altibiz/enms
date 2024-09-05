@@ -11,16 +11,22 @@ public class UserMutations(
 {
   public async Task Create(UserEntity user)
   {
-    await userManager.CreateAsync(user.ToUser());
+    var orchardUser = user.ToUser();
+    orchardUser.SecurityStamp = Guid.NewGuid().ToString();
+    await userManager.CreateAsync(orchardUser);
   }
 
   public async Task Update(UserEntity user)
   {
-    await userManager.UpdateAsync(user.ToUser());
+    var orchardUser = user.ToUser();
+    orchardUser.SecurityStamp = Guid.NewGuid().ToString();
+    await userManager.UpdateAsync(orchardUser);
   }
 
   public async Task Delete(UserEntity user)
   {
-    await userManager.DeleteAsync(user.ToUser());
+    var orchardUser = user.ToUser();
+    orchardUser.SecurityStamp = Guid.NewGuid().ToString();
+    await userManager.DeleteAsync(orchardUser);
   }
 }

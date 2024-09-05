@@ -2,6 +2,8 @@ using Enms.Business.Conversion;
 using Enms.Business.Models.Composite;
 using Enms.Business.Mutations.Abstractions;
 using Enms.Data.Context;
+using Enms.Data.Entities;
+using Enms.Data.Extensions;
 using Enms.Users.Mutations.Abstractions;
 
 namespace Enms.Business.Mutations;
@@ -16,11 +18,13 @@ public class RepresentativeMutations(
     await userMutations.Create(model.User.ToEntity());
 
     var representative = model.MaybeRepresentative?.ToEntity();
-    if (representative is not null)
+    if (representative is null)
     {
-      context.Representatives.Add(representative);
-      await context.SaveChangesAsync();
+      return;
     }
+
+    context.AddTracked(representative);
+    await context.SaveChangesAsync();
   }
 
   public async Task Update(MaybeRepresentingUserModel model)
@@ -28,9 +32,22 @@ public class RepresentativeMutations(
     await userMutations.Update(model.User.ToEntity());
 
     var representative = model.MaybeRepresentative?.ToEntity();
-    if (representative is not null)
+    if (representative is null)
     {
-      context.Representatives.Update(representative);
+      return;
+    }
+
+    var fromDatabase = context.Representatives
+      .FirstOrDefault(context
+        .PrimaryKeyEquals<RepresentativeEntity>(representative.Id));
+    if (fromDatabase is not null)
+    {
+      context.UpdateTracked(representative);
+      await context.SaveChangesAsync();
+    }
+    else
+    {
+      context.AddTracked(representative);
       await context.SaveChangesAsync();
     }
   }
@@ -40,10 +57,20 @@ public class RepresentativeMutations(
     await userMutations.Delete(model.User.ToEntity());
 
     var representative = model.MaybeRepresentative?.ToEntity();
-    if (representative is not null)
+    if (representative is null)
     {
-      context.Representatives.Remove(representative);
-      await context.SaveChangesAsync();
+      return;
     }
+
+    var fromDatabase = context.Representatives
+      .FirstOrDefault(context
+        .PrimaryKeyEquals<RepresentativeEntity>(representative.Id));
+    if (fromDatabase is null)
+    {
+      return;
+    }
+
+    context.RemoveTracked(representative);
+    await context.SaveChangesAsync();
   }
 }
