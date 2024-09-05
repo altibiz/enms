@@ -2,6 +2,7 @@ using Enms.Business.Extensions;
 using Enms.Client.Extensions;
 using Enms.Data.Extensions;
 using Enms.Email.Extensions;
+using Enms.Jobs.Extensions;
 using Enms.Server.Extensions;
 using Enms.Users.Extensions;
 using OrchardCore.Logging;
@@ -19,6 +20,7 @@ builder.Services
     services => services
       .AddEnmsUsers(builder)
       .AddEnmsData(builder)
+      .AddEnmsJobs(builder)
       .AddEnmsEmail(builder)
       .AddEnmsBusiness(builder)
       .AddEnmsClient(builder)
@@ -28,6 +30,7 @@ builder.Services
       .UseEnmsServer(endpoints)
       .UseEnmsClient(endpoints)
       .UseEnmsBusiness(endpoints)
+      .UseEnmsJobs(endpoints)
       .UseEnmsData(endpoints)
       .UseEnmsEmail(endpoints)
       .UseEnmsUsers(endpoints));
