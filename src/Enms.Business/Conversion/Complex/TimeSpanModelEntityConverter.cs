@@ -6,7 +6,7 @@ using Enms.Data.Entities.Complex;
 namespace Enms.Business.Conversion.Complex;
 
 public class TimeSpanModelEntityConverter : ModelEntityConverter<
-TimeSpanModel, TimeSpanEntity>
+  TimeSpanModel, TimeSpanEntity>
 {
   protected override TimeSpanEntity ToEntity(TimeSpanModel model)
   {

@@ -1,3 +1,4 @@
+using Enms.Client.Controllers;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Routing;
 
@@ -12,14 +13,14 @@ public static class IApplicationBuilderExtensions
   {
     endpoints.MapAreaControllerRoute(
       "/",
-      typeof(Controllers.IndexController),
-      nameof(Controllers.IndexController.Index)
+      typeof(IndexController),
+      nameof(IndexController.Index)
     );
 
     endpoints.MapAreaControllerRoute(
       "/app/{culture}/{**catchall}",
-      typeof(Controllers.AppController),
-      nameof(Controllers.AppController.Catchall)
+      typeof(AppController),
+      nameof(AppController.Catchall)
     );
 
     endpoints.MapBlazorHub("/app/{culture}/_blazor");
@@ -34,12 +35,11 @@ public static class IApplicationBuilderExtensions
     string action)
   {
     endpoints.MapControllerRoute(
-      name: $"{controller.Namespace}.{controller.Name}.{action}",
-      pattern: pattern,
-      defaults: new
+      $"{controller.Namespace}.{controller.Name}.{action}",
+      pattern,
+      new
       {
-        controller = controller.Name,
-        action = action
+        controller = controller.Name, action
       }
     );
   }

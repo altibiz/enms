@@ -16,13 +16,13 @@ using Npgsql;
 namespace Enms.Business.Workers;
 
 public class MeasurementUpsertWorker(
-  AgnosticMeasurementAggregateConverter aggregateConverter,
-  AgnosticModelEntityConverter modelEntityConverter,
-  AgnosticAggregateUpserter aggregateUpserter,
-  IMeasurementSubscriber subscriber,
-  IServiceScopeFactory serviceScopeFactory
+  IServiceScopeFactory serviceScopeFactory,
+  IMeasurementSubscriber subscriber
 ) : BackgroundService, IWorker
 {
+  private readonly Channel<MeasurementPushEventArgs> channel =
+    Channel.CreateUnbounded<MeasurementPushEventArgs>();
+
   public override async Task StartAsync(CancellationToken cancellationToken)
   {
     subscriber.SubscribePush(OnPush);
@@ -51,30 +51,47 @@ public class MeasurementUpsertWorker(
     channel.Writer.TryWrite(eventArgs);
   }
 
-  private readonly Channel<MeasurementPushEventArgs> channel =
-    Channel.CreateUnbounded<MeasurementPushEventArgs>();
-
-  private async Task Handle(
+  private static async Task Handle(
     IServiceProvider serviceProvider,
     MeasurementPushEventArgs eventArgs
   )
   {
-    IReadOnlyList<IMeasurement> publishMeasurements =
+    var context = serviceProvider.GetRequiredService<DataDbContext>();
+    var modelEntityConverter = serviceProvider
+      .GetRequiredService<AgnosticModelEntityConverter>();
+    var aggregateUpserter =
+      serviceProvider.GetRequiredService<AgnosticAggregateUpserter>();
+    var aggregateConverter = serviceProvider
+      .GetRequiredService<AgnosticMeasurementAggregateConverter>();
+    var publisher = serviceProvider.GetRequiredService<IMeasurementPublisher>();
+
+    IReadOnlyList<IMeasurement> upsertMeasurements =
       eventArgs.Measurements.ToList();
 
-    IReadOnlyList<IAggregate> publishAggregates =
-      MakeAggregates(publishMeasurements).ToList();
+    IReadOnlyList<IAggregate> upsertAggregates =
+      MakeAggregates(aggregateUpserter, aggregateConverter, upsertMeasurements)
+        .ToList();
 
-    var context = serviceProvider.GetRequiredService<DataDbContext>();
-
-    var tasks = MakeUpsertMeasurementTasks(context, publishMeasurements)
-      .Concat(MakeUpsertAggregateTasks(context, publishAggregates))
+    var tasks = MakeUpsertMeasurementTasks(
+        context, modelEntityConverter, upsertMeasurements)
+      .Concat(
+        MakeUpsertAggregateTasks(
+          context, modelEntityConverter, aggregateUpserter, upsertAggregates))
       .ToList();
 
     await ExecuteTransactionCommands(context, tasks);
+
+    publisher.PublishUpsert(
+      new MeasurementUpsertEventArgs
+      {
+        Measurements = upsertMeasurements,
+        Aggregates = upsertAggregates
+      });
   }
 
-  private IEnumerable<IAggregate> MakeAggregates(
+  private static IEnumerable<IAggregate> MakeAggregates(
+    AgnosticAggregateUpserter aggregateUpserter,
+    AgnosticMeasurementAggregateConverter aggregateConverter,
     IEnumerable<IMeasurement> measurements)
   {
     return measurements
@@ -93,7 +110,7 @@ public class MeasurementUpsertWorker(
       .Select(group => group.Aggregate(aggregateUpserter.UpsertModelAgnostic));
   }
 
-  private async Task ExecuteTransactionCommands(
+  private static async Task ExecuteTransactionCommands(
     DataDbContext context,
     IEnumerable<Func<Task>> tasks)
   {
@@ -139,8 +156,9 @@ public class MeasurementUpsertWorker(
     }
   }
 
-  private IEnumerable<Func<Task>> MakeUpsertMeasurementTasks(
+  private static IEnumerable<Func<Task>> MakeUpsertMeasurementTasks(
     DataDbContext context,
+    AgnosticModelEntityConverter modelEntityConverter,
     IEnumerable<IMeasurement> measurements)
   {
     foreach (var group in measurements
@@ -177,8 +195,10 @@ public class MeasurementUpsertWorker(
     }
   }
 
-  private IEnumerable<Func<Task>> MakeUpsertAggregateTasks(
+  private static IEnumerable<Func<Task>> MakeUpsertAggregateTasks(
     DataDbContext context,
+    AgnosticModelEntityConverter modelEntityConverter,
+    AgnosticAggregateUpserter aggregateUpserter,
     IEnumerable<IAggregate> aggregates)
   {
     foreach (var group in aggregates

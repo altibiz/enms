@@ -12,7 +12,8 @@ public class MeterInactivityMonitorJob(
 
   public Task Execute(IJobExecutionContext context)
   {
-    messengerJobPublisher.PublishInactivity(new MeterInactivityEventArgs() { Id = Id });
+    messengerJobPublisher.PublishInactivity(
+      new MeterInactivityEventArgs { Id = Id });
 
     return Task.CompletedTask;
   }

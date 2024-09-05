@@ -4,7 +4,9 @@ using Enms.Data.Entities.Complex;
 
 namespace Enms.Business.Conversion.Complex;
 
-public class LegalPersonModelEntityConverter : ModelEntityConverter<LegalPersonModel, LegalPersonEntity>
+public class
+  LegalPersonModelEntityConverter : ModelEntityConverter<LegalPersonModel,
+  LegalPersonEntity>
 {
   protected override LegalPersonEntity ToEntity(LegalPersonModel model)
   {

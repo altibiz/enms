@@ -56,7 +56,11 @@ public class AuditingInterceptor(IServiceProvider serviceProvider)
             {
               Timestamp = now,
               Title =
-                $"Created {auditable.Entity.GetType().Name} {auditable.Entity.Title}",
+                $"Created {
+                  auditable.Entity.GetType().Name
+                } {
+                  auditable.Entity.Title
+                }",
               RepresentativeId = representativeId,
               Level = LevelEntity.Debug,
               Audit = AuditEntity.Creation,
@@ -71,13 +75,18 @@ public class AuditingInterceptor(IServiceProvider serviceProvider)
             {
               Timestamp = now,
               Title =
-                $"Created {auditable.Entity.GetType().Name} {auditable.Entity.Title}",
+                $"Created {
+                  auditable.Entity.GetType().Name
+                } {
+                  auditable.Entity.Title
+                }",
               Level = LevelEntity.Debug,
               Audit = AuditEntity.Creation,
               Content = CreateAddedMessage(auditable)
             });
         }
       }
+
       if (auditable.State is EntityState.Modified)
       {
         auditable.Entity.LastUpdatedOn = now;
@@ -89,7 +98,11 @@ public class AuditingInterceptor(IServiceProvider serviceProvider)
             {
               Timestamp = now,
               Title =
-                $"Updated {auditable.Entity.GetType().Name} {auditable.Entity.Title}",
+                $"Updated {
+                  auditable.Entity.GetType().Name
+                } {
+                  auditable.Entity.Title
+                }",
               RepresentativeId = representativeId,
               Level = LevelEntity.Debug,
               Audit = AuditEntity.Modification,
@@ -104,7 +117,11 @@ public class AuditingInterceptor(IServiceProvider serviceProvider)
             {
               Timestamp = now,
               Title =
-                $"Updated {auditable.Entity.GetType().Name} {auditable.Entity.Title}",
+                $"Updated {
+                  auditable.Entity.GetType().Name
+                } {
+                  auditable.Entity.Title
+                }",
               Level = LevelEntity.Debug,
               Audit = AuditEntity.Modification,
               Content = CreateModifiedMessage(auditable)
@@ -125,7 +142,11 @@ public class AuditingInterceptor(IServiceProvider serviceProvider)
             {
               Timestamp = now,
               Title =
-                $"Deleted {auditable.Entity.GetType().Name} {auditable.Entity.Title}",
+                $"Deleted {
+                  auditable.Entity.GetType().Name
+                } {
+                  auditable.Entity.Title
+                }",
               RepresentativeId = representativeId,
               Level = LevelEntity.Debug,
               Audit = AuditEntity.Deletion,
@@ -140,7 +161,11 @@ public class AuditingInterceptor(IServiceProvider serviceProvider)
             {
               Timestamp = now,
               Title =
-                $"Deleted {auditable.Entity.GetType().Name} {auditable.Entity.Title}",
+                $"Deleted {
+                  auditable.Entity.GetType().Name
+                } {
+                  auditable.Entity.Title
+                }",
               Level = LevelEntity.Debug,
               Audit = AuditEntity.Deletion,
               Content = CreateDeletedMessage(auditable)

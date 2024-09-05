@@ -10,7 +10,8 @@ public class TimeSpanModel : IModel, IValidatableObject
 
   public uint Multiplier { get; set; }
 
-  public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+  public IEnumerable<ValidationResult> Validate(
+    ValidationContext validationContext)
   {
     yield break;
   }

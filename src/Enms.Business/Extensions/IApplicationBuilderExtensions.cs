@@ -1,3 +1,5 @@
+using Enms.Business.Controllers;
+
 namespace Enms.Business.Extensions;
 
 public static class IApplicationBuilderExtensions
@@ -8,8 +10,8 @@ public static class IApplicationBuilderExtensions
   {
     endpoints.MapAreaControllerRoute(
       "iot/push/{id}",
-      typeof(Controllers.IotController),
-      nameof(Controllers.IotController.Push)
+      typeof(IotController),
+      nameof(IotController.Push)
     );
 
     return app;
@@ -22,12 +24,11 @@ public static class IApplicationBuilderExtensions
     string action)
   {
     endpoints.MapControllerRoute(
-      name: $"{controller.Namespace}.{controller.Name}.{action}",
-      pattern: pattern,
-      defaults: new
+      $"{controller.Namespace}.{controller.Name}.{action}",
+      pattern,
+      new
       {
-        controller = controller.Name,
-        action = action
+        controller = controller.Name, action
       }
     );
   }

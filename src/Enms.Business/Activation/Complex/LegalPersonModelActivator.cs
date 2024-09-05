@@ -7,7 +7,7 @@ public class LegalPersonModelActivator : ModelActivator<LegalPersonModel>
 {
   public override LegalPersonModel ActivateConcrete()
   {
-    return new()
+    return new LegalPersonModel
     {
       Name = string.Empty,
       SocialSecurityNumber = string.Empty,
@@ -21,7 +21,7 @@ public class LegalPersonModelActivator : ModelActivator<LegalPersonModel>
 
   public static LegalPersonModel New()
   {
-    return new()
+    return new LegalPersonModel
     {
       Name = string.Empty,
       SocialSecurityNumber = string.Empty,

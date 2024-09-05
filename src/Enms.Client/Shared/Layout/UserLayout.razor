@@ -1,6 +1,6 @@
 @namespace Enms.Client.Shared.Layout
-@using Enms.Client.State
 @using System.Globalization
+@using Enms.Client.State
 @using Microsoft.AspNetCore.Components.Routing
 @using MudBlazor
 @inherits Enms.Client.Base.EnmsLayoutComponentBase
@@ -29,8 +29,8 @@
         </MudButton>
       </ActivatorContent>
       <ChildContent>
-        <MudListItem Text="HR" OnClick="@(e => Culture = new CultureInfo("hr-HR"))" />
-        <MudListItem Text="EN" OnClick="@(e => Culture = new CultureInfo("en-US"))" />
+        <MudListItem Text="HR" OnClick="@(e => Culture = new CultureInfo("hr-HR"))"/>
+        <MudListItem Text="EN" OnClick="@(e => Culture = new CultureInfo("en-US"))"/>
       </ChildContent>
     </MudMenu>
   </MudAppBar>

@@ -105,7 +105,7 @@ public class RepresentativeQueries(
           MaybeRepresentative = representatives
               .FirstOrDefault(
                 context.PrimaryKeyInCompiled<RepresentativeEntity>(ids)) is
-          { } representative
+            { } representative
             ? representative.ToModel()
             : null
         })

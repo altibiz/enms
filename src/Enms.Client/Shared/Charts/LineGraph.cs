@@ -2,7 +2,8 @@ using ApexCharts;
 using Enms.Business.Models;
 using Enms.Business.Models.Abstractions;
 using Enms.Business.Models.Enums;
-using Enms.Business.Pushing.Abstractions;
+using Enms.Business.Observers.Abstractions;
+using Enms.Business.Observers.EventArgs;
 using Enms.Business.Queries.Abstractions;
 using Enms.Business.Queries.Agnostic;
 using Enms.Client.Base;
@@ -54,15 +55,14 @@ public partial class LineGraph : EnmsOwningComponentBase
 
   protected override void OnInitialized()
   {
-    MeasurementSubscriber.SubscribeAfterPush(OnAfterMeasurementsPublished);
+    MeasurementSubscriber.SubscribeUpsert(OnUpsert);
   }
 
   protected override void Dispose(bool disposing)
   {
     if (disposing)
     {
-      MeasurementSubscriber.UnsubscribeAfterPush(
-        OnAfterMeasurementsPublished);
+      MeasurementSubscriber.UnsubscribeUpsert(OnUpsert);
     }
   }
 
@@ -89,28 +89,60 @@ public partial class LineGraph : EnmsOwningComponentBase
       return;
     }
 
-    _measurements = await LoadAsync();
-
     if (_chart is not null)
     {
       await _chart.UpdateSeriesAsync();
+      await _chart.UpdateOptionsAsync(false, true, false);
     }
   }
 
-  private void OnAfterMeasurementsPublished(
+  private void OnUpsert(
     object? _sender,
-    MeasurementPublishEventArgs args)
+    MeasurementUpsertEventArgs args)
   {
     if (!Refresh)
     {
       return;
     }
 
-    var now = DateTimeOffset.UtcNow;
-    Timestamp = now.Subtract(Resolution.ToTimeSpan(Multiplier, now));
+    Task.Run(
+      async () =>
+      {
+        var now = DateTimeOffset.UtcNow;
+        Timestamp = now.Subtract(Resolution.ToTimeSpan(Multiplier, now));
 
-    _options = CreateGraphOptions();
-    InvokeAsync(StateHasChanged);
+        var timeSpan = Resolution.ToTimeSpan(Multiplier, Timestamp);
+        var appropriateInterval = QueryConstants
+          .AppropriateInterval(timeSpan, Timestamp);
+
+        var newMeasurements = appropriateInterval is null
+          ? args.Measurements
+            .Where(x => x.Timestamp >= Timestamp)
+            .Where(x => x.LineId == Model.LineId)
+            .Where(x => x.MeterId == Model.MeterId)
+            .ToList()
+          : args.Aggregates
+            .Where(x => x.Timestamp >= Timestamp)
+            .Where(x => x.Interval == appropriateInterval)
+            .Where(x => x.LineId == Model.LineId)
+            .Where(x => x.MeterId == Model.MeterId)
+            .OfType<IMeasurement>()
+            .ToList();
+
+        _measurements = new PaginatedList<IMeasurement>(
+          _measurements.Items.Concat(newMeasurements).ToList(),
+          _measurements.TotalCount + newMeasurements.Count
+        );
+
+        _options = CreateGraphOptions();
+        if (_chart is null)
+        {
+          return;
+        }
+
+        await _chart.AppendDataAsync(newMeasurements);
+        await _chart.UpdateOptionsAsync(false, true, false);
+      });
   }
 
   private async Task<PaginatedList<IMeasurement>> LoadAsync()
@@ -240,12 +272,10 @@ public partial class LineGraph : EnmsOwningComponentBase
     decimal connectionPower,
     decimal? maxPower)
   {
-    var annotation = CreateYAxisAnnotations(label, connectionPower);
-
     if (maxPower is null)
     {
-      options.Yaxis.Clear();
-      options.Yaxis.Add(
+      options.Yaxis =
+      [
         new YAxis
         {
           Max = maxPower * 1.5M,
@@ -253,24 +283,26 @@ public partial class LineGraph : EnmsOwningComponentBase
           {
             Formatter = "function(val, index) { return (val ?? 0).toFixed(0); }"
           }
-        });
+        }
+      ];
       options.Annotations = new Annotations
       {
-        Yaxis = new List<AnnotationsYAxis> { annotation }
+        Yaxis = [CreateYAxisAnnotations(label, connectionPower)]
       };
     }
     else
     {
       options.Annotations = new Annotations();
-      options.Yaxis.Clear();
-      options.Yaxis.Add(
+      options.Yaxis =
+      [
         new YAxis
         {
           Labels = new YAxisLabels
           {
             Formatter = "function(val, index) { return (val ?? 0).toFixed(0); }"
           }
-        });
+        }
+      ];
     }
 
     return options;
@@ -296,16 +328,16 @@ public partial class LineGraph : EnmsOwningComponentBase
     {
       X = new TooltipX { Format = @"HH:mm:ss" }
     };
-    options.Yaxis = new List<YAxis>();
-    options.Yaxis.Add(
+    options.Yaxis =
+    [
       new YAxis
       {
         Labels = new YAxisLabels
         {
           Formatter = "function(val, index) { return (val ?? 0).toFixed(0); }"
         }
-      });
-    options.Xaxis = new XAxis();
+      }
+    ];
     options.Xaxis = new XAxis
     {
       Labels = new XAxisLabels { Show = false },
@@ -364,16 +396,16 @@ public partial class LineGraph : EnmsOwningComponentBase
     {
       X = new TooltipX { Format = @"HH:mm:ss" }
     };
-    options.Yaxis = new List<YAxis>();
-    options.Yaxis.Add(
+    options.Yaxis =
+    [
       new YAxis
       {
         Labels = new YAxisLabels
         {
           Formatter = "function(val, index) { return (val ?? 0).toFixed(0); }"
         }
-      });
-    options.Xaxis = new XAxis();
+      }
+    ];
     options.Xaxis = new XAxis
     {
       Type = XAxisType.Datetime,
@@ -389,7 +421,7 @@ public partial class LineGraph : EnmsOwningComponentBase
     decimal connectionPower
   )
   {
-    var annotations = new AnnotationsYAxis
+    return new AnnotationsYAxis
     {
       Label = new Label
       {
@@ -405,7 +437,5 @@ public partial class LineGraph : EnmsOwningComponentBase
       BorderColor = "red",
       StrokeDashArray = 0
     };
-
-    return annotations;
   }
 }

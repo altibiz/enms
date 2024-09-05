@@ -22,10 +22,18 @@ namespace Enms.Business.Workers;
 // TODO: configurable inactivity duration
 
 public class MeterInactivityWorker(
-  IMeterJobSubscriber subscriber,
-  IServiceScopeFactory serviceScopeFactory
+  IServiceScopeFactory serviceScopeFactory,
+  IMeterJobSubscriber subscriber
 ) : BackgroundService, IWorker
 {
+  private static readonly JsonSerializerOptions
+    EventContentSerializationOptions = new()
+    {
+      WriteIndented = true
+    };
+
+  private readonly Channel<MeterInactivityEventArgs> channel =
+    Channel.CreateUnbounded<MeterInactivityEventArgs>();
 
   public override async Task StartAsync(CancellationToken cancellationToken)
   {
@@ -55,22 +63,16 @@ public class MeterInactivityWorker(
     channel.Writer.TryWrite(eventArgs);
   }
 
-  private static readonly JsonSerializerOptions
-    EventContentSerializationOptions = new()
-    {
-      WriteIndented = true
-    };
-
-  private readonly Channel<MeterInactivityEventArgs> channel =
-    Channel.CreateUnbounded<MeterInactivityEventArgs>();
-
-  private static async Task Handle(IServiceProvider serviceProvider, MeterInactivityEventArgs eventArgs)
+  private static async Task Handle(
+    IServiceProvider serviceProvider,
+    MeterInactivityEventArgs eventArgs)
   {
     var sender = serviceProvider.GetRequiredService<INotificationSender>();
     var context = serviceProvider.GetRequiredService<DataDbContext>();
 
     var meter = (await context.Meters
-        .FirstOrDefaultAsync(context.PrimaryKeyEquals<MeterEntity>(eventArgs.Id)))
+        .FirstOrDefaultAsync(
+          context.PrimaryKeyEquals<MeterEntity>(eventArgs.Id)))
       ?.ToModel();
 
     if (meter is null)

@@ -10,6 +10,11 @@ public class MeasurementObserver : IMeasurementPublisher, IMeasurementSubscriber
     OnPush?.Invoke(this, eventArgs);
   }
 
+  public void PublishUpsert(MeasurementUpsertEventArgs eventArgs)
+  {
+    OnUpsert?.Invoke(this, eventArgs);
+  }
+
   public void SubscribePush(
     EventHandler<MeasurementPushEventArgs> handler)
   {
@@ -22,5 +27,19 @@ public class MeasurementObserver : IMeasurementPublisher, IMeasurementSubscriber
     OnPush -= handler;
   }
 
-  public event EventHandler<MeasurementPushEventArgs>? OnPush;
+  public void SubscribeUpsert(
+    EventHandler<MeasurementUpsertEventArgs> handler)
+  {
+    OnUpsert += handler;
+  }
+
+  public void UnsubscribeUpsert(
+    EventHandler<MeasurementUpsertEventArgs> handler)
+  {
+    OnUpsert -= handler;
+  }
+
+  private event EventHandler<MeasurementPushEventArgs>? OnPush;
+
+  private event EventHandler<MeasurementUpsertEventArgs>? OnUpsert;
 }

@@ -12,16 +12,20 @@ using Microsoft.EntityFrameworkCore;
 namespace Enms.Business.Workers;
 
 public class MeterJobManagerWorker(
-  IEntityChangesSubscriber subscriber,
-  IServiceScopeFactory serviceScopeFactory
+  IServiceScopeFactory serviceScopeFactory,
+  IEntityChangesSubscriber subscriber
 ) : BackgroundService, IWorker
 {
+  private readonly Channel<EntitiesChangedEventArgs> channel =
+    Channel.CreateUnbounded<EntitiesChangedEventArgs>();
+
   public override async Task StartAsync(CancellationToken cancellationToken)
   {
     await using (var scope = serviceScopeFactory.CreateAsyncScope())
     {
       var context = scope.ServiceProvider.GetRequiredService<DataDbContext>();
-      var manager = scope.ServiceProvider.GetRequiredService<IMeterJobManager>();
+      var manager =
+        scope.ServiceProvider.GetRequiredService<IMeterJobManager>();
 
       var meters = await context.Meters.ToListAsync(cancellationToken);
       foreach (var meter in meters)
@@ -54,14 +58,16 @@ public class MeterJobManagerWorker(
     }
   }
 
-  private void OnEntitiesChanged(object? sender, EntitiesChangedEventArgs eventArgs)
+  private void OnEntitiesChanged(
+    object? sender,
+    EntitiesChangedEventArgs eventArgs)
   {
     channel.Writer.TryWrite(eventArgs);
   }
 
-#pragma warning disable S1172 // Unused method parameters should be removed
-  private static async Task Handle(IServiceProvider serviceProvider, EntitiesChangedEventArgs eventArgs)
-#pragma warning restore S1172 // Unused method parameters should be removed
+  private static async Task Handle(
+    IServiceProvider serviceProvider,
+    EntitiesChangedEventArgs eventArgs)
   {
     var manager = serviceProvider.GetRequiredService<IMeterJobManager>();
 
@@ -94,7 +100,4 @@ public class MeterJobManagerWorker(
       }
     }
   }
-
-  private readonly Channel<EntitiesChangedEventArgs> channel =
-    Channel.CreateUnbounded<EntitiesChangedEventArgs>();
 }

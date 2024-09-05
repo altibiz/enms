@@ -8,7 +8,7 @@ public class TimeSpanModelActivator : ModelActivator<TimeSpanModel>
 {
   public override TimeSpanModel ActivateConcrete()
   {
-    return new()
+    return new TimeSpanModel
     {
       Duration = DurationModel.Second,
       Multiplier = 1
@@ -17,7 +17,7 @@ public class TimeSpanModelActivator : ModelActivator<TimeSpanModel>
 
   public static TimeSpanModel New()
   {
-    return new()
+    return new TimeSpanModel
     {
       Duration = DurationModel.Second,
       Multiplier = 1

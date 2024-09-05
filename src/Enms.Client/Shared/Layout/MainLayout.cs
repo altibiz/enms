@@ -10,39 +10,7 @@ namespace Enms.Client.Shared.Layout;
 
 public partial class MainLayout : EnmsLayoutComponentBase
 {
-  [CascadingParameter]
-  private Task<AuthenticationState>? AuthenticationStateTask { get; set; }
-
-  [Inject]
-  private NavigationManager NavigationManager { get; set; } = default!;
-
-  [Inject]
-  private IServiceScopeFactory ServiceScopeFactory { get; set; } = default!;
-
-  private async Task<MaybeRepresentingUserModel?> LoadAsync()
-  {
-    if (AuthenticationStateTask is null)
-    {
-      return default;
-    }
-
-    var authenticationState = await AuthenticationStateTask;
-    var claimsPrincipal = authenticationState?.User ??
-      throw new InvalidOperationException(
-        "No claims principal found.");
-    if (!(claimsPrincipal.Identity?.IsAuthenticated ?? false))
-    {
-      NavigationManager.NavigateTo($"/login?returnUrl={NavigationManager.Uri}");
-      return default;
-    }
-
-    await using var scope = ServiceScopeFactory.CreateAsyncScope();
-    var query =
-      scope.ServiceProvider.GetRequiredService<RepresentativeQueries>();
-    return await query.MaybeRepresentingUserByClaimsPrincipal(claimsPrincipal);
-  }
-
-  private readonly MudTheme _theme = new MudTheme()
+  private readonly MudTheme _theme = new()
   {
     Palette = new PaletteLight
     {
@@ -52,7 +20,7 @@ public partial class MainLayout : EnmsLayoutComponentBase
       AppbarBackground = Colors.Shades.White,
       DrawerBackground = Colors.Shades.White,
       DrawerText = Colors.Shades.Black,
-      Success = Colors.Teal.Lighten2,
+      Success = Colors.Teal.Lighten2
     },
     LayoutProperties = new LayoutProperties
     {
@@ -158,6 +126,38 @@ public partial class MainLayout : EnmsLayoutComponentBase
       }
     },
     Shadows = new Shadow(),
-    ZIndex = new ZIndex(),
+    ZIndex = new ZIndex()
   };
+
+  [CascadingParameter]
+  private Task<AuthenticationState>? AuthenticationStateTask { get; set; }
+
+  [Inject]
+  private NavigationManager NavigationManager { get; set; } = default!;
+
+  [Inject]
+  private IServiceScopeFactory ServiceScopeFactory { get; set; } = default!;
+
+  private async Task<MaybeRepresentingUserModel?> LoadAsync()
+  {
+    if (AuthenticationStateTask is null)
+    {
+      return default;
+    }
+
+    var authenticationState = await AuthenticationStateTask;
+    var claimsPrincipal = authenticationState?.User ??
+      throw new InvalidOperationException(
+        "No claims principal found.");
+    if (!(claimsPrincipal.Identity?.IsAuthenticated ?? false))
+    {
+      NavigationManager.NavigateTo($"/login?returnUrl={NavigationManager.Uri}");
+      return default;
+    }
+
+    await using var scope = ServiceScopeFactory.CreateAsyncScope();
+    var query =
+      scope.ServiceProvider.GetRequiredService<RepresentativeQueries>();
+    return await query.MaybeRepresentingUserByClaimsPrincipal(claimsPrincipal);
+  }
 }

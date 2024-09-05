@@ -14,12 +14,14 @@ public class MessengerJobManager :
     OnInactivity?.Invoke(this, eventArgs);
   }
 
-  public void SubscribeInactivity(EventHandler<MeterInactivityEventArgs> handler)
+  public void SubscribeInactivity(
+    EventHandler<MeterInactivityEventArgs> handler)
   {
     OnInactivity += handler;
   }
 
-  public void UnsubscribeInactivity(EventHandler<MeterInactivityEventArgs> handler)
+  public void UnsubscribeInactivity(
+    EventHandler<MeterInactivityEventArgs> handler)
   {
     OnInactivity -= handler;
   }

@@ -9,13 +9,13 @@ namespace Enms.Data.Extensions;
 
 public static class DbContextKeyExtensions
 {
-
   public static Func<T, string> PrimaryKeyOfCompiled<T>(this DbContext context)
   {
     return context.PrimaryKeyOf<T>().Compile();
   }
 
-  public static Expression<Func<T, string>> PrimaryKeyOf<T>(this DbContext context)
+  public static Expression<Func<T, string>> PrimaryKeyOf<T>(
+    this DbContext context)
   {
     var original = context.PrimaryKeyOfAgnostic(typeof(T));
     var parameter = Expression.Parameter(typeof(T));
@@ -27,12 +27,16 @@ public static class DbContextKeyExtensions
     );
   }
 
-  public static Func<object, string> PrimaryKeyOfAgnosticCompiled(this DbContext context, Type type)
+  public static Func<object, string> PrimaryKeyOfAgnosticCompiled(
+    this DbContext context,
+    Type type)
   {
     return context.PrimaryKeyOfAgnostic(type).Compile();
   }
 
-  public static Expression<Func<object, string>> PrimaryKeyOfAgnostic(this DbContext context, Type type)
+  public static Expression<Func<object, string>> PrimaryKeyOfAgnostic(
+    this DbContext context,
+    Type type)
   {
     var entityType = context.Model.FindEntityType(type)
       ?? throw new InvalidOperationException(
@@ -182,7 +186,11 @@ public static class DbContextKeyExtensions
       typeof(ICollection<string>).GetMethod(
         nameof(ICollection<string>.Contains)) ??
       throw new InvalidOperationException(
-        $"No {nameof(ICollection<string>.Contains)} method found in {typeof(ICollection<string>)}"),
+        $"No {
+          nameof(ICollection<string>.Contains)
+        } method found in {
+          typeof(ICollection<string>)
+        }"),
       Expression.Invoke(primaryKeyExpression, parameter));
     return Expression.Lambda<Func<object, bool>>(
       primaryKeyInExpression,
@@ -341,16 +349,18 @@ public static class DbContextKeyExtensions
     );
   }
 
-  public static Func<object, string> ForeignKeyOfAgnosticCompiled<T, TConverted>(
-    this DbContext context,
-    Expression<Func<T, TConverted>> prefix,
-    string property
-  )
+  public static Func<object, string>
+    ForeignKeyOfAgnosticCompiled<T, TConverted>(
+      this DbContext context,
+      Expression<Func<T, TConverted>> prefix,
+      string property
+    )
   {
     return context.ForeignKeyOfAgnostic(prefix, property).Compile();
   }
 
-  public static Expression<Func<object, string>> ForeignKeyOfAgnostic<T, TConverted>(
+  public static Expression<Func<object, string>> ForeignKeyOfAgnostic<T,
+    TConverted>(
     this DbContext context,
     Expression<Func<T, TConverted>> prefix,
     string property

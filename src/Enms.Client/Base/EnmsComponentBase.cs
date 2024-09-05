@@ -10,18 +10,13 @@ namespace Enms.Client.Base;
 
 public abstract class EnmsComponentBase : ComponentBase
 {
+  private CultureInfo? _culture;
+
   [Inject]
   private ILocalizer Localizer { get; set; } = default!;
 
   [Inject]
   private NavigationManager NavigationManager { get; set; } = default!;
-
-  protected string Translate(string unlocalized)
-  {
-    return Localizer.TranslateForCurrentCulture(unlocalized);
-  }
-
-  private CultureInfo? _culture;
 
   protected CultureInfo Culture
   {
@@ -47,6 +42,11 @@ public abstract class EnmsComponentBase : ComponentBase
       var path = string.Join("", segments);
       NavigationManager.NavigateTo(path);
     }
+  }
+
+  protected string Translate(string unlocalized)
+  {
+    return Localizer.TranslateForCurrentCulture(unlocalized);
   }
 
   protected void Home()

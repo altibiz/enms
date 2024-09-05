@@ -9,4 +9,10 @@ public interface IMeasurementSubscriber : ISubscriber<IMeasurementPublisher>
 
   public void UnsubscribePush(
     EventHandler<MeasurementPushEventArgs> handler);
+
+  public void SubscribeUpsert(
+    EventHandler<MeasurementUpsertEventArgs> handler);
+
+  public void UnsubscribeUpsert(
+    EventHandler<MeasurementUpsertEventArgs> handler);
 }
