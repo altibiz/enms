@@ -23,7 +23,8 @@ public class DurationEntityModelConfiguration : IModelConfiguration
   }
 }
 
-public class DurationEntityNpgsqlDataSourceConfiguration : INpgsqlDataSourceConfiguration
+public class
+  DurationEntityNpgsqlDataSourceConfiguration : INpgsqlDataSourceConfiguration
 {
   public void Configure(NpgsqlDataSourceBuilder builder)
   {

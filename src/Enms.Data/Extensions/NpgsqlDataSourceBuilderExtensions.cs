@@ -26,7 +26,8 @@ public static class NpgsqlDataSourceBuilderExtensions
         builder,
         (builder, type) =>
         {
-          var config = Activator.CreateInstance(type) as INpgsqlDataSourceConfiguration;
+          var config =
+            Activator.CreateInstance(type) as INpgsqlDataSourceConfiguration;
           config?.Configure(builder);
           return builder;
         }

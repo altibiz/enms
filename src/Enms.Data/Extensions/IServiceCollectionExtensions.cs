@@ -16,7 +16,8 @@ public static class IServiceCollectionExtensions
     services.Configure<EnmsDataOptions>(
       builder.Configuration.GetSection("Enms:Data"));
 
-    var dataOptions = builder.Configuration.GetValue<EnmsDataOptions>("Enms:Data")
+    var dataOptions =
+      builder.Configuration.GetValue<EnmsDataOptions>("Enms:Data")
       ?? throw new InvalidOperationException(
         "Enms:Data not found in configuration"
       );
@@ -34,8 +35,10 @@ public static class IServiceCollectionExtensions
           );
         }
 
-        var dataSourceBuilder = new NpgsqlDataSourceBuilder(dataOptions.ConnectionString);
-        dataSourceBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
+        var dataSourceBuilder =
+          new NpgsqlDataSourceBuilder(dataOptions.ConnectionString);
+        dataSourceBuilder.ApplyConfigurationsFromAssembly(
+          Assembly.GetExecutingAssembly());
         var dataSource = dataSourceBuilder.Build();
 
         options
