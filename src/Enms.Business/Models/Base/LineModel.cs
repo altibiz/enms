@@ -46,6 +46,9 @@ public class LineModel : AuditableModel, ILine
     get { return new LineCapabilities(); }
   }
 
+  [Required]
+  public required string OwnerId { get; set; }
+
   public override IEnumerable<ValidationResult> Validate(
     ValidationContext validationContext)
   {

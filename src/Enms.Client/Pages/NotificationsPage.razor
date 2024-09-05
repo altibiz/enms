@@ -1,14 +1,14 @@
 @page "/notifications"
 
+@using MudBlazor
 @namespace Enms.Client.Pages
 
-@attribute [Navigation(Title = "Notifications")]
+@attribute [Navigation(Title = "Notifications", Order = -90, Icon = Icons.Material.Filled.Notifications)]
 @attribute [Authorize]
 @using Enms.Business.Models.Base
 @using Enms.Client.Shared.Models
 @using Enms.Client.Shared.Streaming
 @using Microsoft.AspNetCore.Authorization
-@using MudBlazor
 @inherits Enms.Client.Base.EnmsOwningComponentBase
 
 <Paging T="NotificationModel">

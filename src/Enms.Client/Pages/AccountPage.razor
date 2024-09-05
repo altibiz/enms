@@ -1,0 +1,25 @@
+@page "/account"
+
+@namespace Enms.Client.Pages
+
+@attribute [Navigation(Title = "Account", Order = 100)]
+@attribute [Authorize]
+@using Enms.Business.Models.Base
+@using Enms.Client.Shared.Models
+@using Enms.Client.Shared.Streaming
+@using Microsoft.AspNetCore.Authorization
+@inherits Enms.Client.Base.EnmsOwningComponentBase
+
+<Loading T="EventModel" Id="@Id">
+  <Found Context="model">
+    <EventDetails Model="@model"/>
+  </Found>
+</Loading>
+
+
+@code {
+
+  [Parameter]
+  public string? Id { get; set; }
+
+}

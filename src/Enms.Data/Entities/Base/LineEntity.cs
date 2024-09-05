@@ -11,6 +11,8 @@ public class LineEntity : AuditableEntity
 
   protected string _meterId = default!;
 
+  protected long _ownerId = default!;
+
   public virtual string LineId
   {
     get { return _lineId; }
@@ -21,6 +23,12 @@ public class LineEntity : AuditableEntity
   {
     get { return _meterId; }
     init { _meterId = value; }
+  }
+
+  public virtual string OwnerId
+  {
+    get { return _ownerId.ToString(); }
+    init { _ownerId = long.Parse(value); }
   }
 
   public override string Id
@@ -44,6 +52,8 @@ public class LineEntity : AuditableEntity
   public float ConnectionPower_W { get; set; } = default!;
 
   public List<PhaseEntity> Phases { get; set; } = default!;
+
+  public virtual NetworkUserEntity Owner { get; set; } = default!;
 }
 
 public class LineEntity<
@@ -93,6 +103,15 @@ public class
       .Property(nameof(LineEntity.ConnectionPower_W))
       .HasColumnName("connection_power_w");
 
+    builder
+      .HasOne(nameof(LineEntity.Owner))
+      .WithMany(nameof(NetworkUserEntity.Lines))
+      .HasForeignKey("_ownerId");
+    builder.Ignore(nameof(LineEntity.OwnerId));
+    builder
+      .Property("_ownerId")
+      .HasColumnName("owner_id");
+
     if (entity != typeof(LineEntity))
     {
       builder
@@ -113,7 +132,6 @@ public class
             MeasurementValidatorEntity, MeterEntity>.MeasurementValidator))
         .WithMany(nameof(MeasurementValidatorEntity<LineEntity>.Lines))
         .HasForeignKey("_measurementValidatorId");
-
       builder.Ignore(
         nameof(LineEntity<MeasurementEntity, AggregateEntity,
           MeasurementValidatorEntity, MeterEntity>.MeasurementValidatorId));

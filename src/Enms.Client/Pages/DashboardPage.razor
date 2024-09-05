@@ -1,0 +1,57 @@
+@page "/"
+
+@using MudBlazor
+@namespace Enms.Client.Pages
+
+@attribute [Navigation(Title = "Dashboard", Order = -100, Icon = Icons.Material.Filled.Dashboard)]
+@attribute [Authorize]
+@using Enms.Client.State
+@using Enms.Business.Models.Enums
+@using Enms.Business.Queries.Agnostic
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.Extensions.DependencyInjection
+@inherits Enms.Client.Base.EnmsOwningComponentBase
+
+@if (user is null)
+{
+  NavigateToLogin();
+  return;
+}
+
+<MudContainer MaxWidth="MaxWidth.Large" Class="mt-8">
+  <MudText Typo="Typo.h3">
+    @Translate("Welcome,") @(user.User.UserName).
+  </MudText>
+
+  @if (representative is null)
+  {
+    <MudText Class="mt-4">
+      @Translate("Please wait until your data arrives in our system.")
+      @Translate("You will be notified when this happens via email.")
+    </MudText>
+    return;
+  }
+
+  @if (representative.Representative.Role == RoleModel.UserRepresentative)
+  {
+    <Loading LoadAsync="@(() => ScopedServices.GetRequiredService<AgnosticQueries>())">
+
+    </Loading>
+
+    return;
+  }
+
+  @if (representative.Representative.Role == RoleModel.OperatorRepresentative)
+  {
+    return;
+  }
+</MudContainer>
+
+@code {
+
+  [CascadingParameter]
+  public UserState? user { get; set; } = default!;
+
+  [CascadingParameter]
+  public RepresentativeState? representative { get; set; } = default!;
+}

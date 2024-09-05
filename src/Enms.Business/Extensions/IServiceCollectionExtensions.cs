@@ -90,6 +90,8 @@ public static class IServiceCollectionExtensions
       {
         services.AddSingleton(interfaceType, conversionType);
       }
+
+      services.AddSingleton(conversionType);
     }
   }
 
@@ -113,6 +115,8 @@ public static class IServiceCollectionExtensions
       {
         services.AddScoped(interfaceType, conversionType);
       }
+
+      services.AddScoped(conversionType);
     }
   }
 
@@ -136,6 +140,8 @@ public static class IServiceCollectionExtensions
       {
         services.AddTransient(interfaceType, conversionType);
       }
+
+      services.AddTransient(conversionType);
     }
   }
 

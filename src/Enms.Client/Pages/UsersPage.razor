@@ -1,8 +1,9 @@
 @page "/users"
 
+@using Enms.Business.Models.Enums
 @namespace Enms.Client.Pages
 
-@attribute [Navigation(Title = "Users")]
+@attribute [Navigation(Title = "Users", Allows = [RoleModel.OperatorRepresentative], Order = -70, Icon = Icons.Material.Filled.SupervisedUserCircle)]
 @attribute [Authorize]
 @using Enms.Business.Models.Composite
 @using Enms.Business.Queries

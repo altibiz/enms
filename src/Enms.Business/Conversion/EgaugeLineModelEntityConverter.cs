@@ -38,7 +38,8 @@ public static class EgaugeLineModelEntityConverterExtensions
       DeletedById = model.DeletedById,
       MeasurementValidatorId = model.MeasurementValidatorId,
       ConnectionPower_W = (float)model.ConnectionPower_W,
-      Phases = model.Phases.Select(p => p.ToEntity()).ToList()
+      Phases = model.Phases.Select(p => p.ToEntity()).ToList(),
+      OwnerId = model.OwnerId
     };
   }
 
@@ -59,7 +60,8 @@ public static class EgaugeLineModelEntityConverterExtensions
       DeletedById = entity.DeletedById,
       MeasurementValidatorId = entity.MeasurementValidatorId,
       ConnectionPower_W = (decimal)entity.ConnectionPower_W,
-      Phases = entity.Phases.Select(p => p.ToModel()).ToHashSet()
+      Phases = entity.Phases.Select(p => p.ToModel()).ToHashSet(),
+      OwnerId = entity.OwnerId
     };
   }
 }

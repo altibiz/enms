@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.Extensions.DependencyInjection;
 using MudBlazor;
+using MudBlazor.Utilities;
 
 namespace Enms.Client.Shared.Layout;
 
@@ -12,20 +13,30 @@ public partial class MainLayout : EnmsLayoutComponentBase
 {
   private readonly MudTheme _theme = new()
   {
-    Palette = new PaletteLight
+    PaletteLight = new PaletteLight
     {
-      Primary = Colors.Blue.Darken1,
-      Secondary = Colors.DeepPurple.Accent2,
-      Background = Colors.Grey.Lighten5,
-      AppbarBackground = Colors.Shades.White,
-      DrawerBackground = Colors.Shades.White,
-      DrawerText = Colors.Shades.Black,
-      Success = Colors.Teal.Lighten2
+      Primary = new MudColor("#176fc1"),
+      Secondary = new MudColor("#338ed2"),
+      Tertiary = new MudColor("#a7d6f2"),
+      GrayDefault = "#e3e3e3",
+      AppbarBackground = "#ffffff",
+      AppbarText = "#000000",
+    },
+    PaletteDark = new PaletteDark
+    {
+      Primary = new MudColor("#176fc1"),
+      Secondary = new MudColor("#338ed2"),
+      Tertiary = new MudColor("#a7d6f2"),
+      GrayDefault = "#e3e3e3",
+      AppbarBackground = "#ffffff",
+      AppbarText = "#000000",
     },
     LayoutProperties = new LayoutProperties
     {
-      DefaultBorderRadius = "3px"
+      DefaultBorderRadius = "0px"
     },
+    Shadows = new Shadow(),
+    ZIndex = new ZIndex(),
     Typography = new Typography
     {
       Default = new Default
@@ -125,8 +136,6 @@ public partial class MainLayout : EnmsLayoutComponentBase
         LetterSpacing = ".00714em"
       }
     },
-    Shadows = new Shadow(),
-    ZIndex = new ZIndex()
   };
 
   [CascadingParameter]

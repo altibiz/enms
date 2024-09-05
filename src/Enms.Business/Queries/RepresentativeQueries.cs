@@ -9,14 +9,14 @@ using Enms.Data.Context;
 using Enms.Data.Entities;
 using Enms.Data.Entities.Enums;
 using Enms.Data.Extensions;
-using Enms.Users.Queries;
+using Enms.Users.Queries.Abstractions;
 using Microsoft.EntityFrameworkCore;
 
 namespace Enms.Business.Queries;
 
 public class RepresentativeQueries(
   DataDbContext context,
-  UserQueries userQueries
+  IUserQueries userQueries
 ) : IQueries
 {
   public async Task<RepresentativeModel?> RepresentativeById(string id)
@@ -105,7 +105,7 @@ public class RepresentativeQueries(
           MaybeRepresentative = representatives
               .FirstOrDefault(
                 context.PrimaryKeyInCompiled<RepresentativeEntity>(ids)) is
-            { } representative
+          { } representative
             ? representative.ToModel()
             : null
         })

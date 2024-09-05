@@ -1,13 +1,13 @@
 @namespace Enms.Client.Shared.Layout
 @using Enms.Business.Models.Composite
 @using Enms.Client.Shared.Streaming
+@using Enms.Client.State
 @using MudBlazor
 @inherits Enms.Client.Base.EnmsLayoutComponentBase
 
 <main>
   <MudThemeProvider Theme="_theme"/>
-  @* FIXME: multiple popovers detected ??? *@
-  @* <MudPopoverProvider/> *@
+  <MudPopoverProvider/>
   <MudDialogProvider/>
   <MudSnackbarProvider/>
 
@@ -16,12 +16,12 @@
       T="MaybeRepresentingUserModel"
       LoadAsync="LoadAsync">
       <Found Context="maybeRepresentingUser">
-        <CascadingValue Value="maybeRepresentingUser.User">
+        <CascadingValue Value="new UserState(maybeRepresentingUser.User)">
           <UserLayout>
             <Body>
             @if (maybeRepresentingUser.MaybeRepresentative is { } representative)
             {
-              <CascadingValue Value="representative">
+              <CascadingValue Value="new RepresentativeState(representative)">
                 <RepresentativeLayout>
                   <Body>
                   @Body

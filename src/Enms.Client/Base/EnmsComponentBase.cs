@@ -2,6 +2,7 @@ using System.Globalization;
 using System.Reflection;
 using ApexCharts;
 using Enms.Business.Localization.Abstractions;
+using Enms.Business.Models.Enums;
 using Enms.Business.Time;
 using Enms.Client.Attributes;
 using Microsoft.AspNetCore.Components;
@@ -44,14 +45,21 @@ public abstract class EnmsComponentBase : ComponentBase
     }
   }
 
+  protected void NavigateToHome()
+  {
+    NavigationManager.NavigateTo(
+      $"/app/{Culture}");
+  }
+
+  protected void NavigateToLogin()
+  {
+    NavigationManager.NavigateTo(
+      $"/login?returnUrl={Uri.EscapeDataString(NavigationManager.Uri)}");
+  }
+
   protected string Translate(string unlocalized)
   {
     return Localizer.TranslateForCurrentCulture(unlocalized);
-  }
-
-  protected void Home()
-  {
-    NavigationManager.NavigateTo($"/app/{Culture}");
   }
 
   protected static ApexChartOptions<T> NewApexChartOptions<T>()
@@ -136,21 +144,27 @@ public abstract class EnmsComponentBase : ComponentBase
 
   protected IEnumerable<NavigationDescriptor> GetNavigationDescriptors()
   {
-    foreach (var type in typeof(App).Assembly.GetTypes())
-    {
-      if (type.GetCustomAttribute(typeof(RouteAttribute)) is RouteAttribute
-          routeAttribute
-        && type.GetCustomAttribute(typeof(NavigationAttribute)) is
-          NavigationAttribute navigationAttribute
-        && navigationAttribute.Title is not null)
-      {
-        yield return new NavigationDescriptor(
-          navigationAttribute.Title,
-          $"/app/{Culture}" + routeAttribute.Template
-        );
-      }
-    }
+    return typeof(EnmsComponentBase).Assembly.GetTypes()
+      .Where(type => type.IsSubclassOf(typeof(EnmsComponentBase)))
+      .SelectMany(type => type.GetCustomAttributes<NavigationAttribute>())
+      .OrderBy(navigationAttribute => navigationAttribute.Order)
+      .Select(navigationAttribute =>
+        navigationAttribute.Title is { } title
+          ? new NavigationDescriptor(
+              title,
+              navigationAttribute.RouteValue ?? title,
+              navigationAttribute.Icon,
+              navigationAttribute.Allows,
+              navigationAttribute.Disallows)
+          : default)
+      .OfType<NavigationDescriptor>();
   }
 
-  protected record NavigationDescriptor(string Title, string Route);
+  protected record NavigationDescriptor(
+    string Title,
+    string Route,
+    string? Icon,
+    RoleModel[] Allows,
+    RoleModel[] Disallows
+  );
 }
