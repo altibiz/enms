@@ -12,6 +12,8 @@ public static class IServiceCollectionExtensions
   {
     var hostedServices = services
       .Where(service =>
+        !service.ServiceType.IsGenericType &&
+        !service.ServiceType.IsAbstract &&
         service.ServiceType.IsAssignableTo(typeof(IHostedService)))
       .ToList();
 
