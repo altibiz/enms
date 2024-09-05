@@ -8,8 +8,8 @@ public static class IApplicationBuilderExtensions
     this IApplicationBuilder app,
     IEndpointRouteBuilder endpoints)
   {
-    endpoints.MapAreaControllerRoute(
-      "iot/push/{id}",
+    endpoints.MapEnmsBusinessRoute(
+      "/iot/push/{id}",
       typeof(IotController),
       nameof(IotController.Push)
     );
@@ -17,7 +17,7 @@ public static class IApplicationBuilderExtensions
     return app;
   }
 
-  private static void MapAreaControllerRoute(
+  private static void MapEnmsBusinessRoute(
     this IEndpointRouteBuilder endpoints,
     string pattern,
     Type controller,

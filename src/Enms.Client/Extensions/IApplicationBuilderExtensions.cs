@@ -11,31 +11,30 @@ public static class IApplicationBuilderExtensions
     IEndpointRouteBuilder endpoints
   )
   {
-    endpoints.MapAreaControllerRoute(
+    endpoints.MapBlazorHub("/app/{culture}/_blazor");
+
+    endpoints.MapEnmsClientRoute(
       "/",
       typeof(IndexController),
       nameof(IndexController.Index)
     );
 
-    endpoints.MapAreaControllerRoute(
+    endpoints.MapEnmsClientRoute(
       "/app/{culture}/{**catchall}",
       typeof(AppController),
       nameof(AppController.Catchall)
     );
 
-    endpoints.MapBlazorHub("/app/{culture}/_blazor");
-
     return app;
   }
 
-  private static void MapAreaControllerRoute(
+  private static void MapEnmsClientRoute(
     this IEndpointRouteBuilder endpoints,
     string pattern,
     Type controller,
     string action)
   {
-    endpoints.MapAreaControllerRoute(
-      areaName: $"{nameof(Enms)}.{nameof(Client)}",
+    endpoints.MapControllerRoute(
       name: $"{controller.Namespace}.{controller.Name}.{action}",
       pattern: pattern,
       defaults: new

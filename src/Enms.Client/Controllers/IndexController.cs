@@ -7,11 +7,11 @@ public class IndexController : Controller
   public IActionResult Index()
   {
     return RedirectToAction(
+      nameof(AppController.Catchall),
       nameof(AppController).Remove(
         nameof(AppController).Length - nameof(Controller).Length,
         nameof(Controller).Length
       ),
-      nameof(AppController.Catchall),
       new { culture = "en" }
     );
   }
