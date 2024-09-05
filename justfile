@@ -14,6 +14,7 @@ jbinspectlog := absolute_path('.jb/inspect.log')
 artifacts := absolute_path('artifacts')
 servercsproj := absolute_path('src/Enms.Server/Enms.Server.csproj')
 datacsproj := absolute_path('src/Enms.Data/Enms.Data.csproj')
+jobscsproj := absolute_path('src/Enms.Jobs/Enms.Jobs.csproj')
 fakecsproj := absolute_path('scripts/Enms.Fake/Enms.Fake.csproj')
 fakeassets := absolute_path('scripts/Enms.Fake/Assets')
 migrationassets := absolute_path('scripts/migrations')
@@ -67,7 +68,12 @@ prepare:
   dotnet ef \
     --startup-project '{{servercsproj}}' \
     --project '{{datacsproj}}' \
-    database update
+    database updat
+
+  dotnet ef \
+    --startup-project '{{servercsproj}}' \
+    --project '{{jobscsproj}}' \
+    database updatee
 
   open --raw '{{migrationassets}}/current.sql' | \
     docker exec \
@@ -149,6 +155,11 @@ lint:
     --project '{{datacsproj}}' \
     has-pending-model-changes
 
+  dotnet ef migrations \
+    --startup-project '{{servercsproj}}' \
+    --project '{{jobscsproj}}' \
+    has-pending-model-changes
+
 test *args:
   dotnet test '{{sln}}' {{args}}
 
@@ -208,6 +219,11 @@ migrate project name:
     --project '{{datacsproj}}' \
     database update
 
+  dotnet ef \
+    --startup-project '{{servercsproj}}' \
+    --project '{{jobscsproj}}' \
+    database update
+
   open --raw '{{migrationassets}}/current.sql' | \
     docker exec \
       --env PGHOST="localhost" \
@@ -234,6 +250,11 @@ migrate project name:
   dotnet ef \
     --startup-project '{{servercsproj}}' \
     --project '{{datacsproj}}' \
+    database update
+
+  dotnet ef \
+    --startup-project '{{servercsproj}}' \
+    --project '{{jobscsproj}}' \
     database update
 
   docker exec \
@@ -364,6 +385,11 @@ clean:
     --project '{{datacsproj}}' \
     database update
 
+  dotnet ef \
+    --startup-project '{{servercsproj}}' \
+    --project '{{jobscsproj}}' \
+    database update
+
   open --raw '{{migrationassets}}/current.sql' | \
     docker exec \
       --env PGHOST="localhost" \
@@ -414,6 +440,11 @@ purge:
   dotnet ef \
     --startup-project '{{servercsproj}}' \
     --project '{{datacsproj}}' \
+    database update
+
+  dotnet ef \
+    --startup-project '{{servercsproj}}' \
+    --project '{{jobscsproj}}' \
     database update
 
   open --raw '{{migrationassets}}/current.sql' | \
