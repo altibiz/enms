@@ -69,3 +69,6 @@ words:
   - yaxis
   - zoomin
   - zoomout
+  - struct
+  - onclick
+  - notnull

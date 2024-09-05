@@ -1,0 +1,23 @@
+@page "/notification/{id}"
+
+@namespace Enms.Client.Pages
+
+@attribute [Navigation(RouteValue = "id", Parents = new[] { typeof(NotificationsPage) })]
+@attribute [Authorize]
+@using Enms.Business.Models.Base
+@using Enms.Client.Shared.Streaming
+@using Microsoft.AspNetCore.Authorization
+@inherits Enms.Client.Base.EnmsOwningComponentBase
+
+<Loading T="NotificationModel" Id="@Id">
+  <Found Context="model">
+    <NoticationDetails Model="@model"/>
+  </Found>
+</Loading>
+
+@code {
+
+  [Parameter]
+  public string? Id { get; set; }
+
+}

@@ -1,0 +1,31 @@
+@page "/notifications"
+
+@namespace Enms.Client.Pages
+
+@attribute [Navigation(Title = "Notifications")]
+@attribute [Authorize]
+@using Enms.Business.Models.Base
+@using Enms.Client.Shared.Models
+@using Enms.Client.Shared.Streaming
+@using Microsoft.AspNetCore.Authorization
+@using MudBlazor
+@inherits Enms.Client.Base.EnmsOwningComponentBase
+
+<Paging T="NotificationModel">
+  <Summary Context="notification">
+    @{
+      var href = $"notification/{notification.Id}";
+
+      <MudCard>
+        <MudCardContent>
+          <NotificationSummary Model="@notification"/>
+        </MudCardContent>
+        <MudCardActions>
+          <MudNavLink Href="@href">
+            @Translate("Details")
+          </MudNavLink>
+        </MudCardActions>
+      </MudCard>
+    }
+  </Summary>
+</Paging>
