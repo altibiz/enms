@@ -40,6 +40,11 @@ namespace Enms.Data.Migrations
             migrationBuilder.ConvertIntToEnum<AuditEntity>("events", "audit");
 
             migrationBuilder.ConvertIntToEnum<IntervalEntity>("egauge_aggregates", "interval");
+
+            migrationBuilder.Sql(@"
+                ALTER TABLE egauge_aggregates
+                ADD PRIMARY KEY (interval, timestamp, line_id, meter_id);
+            ");
         }
 
         /// <inheritdoc />

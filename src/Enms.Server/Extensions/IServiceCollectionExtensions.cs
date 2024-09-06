@@ -22,26 +22,32 @@ public static class IServiceCollectionExtensions
     {
       services.Remove(hostedService);
       var modularTenantEvents =
-      hostedService.ImplementationFactory is { } factory ?
-        new ServiceDescriptor(
-          typeof(IModularTenantEvents),
-          services => ActivatorUtilities.CreateInstance(
-            services,
-            typeof(HostedServiceModularTenantEvents<>)
-              .MakeGenericType(
-                hostedService.ImplementationType ??
-                hostedService.ServiceType),
-            factory(services)),
-          ServiceLifetime.Singleton
-        ) :
-        new ServiceDescriptor(
-          typeof(IModularTenantEvents),
-          typeof(HostedServiceModularTenantEvents<>)
-            .MakeGenericType(
-              hostedService.ImplementationType ??
-              hostedService.ServiceType),
-          ServiceLifetime.Singleton
-        );
+        hostedService.ImplementationFactory is { } factory
+          ? new ServiceDescriptor(
+              typeof(IModularTenantEvents),
+              services => ActivatorUtilities.CreateInstance(
+                services,
+                typeof(HostedServiceModularTenantEvents<>)
+                  .MakeGenericType(
+                    hostedService.ImplementationType ??
+                    hostedService.ServiceType),
+                factory(services)),
+              ServiceLifetime.Singleton
+            )
+          : new ServiceDescriptor(
+              typeof(IModularTenantEvents),
+              services => ActivatorUtilities.CreateInstance(
+                services,
+                typeof(HostedServiceModularTenantEvents<>)
+                  .MakeGenericType(
+                    hostedService.ImplementationType ??
+                    hostedService.ServiceType),
+                ActivatorUtilities.CreateInstance(
+                  services,
+                  hostedService.ImplementationType ??
+                  hostedService.ServiceType)),
+              ServiceLifetime.Singleton
+            );
       services.Add(modularTenantEvents);
     }
 
