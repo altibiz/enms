@@ -97,67 +97,25 @@ public static class DbContextPrimaryKeyExtensions
   public static Func<object, bool> PrimaryKeyEqualsCompiled(
     this DbContext context, Type entityType, string id)
   {
-    var key = (context.GetType(), entityType);
-
-    if (_primaryKeyEqualsCompiledCache.TryGetValue(key, out var cachedFunc))
-    {
-      return (Func<object, bool>)cachedFunc;
-    }
-
-    var expr = context.PrimaryKeyEqualsUncached(entityType, id);
-    var compiled = expr.Compile();
-    _primaryKeyEqualsCompiledCache[key] = compiled;
-
-    return compiled;
+    return context.PrimaryKeyEqualsUncached(entityType, id).Compile();
   }
 
   public static Expression<Func<object, bool>> PrimaryKeyEquals(
     this DbContext context, Type entityType, string id)
   {
-    var key = (context.GetType(), entityType);
-
-    if (_primaryKeyEqualsExpressionCache.TryGetValue(key, out var cachedExpr))
-    {
-      return (Expression<Func<object, bool>>)cachedExpr;
-    }
-
-    var expr = context.PrimaryKeyEqualsUncached(entityType, id);
-    _primaryKeyEqualsExpressionCache[key] = expr;
-
-    return expr;
+    return context.PrimaryKeyEqualsUncached(entityType, id);
   }
 
   public static Func<object, bool> PrimaryKeyInCompiled(
     this DbContext context, Type entityType, ICollection<string> ids)
   {
-    var key = (context.GetType(), entityType);
-
-    if (_primaryKeyInCompiledCache.TryGetValue(key, out var cachedFunc))
-    {
-      return (Func<object, bool>)cachedFunc;
-    }
-
-    var expr = context.PrimaryKeyInUncached(entityType, ids);
-    var compiled = expr.Compile();
-    _primaryKeyInCompiledCache[key] = compiled;
-
-    return compiled;
+    return context.PrimaryKeyInUncached(entityType, ids).Compile();
   }
 
   public static Expression<Func<object, bool>> PrimaryKeyIn(
     this DbContext context, Type entityType, ICollection<string> ids)
   {
-    var key = (context.GetType(), entityType);
-
-    if (_primaryKeyInExpressionCache.TryGetValue(key, out var cachedExpr))
-    {
-      return (Expression<Func<object, bool>>)cachedExpr;
-    }
-
-    var expr = context.PrimaryKeyInUncached(entityType, ids);
-    _primaryKeyInExpressionCache[key] = expr;
-
-    return expr;
+    return context.PrimaryKeyInUncached(entityType, ids);
   }
 
   private static Expression<Func<object, object>> PrimaryKeyOfUncached(
@@ -287,22 +245,6 @@ public static class DbContextPrimaryKeyExtensions
     _primaryKeyGetterCompiledCache = new();
 
   private static readonly
-    ConcurrentDictionary<(Type dbContextType, Type entityType), Delegate>
-    _primaryKeyEqualsCompiledCache = new();
-
-  private static readonly
     ConcurrentDictionary<(Type dbContextType, Type entityType), Expression>
     _primaryKeyGetterExpressionCache = new();
-
-  private static readonly
-    ConcurrentDictionary<(Type dbContextType, Type entityType), Expression>
-    _primaryKeyEqualsExpressionCache = new();
-
-  private static readonly
-    ConcurrentDictionary<(Type dbContextType, Type entityType), Delegate>
-    _primaryKeyInCompiledCache = new();
-
-  private static readonly
-    ConcurrentDictionary<(Type dbContextType, Type entityType), Expression>
-    _primaryKeyInExpressionCache = new();
 }

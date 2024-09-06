@@ -102,67 +102,25 @@ public static class DbContextForeignKeyExtensions
   public static Func<object, bool> ForeignKeyEqualsCompiled(
     this DbContext context, Type entityType, string property, string id)
   {
-    var key = (context.GetType(), entityType, property);
-
-    if (_foreignKeyEqualsCompiledCache.TryGetValue(key, out var cachedFunc))
-    {
-      return (Func<object, bool>)cachedFunc;
-    }
-
-    var expr = context.ForeignKeyEqualsUncached(entityType, property, id);
-    var compiled = expr.Compile();
-    _foreignKeyEqualsCompiledCache[key] = compiled;
-
-    return compiled;
+    return context.ForeignKeyEqualsUncached(entityType, property, id).Compile();
   }
 
   public static Expression<Func<object, bool>> ForeignKeyEquals(
     this DbContext context, Type entityType, string property, string id)
   {
-    var key = (context.GetType(), entityType, property);
-
-    if (_foreignKeyEqualsExpressionCache.TryGetValue(key, out var cachedExpr))
-    {
-      return (Expression<Func<object, bool>>)cachedExpr;
-    }
-
-    var expr = context.ForeignKeyEqualsUncached(entityType, property, id);
-    _foreignKeyEqualsExpressionCache[key] = expr;
-
-    return expr;
+    return context.ForeignKeyEqualsUncached(entityType, property, id);
   }
 
   public static Func<object, bool> ForeignKeyInCompiled(
     this DbContext context, Type entityType, string property, ICollection<string> ids)
   {
-    var key = (context.GetType(), entityType, property);
-
-    if (_foreignKeyInCompiledCache.TryGetValue(key, out var cachedFunc))
-    {
-      return (Func<object, bool>)cachedFunc;
-    }
-
-    var expr = context.ForeignKeyInUncached(entityType, property, ids);
-    var compiled = expr.Compile();
-    _foreignKeyInCompiledCache[key] = compiled;
-
-    return compiled;
+    return context.ForeignKeyInUncached(entityType, property, ids).Compile();
   }
 
   public static Expression<Func<object, bool>> ForeignKeyIn(
     this DbContext context, Type entityType, string property, ICollection<string> ids)
   {
-    var key = (context.GetType(), entityType, property);
-
-    if (_foreignKeyInExpressionCache.TryGetValue(key, out var cachedExpr))
-    {
-      return (Expression<Func<object, bool>>)cachedExpr;
-    }
-
-    var expr = context.ForeignKeyInUncached(entityType, property, ids);
-    _foreignKeyInExpressionCache[key] = expr;
-
-    return expr;
+    return context.ForeignKeyInUncached(entityType, property, ids);
   }
 
   private static Expression<Func<object, object>> ForeignKeyOfUncached(
@@ -303,22 +261,6 @@ public static class DbContextForeignKeyExtensions
     _foreignKeyGetterCompiledCache = new();
 
   private static readonly
-    ConcurrentDictionary<(Type dbContextType, Type entityType, string foreignKey), Delegate>
-    _foreignKeyEqualsCompiledCache = new();
-
-  private static readonly
     ConcurrentDictionary<(Type dbContextType, Type entityType, string foreignKey), Expression>
     _foreignKeyGetterExpressionCache = new();
-
-  private static readonly
-    ConcurrentDictionary<(Type dbContextType, Type entityType, string foreignKey), Expression>
-    _foreignKeyEqualsExpressionCache = new();
-
-  private static readonly
-    ConcurrentDictionary<(Type dbContextType, Type entityType, string foreignKey), Delegate>
-    _foreignKeyInCompiledCache = new();
-
-  private static readonly
-    ConcurrentDictionary<(Type dbContextType, Type entityType, string foreignKey), Expression>
-    _foreignKeyInExpressionCache = new();
 }
