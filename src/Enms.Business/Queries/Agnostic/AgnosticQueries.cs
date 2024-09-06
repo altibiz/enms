@@ -107,12 +107,10 @@ public class AgnosticQueries(
     var ordered = filtered;
     if (orderByDescClause is null && orderByAscClause is null)
     {
-#pragma warning disable S125 // Sections of code should not be commented out
-      // ordered = filtered.OrderBy(context
-      //   .PrimaryKeyOfAgnostic(modelEntityConverter.EntityType()))
-      //   as IQueryable<IEntity>
-      //   ?? throw new InvalidOperationException();
-#pragma warning restore S125 // Sections of code should not be commented out
+      ordered = filtered.OrderBy(context
+        .PrimaryKeyOfAgnostic(modelEntityConverter.EntityType()))
+        as IQueryable<IEntity>
+        ?? throw new InvalidOperationException();
     }
     else
     {
@@ -173,8 +171,9 @@ public class AgnosticQueries(
     var ordered = filtered;
     if (orderByDescClause is null && orderByAscClause is null)
     {
-      ordered = filtered.OrderBy(context
-        .PrimaryKeyOfAgnostic(modelEntityConverter.EntityType()))
+      var ordering = context
+        .PrimaryKeyOfAgnostic(modelEntityConverter.EntityType());
+      ordered = filtered.OrderBy(ordering)
         as IQueryable<IEntity>
         ?? throw new InvalidOperationException();
     }
