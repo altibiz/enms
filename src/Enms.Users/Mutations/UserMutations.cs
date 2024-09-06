@@ -5,6 +5,8 @@ using OrchardCore.Users;
 
 namespace Enms.Users.Mutations;
 
+// FIXME: updating and deletion
+
 public class UserMutations(
   UserManager<IUser> userManager
 ) : IUserMutations
