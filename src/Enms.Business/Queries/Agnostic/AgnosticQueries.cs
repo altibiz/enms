@@ -1,3 +1,4 @@
+using System.Linq.Expressions;
 using Enms.Business.Conversion.Abstractions;
 using Enms.Business.Models.Abstractions;
 using Enms.Business.Queries.Abstractions;
@@ -107,10 +108,15 @@ public class AgnosticQueries(
     var ordered = filtered;
     if (orderByDescClause is null && orderByAscClause is null)
     {
-      ordered = filtered.OrderBy(context
-        .PrimaryKeyOf(modelEntityConverter.EntityType()))
-        as IQueryable<IEntity>
-        ?? throw new InvalidOperationException();
+      var ordering = context
+        .PrimaryKeyOf(modelEntityConverter.EntityType());
+      var parameter = Expression.Parameter(typeof(IEntity), "e");
+      var entityOrdering = Expression.Lambda<Func<IEntity, object>>(
+        Expression.Invoke(
+          ordering,
+          Expression.Convert(parameter, typeof(object))),
+        parameter);
+      ordered = filtered.OrderBy(entityOrdering);
     }
     else
     {
@@ -173,9 +179,13 @@ public class AgnosticQueries(
     {
       var ordering = context
         .PrimaryKeyOf(modelEntityConverter.EntityType());
-      ordered = filtered.OrderBy(ordering)
-        as IQueryable<IEntity>
-        ?? throw new InvalidOperationException();
+      var parameter = Expression.Parameter(typeof(IEntity), "e");
+      var entityOrdering = Expression.Lambda<Func<IEntity, object>>(
+        Expression.Invoke(
+          ordering,
+          Expression.Convert(parameter, typeof(object))),
+        parameter);
+      ordered = filtered.OrderBy(entityOrdering);
     }
     else
     {
