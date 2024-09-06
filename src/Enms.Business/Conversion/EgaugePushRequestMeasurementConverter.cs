@@ -97,7 +97,8 @@ public sealed class
           .ToUniversalTime();
         var delta = TimeSpan.FromSeconds((double)range.Delta);
 
-        return range.Rows.SelectMany(
+        // NOTE: for some reason, the first row is bonkers
+        return range.Rows.Skip(1).SelectMany(
           (row, i) =>
           {
             var rowTimestamp = timestamp + delta * i;
@@ -178,33 +179,33 @@ public sealed class
                     MeterId = meterId,
                     LineId = line.LineId,
                     Timestamp = rowTimestamp,
-                    VoltageL1AnyT0_V = decimal.Parse(
-                      voltageL1AnyT0_V, CultureInfo.InvariantCulture),
-                    VoltageL2AnyT0_V = decimal.Parse(
-                      voltageL2AnyT0_V, CultureInfo.InvariantCulture),
-                    VoltageL3AnyT0_V = decimal.Parse(
-                      voltageL3AnyT0_V, CultureInfo.InvariantCulture),
-                    CurrentL1AnyT0_A = decimal.Parse(
-                      currentL1AnyT0_A, CultureInfo.InvariantCulture),
-                    CurrentL2AnyT0_A = decimal.Parse(
-                      currentL2AnyT0_A, CultureInfo.InvariantCulture),
-                    CurrentL3AnyT0_A = decimal.Parse(
-                      currentL3AnyT0_A, CultureInfo.InvariantCulture),
-                    ActivePowerL1NetT0_W = decimal.Parse(
-                      activePowerL1NetT0_W, CultureInfo.InvariantCulture),
-                    ActivePowerL2NetT0_W = decimal.Parse(
-                      activePowerL2NetT0_W, CultureInfo.InvariantCulture),
-                    ActivePowerL3NetT0_W = decimal.Parse(
-                      activePowerL3NetT0_W, CultureInfo.InvariantCulture),
+                    VoltageL1AnyT0_V = -decimal.Parse(
+                      voltageL1AnyT0_V, CultureInfo.InvariantCulture) / 1000M,
+                    VoltageL2AnyT0_V = -decimal.Parse(
+                      voltageL2AnyT0_V, CultureInfo.InvariantCulture) / 1000M,
+                    VoltageL3AnyT0_V = -decimal.Parse(
+                      voltageL3AnyT0_V, CultureInfo.InvariantCulture) / 1000M,
+                    CurrentL1AnyT0_A = -decimal.Parse(
+                      currentL1AnyT0_A, CultureInfo.InvariantCulture) / 1000M,
+                    CurrentL2AnyT0_A = -decimal.Parse(
+                      currentL2AnyT0_A, CultureInfo.InvariantCulture) / 1000M,
+                    CurrentL3AnyT0_A = -decimal.Parse(
+                      currentL3AnyT0_A, CultureInfo.InvariantCulture) / 1000M,
+                    ActivePowerL1NetT0_W = -decimal.Parse(
+                      activePowerL1NetT0_W, CultureInfo.InvariantCulture) / 1000M,
+                    ActivePowerL2NetT0_W = -decimal.Parse(
+                      activePowerL2NetT0_W, CultureInfo.InvariantCulture) / 1000M,
+                    ActivePowerL3NetT0_W = -decimal.Parse(
+                      activePowerL3NetT0_W, CultureInfo.InvariantCulture) / 1000M,
                     ApparentPowerL1NetT0_W =
-                      decimal.Parse(
-                        apparentPowerL1NetT0_W, CultureInfo.InvariantCulture),
+                      -decimal.Parse(
+                        apparentPowerL1NetT0_W, CultureInfo.InvariantCulture) / 1000M,
                     ApparentPowerL2NetT0_W =
-                      decimal.Parse(
-                        apparentPowerL2NetT0_W, CultureInfo.InvariantCulture),
+                      -decimal.Parse(
+                        apparentPowerL2NetT0_W, CultureInfo.InvariantCulture) / 1000M,
                     ApparentPowerL3NetT0_W =
-                      decimal.Parse(
-                        apparentPowerL3NetT0_W, CultureInfo.InvariantCulture)
+                      -decimal.Parse(
+                        apparentPowerL3NetT0_W, CultureInfo.InvariantCulture) / 1000M
                   };
                 })
               .Where(x => x is not null)
