@@ -2,19 +2,25 @@
 
 @namespace Enms.Client.Pages
 
-@attribute [Navigation(Title = "Account", Order = 100)]
 @attribute [Authorize]
 @using Microsoft.AspNetCore.Authorization
 @using Enms.Business.Models.Composite
 @using Enms.Client.Shared.Models
 @using Enms.Client.State
+@using MudBlazor
 @inherits Enms.Client.Base.EnmsOwningComponentBase
 
-<MaybeRepresentingUserDetails Model="@(
-  new MaybeRepresentingUserModel(UserState.User.User)
-  {
-    MaybeRepresentative = RepresentativeState?.Representative
-  })"/>
+<MudText Typo="Typo.h3">
+  @Translate("Account")
+</MudText>
+<MudDivider/>
+<div class="mt-4">
+  <MaybeRepresentingUserDetails Model="@(
+    new MaybeRepresentingUserModel(UserState.User.User)
+    {
+      MaybeRepresentative = RepresentativeState?.Representative
+    })"/>
+</div>
 
 @code {
   [CascadingParameter]

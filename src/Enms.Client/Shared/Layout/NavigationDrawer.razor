@@ -1,0 +1,55 @@
+@using Microsoft.AspNetCore.Components.Routing
+@using MudBlazor
+@using Enms.Client.Base
+@using Enms.Client.State
+@namespace Enms.Client.Shared.Layout
+@inherits EnmsComponentBase
+
+<MudDrawer
+  Open="@LayoutState.IsNavigationDrawerOpen"
+  OpenChanged="open => LayoutState.SetNavigationDrawerOpen(open)"
+  ClipMode="DrawerClipMode.Never"
+  Elevation="0"
+  Anchor="Anchor.Top"
+  Variant="DrawerVariant.Temporary"
+  Height="100vh">
+  <MudDrawerHeader>
+    <MudContainer MaxWidth="MaxWidth.Small" Class="d-flex flex-row">
+      <MudImage
+        Src="/favicon.svg"
+        Alt="HelbEx"
+        Style="height: calc(var(--mud-appbar-height) - 24px);"/>
+      <MudSpacer />
+      <MudButton
+        OnClick="e => LayoutState.SetNavigationDrawerOpen(false)"
+        Variant="Variant.Text"
+        Color="Color.Primary"
+        Class="d-flex flex-row align-center">
+        <MudIcon Icon="@Icons.Material.Filled.Close"/>
+      </MudButton>
+    </MudContainer>
+  </MudDrawerHeader>
+  <MudDrawerContainer>
+    <MudNavMenu>
+      @foreach (var route in GetNavigationDescriptors())
+      {
+        <MudNavLink
+          Href="@route.Route"
+          OnClick="e => LayoutState.SetNavigationDrawerOpen(false)"
+          Match="NavLinkMatch.All">
+          <MudContainer MaxWidth="MaxWidth.Small" Class="d-flex flex-row">
+            <MudIcon Icon="@route.Icon" />
+            <MudText Class="ml-4">
+              @Translate(route.Title)
+            </MudText>
+          </MudContainer>
+        </MudNavLink>
+      }
+    </MudNavMenu>
+  </MudDrawerContainer>
+</MudDrawer>
+
+@code {
+  [CascadingParameter]
+  public MainLayoutState LayoutState { get; set; } = default!;
+}

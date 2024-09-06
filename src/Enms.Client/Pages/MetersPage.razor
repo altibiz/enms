@@ -2,7 +2,11 @@
 
 @namespace Enms.Client.Pages
 
-@attribute [Navigation(Title = "Meters")]
+@attribute [Navigation(
+  Title = "Meters",
+  RouteValue = "meters",
+  Icon = Icons.Material.Filled.ElectricMeter
+)]
 @attribute [Authorize]
 @using Enms.Business.Models
 @using Enms.Client.Shared.Models

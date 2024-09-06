@@ -3,7 +3,12 @@
 @using MudBlazor
 @namespace Enms.Client.Pages
 
-@attribute [Navigation(Title = "Dashboard", Order = -100, Icon = Icons.Material.Filled.Dashboard)]
+@attribute [Navigation(
+  Title = "Dashboard",
+  RouteValue = "",
+  Order = -100,
+  Icon = Icons.Material.Filled.Dashboard
+)]
 @attribute [Authorize]
 @using Enms.Client.State
 @using Enms.Business.Models.Enums
@@ -22,7 +27,7 @@
   @Translate("Welcome,") @(user.User.User.UserName).
 </MudText>
 
-@if (representative is null)
+@if (user.User.MaybeRepresentative is null)
 {
   <MudText Class="mt-4">
     @Translate("Please wait until your data arrives in our system.")
@@ -31,21 +36,21 @@
   return;
 }
 
-@if (representative.Representative.Role == RoleModel.UserRepresentative)
+@if (user.User.MaybeRepresentative is { } representative)
 {
-  return;
-}
+  @if (representative.Role == RoleModel.UserRepresentative)
+  {
+    return;
+  }
 
-@if (representative.Representative.Role == RoleModel.OperatorRepresentative)
-{
-  return;
+  @if (representative.Role == RoleModel.OperatorRepresentative)
+  {
+    return;
+  }
 }
 
 @code {
 
   [CascadingParameter]
-  public UserState? user { get; set; } = default!;
-
-  [CascadingParameter]
-  public RepresentativeState? representative { get; set; } = default!;
+  public UserState user { get; set; } = default!;
 }

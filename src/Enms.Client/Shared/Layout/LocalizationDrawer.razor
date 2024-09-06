@@ -1,0 +1,44 @@
+@namespace Enms.Client.Shared.Layout
+@using System.Globalization
+@using Enms.Client.Base
+@using Enms.Client.State
+@using MudBlazor
+@inherits EnmsComponentBase
+
+<MudDrawer
+  Open="@LayoutState.IsLocalizationDrawerOpen"
+  OpenChanged="open => LayoutState.SetLocalizationDrawerOpen(open)"
+  Elevation="0"
+  Anchor="Anchor.Bottom"
+  Variant="DrawerVariant.Temporary"
+  ClipMode="DrawerClipMode.Never">
+  <MudDrawerHeader>
+    <MudText Typo="Typo.h6" Style="text-align: center;">
+      @Translate("Localization")
+    </MudText>
+  </MudDrawerHeader>
+  <MudDivider />
+  <MudDrawerContainer>
+    <MudList T="string">
+      <MudListItem
+        Text="@(new CultureInfo("hr").NativeName)"
+        Icon="@Icons.Material.Filled.Language"
+        OnClick="@(e => {
+          Culture = new CultureInfo("hr");
+          LayoutState.SetLocalizationDrawerOpen(false);
+        })" />
+      <MudListItem
+        Text="@(new CultureInfo("en").NativeName)"
+        Icon="@Icons.Material.Filled.Language"
+        OnClick="@(e => {
+          Culture = new CultureInfo("en");
+          LayoutState.SetLocalizationDrawerOpen(false);
+        })" />
+    </MudList>
+  </MudDrawerContainer>
+</MudDrawer>
+
+@code {
+  [CascadingParameter]
+  public MainLayoutState LayoutState { get; set; } = default!;
+}

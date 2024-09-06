@@ -10,41 +10,33 @@
   <title>HelbEx</title>
 </HeadContent>
 
-<main>
-  <MudThemeProvider Theme="_theme"/>
-  <MudPopoverProvider/>
-  <MudDialogProvider/>
-  <MudSnackbarProvider/>
+<CascadingValue Value="ThemeState">
+  <CascadingValue Value="LayoutState">
+    <MudThemeProvider Theme="ThemeState.Theme"/>
+    <MudPopoverProvider/>
+    <MudDialogProvider/>
+    <MudSnackbarProvider/>
 
-  <MudBreakpointProvider>
-    <Loading
-      T="UserState"
-      LoadAsync="LoadAsync">
-      <Found Context="userState">
-        <CascadingValue Value="userState">
-          <UserLayout>
-            <Body>
-            @if (userState.User.MaybeRepresentative is { } representative)
-            {
-              <CascadingValue Value="new RepresentativeState(representative)">
-                <RepresentativeLayout>
-                  <Body>
-                    <MudHidden Breakpoint="Breakpoint.SmAndDown">
-                      <MudContainer MaxWidth="MaxWidth.Large" Class="mt-8">
-                        @Body
-                      </MudContainer>
-                    </MudHidden>
-                    <MudHidden Breakpoint="Breakpoint.MdAndUp">
-                      <MudContainer MaxWidth="MaxWidth.Large" Class="mt-4">
-                        @Body
-                      </MudContainer>
-                    </MudHidden>
-                  </Body>
-                </RepresentativeLayout>
-              </CascadingValue>
-            }
-            else
-            {
+    <MudBreakpointProvider>
+      <Loading
+        T="UserState"
+        LoadAsync="LoadAsync">
+        <Found Context="userState">
+          <CascadingValue Value="userState">
+            <MudLayout>
+              <UserToolbar />
+              @if (userState.User.MaybeRepresentative is { })
+              {
+                <RepresentativeToolbar />
+              }
+
+              <LocalizationDrawer />
+              <UserDrawer />
+              @if (userState.User.MaybeRepresentative is { })
+              {
+                <NavigationDrawer />
+              }
+
               <MudHidden Breakpoint="Breakpoint.SmAndDown">
                 <MudContainer MaxWidth="MaxWidth.Large" Class="mt-8">
                   @Body
@@ -55,11 +47,10 @@
                   @Body
                 </MudContainer>
               </MudHidden>
-            }
-            </Body>
-          </UserLayout>
-        </CascadingValue>
-      </Found>
-    </Loading>
-  </MudBreakpointProvider>
-</main>
+            </MudLayout>
+          </CascadingValue>
+        </Found>
+      </Loading>
+    </MudBreakpointProvider>
+  </CascadingValue>
+</CascadingValue>

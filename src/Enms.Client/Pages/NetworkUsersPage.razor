@@ -2,7 +2,12 @@
 
 @namespace Enms.Client.Pages
 
-@attribute [Navigation(Title = "Network users")]
+@attribute [Navigation(
+  Title = "Network users",
+  RouteValue = "network-users",
+  Allows = [RoleModel.OperatorRepresentative],
+  Icon = Icons.Material.Filled.Person
+)]
 @attribute [Authorize]
 @using Enms.Business.Models
 @using Enms.Client.Shared.Models

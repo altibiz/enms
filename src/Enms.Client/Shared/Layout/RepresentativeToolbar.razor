@@ -1,0 +1,64 @@
+@namespace Enms.Client.Shared.Layout
+@using MudBlazor
+@using Enms.Client.Base
+@using Enms.Client.State
+@using Enms.Client.Shared.Streaming
+@using Enms.Business.Queries.Agnostic
+@using Enms.Business.Models.Base
+@using Microsoft.Extensions.DependencyInjection
+@inherits EnmsOwningComponentBase
+
+<MudToolBar Gutters="false">
+  <MudContainer MaxWidth="MaxWidth.Large" Class="d-flex flex-row">
+    <MudIconButton
+      Icon="@Icons.Material.Outlined.Menu"
+      Style="margin-left: -12px;"
+      OnClick="e => MainLayoutState.SetNavigationDrawerOpen(true)"/>
+    <MudSpacer />
+    <Paging PageAsync="@((page) => ScopedServices
+      .GetRequiredService<AgnosticQueries>()
+      .Read<EventModel>(pageNumber: page))">
+      <Found Context="events">
+        <MudMenu>
+          <ActivatorContent>
+            <MudIcon Icon="@Icons.Material.Filled.NotificationsActive"/>
+            <MudItem class="d-flex">
+              <MudIcon Icon="@Icons.Material.Filled.Circle"/>
+              <MudText>@events.TotalCount</MudText>
+            </MudItem>
+          </ActivatorContent>
+          <ChildContent>
+            <MudList T="EventModel">
+              @foreach(var e in events.Items) {
+                <MudListItem
+                  Text="@e.Title"
+                  Icon="@Icons.Material.Filled.Circle"
+                  IconColor="@MudBlazor.Color.Error"
+                  Href="@($"event/{e.Id}")"/>
+                <hr />
+              }
+            </MudList>
+          </ChildContent>
+        </MudMenu>
+      </Found>
+      <Empty>
+        <MudMenu>
+          <ActivatorContent>
+            <MudButton
+              Size="Size.Small"
+              Style="margin-right: -20px;"
+              Href="@($"/app/{Culture}/notifications")">
+              <MudIcon Icon="@Icons.Material.Filled.NotificationsNone" />
+            </MudButton>
+          </ActivatorContent>
+        </MudMenu>
+      </Empty>
+      <Pagination />
+    </Paging>
+  </MudContainer>
+</MudToolBar>
+
+@code {
+  [CascadingParameter]
+  public MainLayoutState MainLayoutState { get; set; } = default!;
+}

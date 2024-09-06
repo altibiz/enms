@@ -2,7 +2,11 @@
 
 @namespace Enms.Client.Pages
 
-@attribute [Navigation(Title = "Validators")]
+@attribute [Navigation(
+  Title = "Validators",
+  RouteValue = "validators",
+  Icon = Icons.Material.Filled.Check
+)]
 @attribute [Authorize]
 @using Enms.Business.Models
 @using Enms.Client.Shared.Models

@@ -1,0 +1,68 @@
+@using MudBlazor
+@using Enms.Client.Base
+@using Enms.Client.State
+@namespace Enms.Client.Shared.Layout
+@inherits EnmsComponentBase
+@using Microsoft.AspNetCore.Http
+@using Microsoft.AspNetCore.Antiforgery
+@inject IAntiforgery Antiforgery
+@inject IHttpContextAccessor HttpContextAccessor
+
+<MudDrawer
+  Open="@LayoutState.IsUserDrawerOpen"
+  OpenChanged="open => LayoutState.SetUserDrawerOpen(open)"
+  Elevation="0"
+  Anchor="Anchor.Bottom"
+  Variant="DrawerVariant.Temporary"
+  ClipMode="DrawerClipMode.Never">
+  <MudDrawerContainer>
+    <MudList T="string">
+      <MudListItem
+        Text="@Translate("Account")"
+        OnClick="e => LayoutState.SetUserDrawerOpen(false)"
+        Icon="@Icons.Material.Outlined.Person"
+        Href="account" />
+      <MudForm method="post" action="/Users/LogOff?returnUrl=/login">
+        <input
+          type="hidden"
+          name="__RequestVerificationToken"
+          value="@token"/>
+        <MudButton
+          ButtonType="ButtonType.Submit"
+          DropShadow="false"
+          Ripple="false"
+          OnClick="e => LayoutState.SetUserDrawerOpen(false)"
+          Style="justify-content: start; padding: 0; background-color: inherit;">
+          <MudListItem
+            Text="@Translate("Logout")"
+            Icon="@Icons.Material.Outlined.Login">
+              <MudText>
+                @Translate("Logout")
+              </MudText>
+          </MudListItem>
+        </MudButton>
+      </MudForm>
+    </MudList>
+  </MudDrawerContainer>
+</MudDrawer>
+
+@code {
+
+  [CascadingParameter]
+  public UserState UserState { get; set; } = default!;
+
+  [CascadingParameter]
+  public MainLayoutState LayoutState { get; set; } = default!;
+
+  private string token = string.Empty;
+
+  protected override void OnInitialized()
+  {
+    var context = HttpContextAccessor.HttpContext;
+    if (context is not null)
+    {
+      token = Antiforgery.GetAndStoreTokens(context).RequestToken
+        ?? string.Empty;
+    }
+  }
+}
