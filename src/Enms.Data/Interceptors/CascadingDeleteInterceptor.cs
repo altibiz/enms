@@ -83,7 +83,7 @@ public class CascadingDeleteInterceptor : ServedSaveChangesInterceptor
       var declarers = await context
         .GetQueryable(relationship.DeclaringEntityType.ClrType)
         .Where(
-          context.ForeignKeyEqualsAgnostic(
+          context.ForeignKeyEquals(
             relationship.DeclaringEntityType.ClrType,
             relationship.GetNavigation(true)?.Name
             ?? throw new InvalidOperationException(

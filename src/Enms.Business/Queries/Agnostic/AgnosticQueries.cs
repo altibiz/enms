@@ -35,7 +35,7 @@ public class AgnosticQueries(
 
     var item = await queryable
       .Where(
-        context.PrimaryKeyEqualsAgnostic(modelEntityConverter.EntityType(), id))
+        context.PrimaryKeyEquals(modelEntityConverter.EntityType(), id))
       .FirstOrDefaultAsync();
 
     return item is null
@@ -68,7 +68,7 @@ public class AgnosticQueries(
 
     var item = await queryable
       .Where(
-        context.PrimaryKeyEqualsAgnostic(modelEntityConverter.EntityType(), id))
+        context.PrimaryKeyEquals(modelEntityConverter.EntityType(), id))
       .FirstOrDefaultAsync();
 
     return item is null
@@ -108,7 +108,7 @@ public class AgnosticQueries(
     if (orderByDescClause is null && orderByAscClause is null)
     {
       ordered = filtered.OrderBy(context
-        .PrimaryKeyOfAgnostic(modelEntityConverter.EntityType()))
+        .PrimaryKeyOf(modelEntityConverter.EntityType()))
         as IQueryable<IEntity>
         ?? throw new InvalidOperationException();
     }
@@ -172,7 +172,7 @@ public class AgnosticQueries(
     if (orderByDescClause is null && orderByAscClause is null)
     {
       var ordering = context
-        .PrimaryKeyOfAgnostic(modelEntityConverter.EntityType());
+        .PrimaryKeyOf(modelEntityConverter.EntityType());
       ordered = filtered.OrderBy(ordering)
         as IQueryable<IEntity>
         ?? throw new InvalidOperationException();
