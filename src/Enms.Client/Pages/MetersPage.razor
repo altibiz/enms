@@ -2,10 +2,13 @@
 
 @namespace Enms.Client.Pages
 
+@using Enms.Business.Models.Enums
 @attribute [Navigation(
   Title = "Meters",
   RouteValue = "meters",
-  Icon = Icons.Material.Filled.ElectricMeter
+  Icon = Icons.Material.Filled.ElectricMeter,
+  Allows = [RoleModel.OperatorRepresentative],
+  Order = 80
 )]
 @attribute [Authorize]
 @using Enms.Business.Models
@@ -37,3 +40,10 @@
 <MudLink Href="meter">
   @Translate("Create")
 </MudLink>
+    using OrchardCore.Security;
+
+#line default
+#line hidden
+#nullable disable
+#nullable restore
+#line 6 "/home/haras/src/enms/src/Enms.Client/Pages/MetersPage.razor"

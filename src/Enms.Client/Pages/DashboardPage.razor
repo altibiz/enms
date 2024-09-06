@@ -23,12 +23,11 @@
   return;
 }
 
-<MudText Typo="Typo.h3">
-  @Translate("Welcome,") @(user.User.User.UserName).
-</MudText>
-
 @if (user.User.MaybeRepresentative is null)
 {
+  <MudText Typo="Typo.h3">
+    @Translate("Welcome,") @(user.User.User.UserName).
+  </MudText>
   <MudText Class="mt-4">
     @Translate("Please wait until your data arrives in our system.")
     @Translate("You will be notified when this happens via email.")

@@ -2,10 +2,13 @@
 
 @namespace Enms.Client.Pages
 
+@using Enms.Business.Models.Enums
 @attribute [Navigation(
   Title = "Validators",
   RouteValue = "validators",
-  Icon = Icons.Material.Filled.Check
+  Allows = [RoleModel.OperatorRepresentative],
+  Icon = Icons.Material.Filled.Check,
+  Order = 100
 )]
 @attribute [Authorize]
 @using Enms.Business.Models
@@ -37,3 +40,10 @@
 <MudLink Href="validator">
   @Translate("Create")
 </MudLink>
+    using Enms.Business.Models.Enums;
+
+#line default
+#line hidden
+#nullable disable
+#nullable restore
+#line 6 "/home/haras/src/enms/src/Enms.Client/Pages/ValidatorsPage.razor"

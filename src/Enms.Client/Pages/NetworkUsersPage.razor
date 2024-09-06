@@ -2,6 +2,8 @@
 
 @namespace Enms.Client.Pages
 
+@using Enms.Business.Models
+@using Enms.Business.Models.Enums
 @attribute [Navigation(
   Title = "Network users",
   RouteValue = "network-users",
@@ -9,7 +11,6 @@
   Icon = Icons.Material.Filled.Person
 )]
 @attribute [Authorize]
-@using Enms.Business.Models
 @using Enms.Client.Shared.Models
 @using Enms.Client.Shared.Streaming
 @using Microsoft.AspNetCore.Authorization

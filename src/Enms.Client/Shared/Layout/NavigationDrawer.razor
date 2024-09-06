@@ -13,7 +13,7 @@
   Anchor="Anchor.Top"
   Variant="DrawerVariant.Temporary"
   Height="100vh">
-  <MudDrawerHeader>
+  <MudDrawerHeader Style="padding-inline: 0;">
     <MudContainer MaxWidth="MaxWidth.Small" Class="d-flex flex-row">
       <MudImage
         Src="/favicon.svg"
@@ -24,6 +24,7 @@
         OnClick="e => LayoutState.SetNavigationDrawerOpen(false)"
         Variant="Variant.Text"
         Color="Color.Primary"
+        Style="margin-right: -24px;"
         Class="d-flex flex-row align-center">
         <MudIcon Icon="@Icons.Material.Filled.Close"/>
       </MudButton>
@@ -37,8 +38,23 @@
           Href="@route.Route"
           OnClick="e => LayoutState.SetNavigationDrawerOpen(false)"
           Match="NavLinkMatch.All">
-          <MudContainer MaxWidth="MaxWidth.Small" Class="d-flex flex-row">
-            <MudIcon Icon="@route.Icon" />
+          <MudContainer
+            MaxWidth="MaxWidth.Small"
+            Class="d-flex flex-row">
+            <MudHidden Breakpoint="Breakpoint.Xs">
+              <div
+                style="margin-left: -8px;"
+                class="d-flex flex-row align-center">
+                <MudIcon Icon="@route.Icon" />
+              </div>
+            </MudHidden>
+            <MudHidden Breakpoint="Breakpoint.SmAndUp">
+              <div
+                style="margin-left: -28px;"
+                class="d-flex flex-row align-center">
+                <MudIcon Icon="@route.Icon" />
+              </div>
+            </MudHidden>
             <MudText Class="ml-4">
               @Translate(route.Title)
             </MudText>
