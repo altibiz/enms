@@ -1,7 +1,9 @@
-using Enms.Business.Models;
+using System.Security.Claims;
+using Enms.Business.Models.Composite;
 
 namespace Enms.Client.State;
 
 public record UserState(
-  UserModel User
+  ClaimsPrincipal ClaimsPrincipal,
+  MaybeRepresentingUserModel User
 );

@@ -10,12 +10,16 @@
 @using Enms.Client.State
 @inherits Enms.Client.Base.EnmsOwningComponentBase
 
-<MaybeRepresentingUserDetails Model="@(new MaybeRepresentingUserModel(user.User) { MaybeRepresentative = representative?.Representative })"/>
+<MaybeRepresentingUserDetails Model="@(
+  new MaybeRepresentingUserModel(UserState.User.User)
+  {
+    MaybeRepresentative = RepresentativeState?.Representative
+  })"/>
 
 @code {
   [CascadingParameter]
-  public UserState user { get; set; } = default!;
+  public UserState UserState { get; set; } = default!;
 
   [CascadingParameter]
-  public RepresentativeState? representative { get; set; } = default!;
+  public RepresentativeState? RepresentativeState { get; set; } = default!;
 }

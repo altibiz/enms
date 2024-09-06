@@ -1,6 +1,7 @@
 using Enms.Business.Models.Composite;
 using Enms.Business.Queries;
 using Enms.Client.Base;
+using Enms.Client.State;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.Extensions.DependencyInjection;
@@ -147,7 +148,7 @@ public partial class MainLayout : EnmsLayoutComponentBase
   [Inject]
   private IServiceScopeFactory ServiceScopeFactory { get; set; } = default!;
 
-  private async Task<MaybeRepresentingUserModel?> LoadAsync()
+  private async Task<UserState?> LoadAsync()
   {
     if (AuthenticationStateTask is null)
     {
@@ -167,6 +168,9 @@ public partial class MainLayout : EnmsLayoutComponentBase
     await using var scope = ServiceScopeFactory.CreateAsyncScope();
     var query =
       scope.ServiceProvider.GetRequiredService<RepresentativeQueries>();
-    return await query.MaybeRepresentingUserByClaimsPrincipal(claimsPrincipal);
+    return new UserState(
+      claimsPrincipal,
+      await query.MaybeRepresentingUserByClaimsPrincipal(claimsPrincipal)
+    );
   }
 }

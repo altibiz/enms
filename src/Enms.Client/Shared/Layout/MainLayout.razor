@@ -18,13 +18,13 @@
 
   <MudBreakpointProvider>
     <Loading
-      T="MaybeRepresentingUserModel"
+      T="UserState"
       LoadAsync="LoadAsync">
-      <Found Context="maybeRepresentingUser">
-        <CascadingValue Value="new UserState(maybeRepresentingUser.User)">
+      <Found Context="userState">
+        <CascadingValue Value="userState">
           <UserLayout>
             <Body>
-            @if (maybeRepresentingUser.MaybeRepresentative is { } representative)
+            @if (userState.User.MaybeRepresentative is { } representative)
             {
               <CascadingValue Value="new RepresentativeState(representative)">
                 <RepresentativeLayout>
