@@ -1,37 +1,26 @@
 @namespace Enms.Client.Shared.Models
 @using Enms.Business.Models.Composite
+@using Enms.Client.Shared.Fields
 @using MudBlazor
 @inherits Enms.Client.Base.EnmsComponentBase
 
-<MudText Typo="Typo.h5">User</MudText>
-<MudPaper>
-  <MudGrid>
-    <MudItem xs="12" sm="6">
-      <MudText Typo="Typo.body1">Id</MudText>
-      <MudText Typo="Typo.body2">@Model.User.UserName</MudText>
-    </MudItem>
-    <MudItem xs="12" sm="6">
-      <MudText Typo="Typo.body1">Email</MudText>
-      <MudText Typo="Typo.body2">@Model.User.Email</MudText>
-    </MudItem>
-  </MudGrid>
-</MudPaper>
+<DetailsField Title="Id">
+  @Model.User.UserName
+</DetailsField>
+
+<DetailsField Title="Email">
+  @Model.User.Email
+</DetailsField>
 
 @if (Model.MaybeRepresentative is { } representative)
 {
-  <MudText Typo="Typo.h6">@representative.Title</MudText>
-  <MudPaper>
-    <MudGrid>
-      <MudItem xs="12" sm="6">
-        <MudText Typo="Typo.body1">Role</MudText>
-        <MudText Typo="Typo.body2">@representative.Role</MudText>
-      </MudItem>
-      <MudItem xs="12" sm="6">
-        <MudText Typo="Typo.body1">Name</MudText>
-        <MudText Typo="Typo.body2">@representative.PhysicalPerson.Name</MudText>
-      </MudItem>
-    </MudGrid>
-  </MudPaper>
+  <DetailsField Title="Role">
+    @representative.Role
+  </DetailsField>
+
+  <DetailsField Title="Name">
+    @representative.PhysicalPerson.Name
+  </DetailsField>
 }
 
 @code {

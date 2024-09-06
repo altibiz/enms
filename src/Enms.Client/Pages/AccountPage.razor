@@ -4,22 +4,18 @@
 
 @attribute [Navigation(Title = "Account", Order = 100)]
 @attribute [Authorize]
-@using Enms.Business.Models.Base
-@using Enms.Client.Shared.Models
-@using Enms.Client.Shared.Streaming
 @using Microsoft.AspNetCore.Authorization
+@using Enms.Business.Models.Composite
+@using Enms.Client.Shared.Models
+@using Enms.Client.State
 @inherits Enms.Client.Base.EnmsOwningComponentBase
 
-<Loading T="EventModel" Id="@Id">
-  <Found Context="model">
-    <EventDetails Model="@model"/>
-  </Found>
-</Loading>
-
+<MaybeRepresentingUserDetails Model="@(new MaybeRepresentingUserModel(user.User) { MaybeRepresentative = representative?.Representative })"/>
 
 @code {
+  [CascadingParameter]
+  public UserState user { get; set; } = default!;
 
-  [Parameter]
-  public string? Id { get; set; }
-
+  [CascadingParameter]
+  public RepresentativeState? representative { get; set; } = default!;
 }

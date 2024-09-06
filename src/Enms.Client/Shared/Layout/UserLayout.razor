@@ -15,9 +15,12 @@
 @inject IHttpContextAccessor HttpContextAccessor
 
 <MudLayout>
-  <MudAppBar Elevation="0" Color="Color.Tertiary">
-    <MudLink Href="/">
-      <MudContainer Class="d-flex align-items-center h-100">
+  <MudAppBar Elevation="0" Color="Color.Tertiary" Gutters="false">
+    <MudContainer MaxWidth="MaxWidth.Large" Class="d-flex flex-row">
+      <MudButton
+        Href="@($"/app/{Culture}")"
+        Style="margin-left: -8px;"
+        Class="d-flex align-center">
         <MudHidden Breakpoint="Breakpoint.SmAndDown">
           <MudImage
             Src="/logo.svg"
@@ -30,40 +33,40 @@
             Alt="HelbEx"
             Style="height: calc(var(--mud-appbar-height) * 0.6);" />
         </MudHidden>
-      </MudContainer>
-    </MudLink>
-    <MudSpacer />
-    <MudContainer Class="d-flex flex-row" Style="justify-content: end;">
-      <MudButton
-        Variant="Variant.Text"
-        Color="Color.Primary"
-        Ripple="false"
-        OnClick="e => _localizationDrawerOpen = !_localizationDrawerOpen"
-        Class="d-flex flex-row"
-        Style="align-items: center">
-        <MudIcon Icon="@Icons.Material.Filled.Language" />
-        <MudHidden Breakpoint="Breakpoint.SmAndDown">
-          <MudText>@Culture.NativeName</MudText>
-        </MudHidden>
       </MudButton>
-      <MudButton
-        OnClick="e => _userDrawerOpen = !_userDrawerOpen"
-        Variant="Variant.Text"
-        Color="Color.Primary"
-        Ripple="false"
-        Class="d-flex flex-row" Style="align-items: center">`
-        <MudIcon Icon="@Icons.Material.Filled.Person"/>
-        <MudHidden Breakpoint="Breakpoint.SmAndDown">
-          <MudContainer Class="d-flex flex-column align-items-center">
-            <MudText>
-              @Translate("Welcome,")
-            </MudText>
-            <MudText>
-              @UserState.User.UserName
-            </MudText>
-          </MudContainer>
-        </MudHidden>
-      </MudButton>
+      <MudSpacer />
+      <div Class="d-flex flex-row justify-end">
+        <MudButton
+          Variant="Variant.Text"
+          Color="Color.Primary"
+          OnClick="e => _localizationDrawerOpen = !_localizationDrawerOpen"
+          Class="d-flex flex-row align-center">
+          <MudIcon Icon="@Icons.Material.Filled.Language" />
+          <MudHidden Breakpoint="Breakpoint.SmAndDown">
+            <div Class="ml-2">
+              <MudText>@Culture</MudText>
+            </div>
+          </MudHidden>
+        </MudButton>
+        <MudButton
+          OnClick="e => _userDrawerOpen = !_userDrawerOpen"
+          Variant="Variant.Text"
+          Color="Color.Primary"
+          Class="d-flex flex-row align-center"
+          Style="margin-right: -8px;">
+          <MudIcon Icon="@Icons.Material.Filled.Person"/>
+          <MudHidden Breakpoint="Breakpoint.SmAndDown">
+            <div Class="ml-2 d-flex flex-column align-center">
+              <MudText>
+                @Translate("Welcome,")
+              </MudText>
+              <MudText>
+                @UserState.User.UserName
+              </MudText>
+            </div>
+          </MudHidden>
+        </MudButton>
+      </div>
     </MudContainer>
   </MudAppBar>
   <MudDrawer
@@ -76,10 +79,12 @@
       <MudList T="string">
         <MudListItem
           Text="@Translate("Account")"
+          OnClick="e => _userDrawerOpen = false"
           Icon="@Icons.Material.Outlined.Person"
           Href="account" />
         <MudListItem
           Text="@Translate("Logout")"
+          OnClick="e => _userDrawerOpen = false"
           Icon="@Icons.Material.Outlined.Login">
           <MudForm method="post" action="/Users/LogOff?returnUrl=/login">
             <AntiforgeryToken />
@@ -108,20 +113,24 @@
     <MudDrawerContainer>
       <MudList T="string">
         <MudListItem
-          Text="@(new CultureInfo("hr-HR").NativeName)"
+          Text="@(new CultureInfo("hr").NativeName)"
           Icon="@Icons.Material.Filled.Language"
-          OnClick="@(e => Culture = new CultureInfo("hr-HR"))" />
+          OnClick="@(e => {
+            Culture = new CultureInfo("hr");
+            _localizationDrawerOpen = false;
+          })" />
         <MudListItem
-          Text="@(new CultureInfo("en-US").NativeName)"
+          Text="@(new CultureInfo("en").NativeName)"
           Icon="@Icons.Material.Filled.Language"
-          OnClick="@(e => Culture = new CultureInfo("en-US"))" />
+          OnClick="@(e => {
+            Culture = new CultureInfo("en");
+            _localizationDrawerOpen = false;
+          })" />
       </MudList>
     </MudDrawerContainer>
   </MudDrawer>
   <MudMainContent>
-    <MudContainer>
-      @Body
-    </MudContainer>
+    @Body
   </MudMainContent>
 </MudLayout>
 

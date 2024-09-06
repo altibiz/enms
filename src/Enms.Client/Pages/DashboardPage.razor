@@ -18,30 +18,28 @@
   return;
 }
 
-<MudContainer MaxWidth="MaxWidth.Large" Class="mt-8">
-  <MudText Typo="Typo.h3">
-    @Translate("Welcome,") @(user.User.UserName).
+<MudText Typo="Typo.h3">
+  @Translate("Welcome,") @(user.User.UserName).
+</MudText>
+
+@if (representative is null)
+{
+  <MudText Class="mt-4">
+    @Translate("Please wait until your data arrives in our system.")
+    @Translate("You will be notified when this happens via email.")
   </MudText>
+  return;
+}
 
-  @if (representative is null)
-  {
-    <MudText Class="mt-4">
-      @Translate("Please wait until your data arrives in our system.")
-      @Translate("You will be notified when this happens via email.")
-    </MudText>
-    return;
-  }
+@if (representative.Representative.Role == RoleModel.UserRepresentative)
+{
+  return;
+}
 
-  @if (representative.Representative.Role == RoleModel.UserRepresentative)
-  {
-    return;
-  }
-
-  @if (representative.Representative.Role == RoleModel.OperatorRepresentative)
-  {
-    return;
-  }
-</MudContainer>
+@if (representative.Representative.Role == RoleModel.OperatorRepresentative)
+{
+  return;
+}
 
 @code {
 

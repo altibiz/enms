@@ -3,7 +3,12 @@
 @using Enms.Client.Shared.Streaming
 @using Enms.Client.State
 @using MudBlazor
+@using Microsoft.AspNetCore.Components.Web
 @inherits Enms.Client.Base.EnmsLayoutComponentBase
+
+<HeadContent>
+  <title>HelbEx</title>
+</HeadContent>
 
 <main>
   <MudThemeProvider Theme="_theme"/>
@@ -24,14 +29,32 @@
               <CascadingValue Value="new RepresentativeState(representative)">
                 <RepresentativeLayout>
                   <Body>
-                  @Body
+                    <MudHidden Breakpoint="Breakpoint.SmAndDown">
+                      <MudContainer MaxWidth="MaxWidth.Large" Class="mt-8">
+                        @Body
+                      </MudContainer>
+                    </MudHidden>
+                    <MudHidden Breakpoint="Breakpoint.MdAndUp">
+                      <MudContainer MaxWidth="MaxWidth.Large" Class="mt-4">
+                        @Body
+                      </MudContainer>
+                    </MudHidden>
                   </Body>
                 </RepresentativeLayout>
               </CascadingValue>
             }
             else
             {
-              @Body
+              <MudHidden Breakpoint="Breakpoint.SmAndDown">
+                <MudContainer MaxWidth="MaxWidth.Large" Class="mt-8">
+                  @Body
+                </MudContainer>
+              </MudHidden>
+              <MudHidden Breakpoint="Breakpoint.MdAndUp">
+                <MudContainer MaxWidth="MaxWidth.Large" Class="mt-4">
+                  @Body
+                </MudContainer>
+              </MudHidden>
             }
             </Body>
           </UserLayout>
