@@ -15,14 +15,6 @@ public static class DbContextPrimaryKeyExtensions
     return entity => typeBasedFunc(entity!);
   }
 
-  public static Func<T, bool> PrimaryKeyEqualsCompiled<T>(
-    this DbContext context,
-    string id)
-  {
-    var typeBasedFunc = context.PrimaryKeyEqualsCompiled(typeof(T), id);
-    return entity => typeBasedFunc(entity!);
-  }
-
   public static Expression<Func<T, object>> PrimaryKeyOf<T>(
     this DbContext context)
   {
@@ -33,11 +25,36 @@ public static class DbContextPrimaryKeyExtensions
     return Expression.Lambda<Func<T, object>>(body, parameter);
   }
 
+  public static Func<T, bool> PrimaryKeyEqualsCompiled<T>(
+    this DbContext context,
+    string id)
+  {
+    var typeBasedFunc = context.PrimaryKeyEqualsCompiled(typeof(T), id);
+    return entity => typeBasedFunc(entity!);
+  }
+
   public static Expression<Func<T, bool>> PrimaryKeyEquals<T>(
     this DbContext context,
     string id)
   {
     var typeBasedExpr = context.PrimaryKeyEquals(typeof(T), id);
+    var parameter = Expression.Parameter(typeof(T), "entity");
+    var cast = Expression.Convert(parameter, typeof(object));
+    var body = Expression.Invoke(typeBasedExpr, cast);
+    return Expression.Lambda<Func<T, bool>>(body, parameter);
+  }
+
+  public static Func<T, bool> PrimaryKeyInCompiled<T>(
+    this DbContext context, ICollection<string> ids)
+  {
+    var typeBasedFunc = context.PrimaryKeyInCompiled(typeof(T), ids);
+    return entity => typeBasedFunc(entity!);
+  }
+
+  public static Expression<Func<T, bool>> PrimaryKeyIn<T>(
+    this DbContext context, ICollection<string> ids)
+  {
+    var typeBasedExpr = context.PrimaryKeyIn(typeof(T), ids);
     var parameter = Expression.Parameter(typeof(T), "entity");
     var cast = Expression.Convert(parameter, typeof(object));
     var body = Expression.Invoke(typeBasedExpr, cast);
@@ -110,6 +127,39 @@ public static class DbContextPrimaryKeyExtensions
     return expr;
   }
 
+  public static Func<object, bool> PrimaryKeyInCompiled(
+    this DbContext context, Type entityType, ICollection<string> ids)
+  {
+    var key = (context.GetType(), entityType);
+
+    if (_primaryKeyInCompiledCache.TryGetValue(key, out var cachedFunc))
+    {
+      return (Func<object, bool>)cachedFunc;
+    }
+
+    var expr = context.PrimaryKeyInUncached(entityType, ids);
+    var compiled = expr.Compile();
+    _primaryKeyInCompiledCache[key] = compiled;
+
+    return compiled;
+  }
+
+  public static Expression<Func<object, bool>> PrimaryKeyIn(
+    this DbContext context, Type entityType, ICollection<string> ids)
+  {
+    var key = (context.GetType(), entityType);
+
+    if (_primaryKeyInExpressionCache.TryGetValue(key, out var cachedExpr))
+    {
+      return (Expression<Func<object, bool>>)cachedExpr;
+    }
+
+    var expr = context.PrimaryKeyInUncached(entityType, ids);
+    _primaryKeyInExpressionCache[key] = expr;
+
+    return expr;
+  }
+
   private static Expression<Func<object, object>> PrimaryKeyOfUncached(
     this DbContext context, Type entityType)
   {
@@ -177,6 +227,49 @@ public static class DbContextPrimaryKeyExtensions
     return Expression.Lambda<Func<object, bool>>(equalityExpression!, parameter);
   }
 
+  private static Expression<Func<object, bool>> PrimaryKeyInUncached(
+    this DbContext context, Type entityType, ICollection<string> ids)
+  {
+    var keyProperties = context.GetPrimaryKeyProperties(entityType);
+    var parameter = Expression.Parameter(typeof(object), "e");
+    var convertedParameter = Expression.Convert(parameter, entityType);
+
+    var idExpressions = new List<Expression>();
+
+    foreach (var id in ids)
+    {
+      var idParts = id.Split(DataDbContext.KeyJoin);
+      if (idParts.Length != keyProperties.Count)
+      {
+        throw new ArgumentException(
+          "The number of id parts must match the number of key properties.");
+      }
+
+      Expression? keyMatchExpression = null;
+
+      foreach (var (property, idPart) in keyProperties.Zip(idParts))
+      {
+        var propertyExpression =
+          Expression.Property(convertedParameter, property.PropertyInfo!);
+        var convertedIdPart = Expression.Constant(
+          Convert.ChangeType(idPart, property.ClrType));
+
+        var equalsExpression =
+          Expression.Equal(propertyExpression, convertedIdPart);
+
+        keyMatchExpression = keyMatchExpression == null
+          ? equalsExpression
+          : Expression.AndAlso(keyMatchExpression, equalsExpression);
+      }
+
+      idExpressions.Add(keyMatchExpression!);
+    }
+
+    var finalOrExpression = idExpressions.Aggregate(Expression.OrElse);
+
+    return Expression.Lambda<Func<object, bool>>(finalOrExpression, parameter);
+  }
+
   private static IReadOnlyList<IProperty> GetPrimaryKeyProperties(
     this DbContext context, Type entityType)
   {
@@ -204,4 +297,12 @@ public static class DbContextPrimaryKeyExtensions
   private static readonly
     ConcurrentDictionary<(Type dbContextType, Type entityType), Expression>
     _primaryKeyEqualsExpressionCache = new();
+
+  private static readonly
+    ConcurrentDictionary<(Type dbContextType, Type entityType), Delegate>
+    _primaryKeyInCompiledCache = new();
+
+  private static readonly
+    ConcurrentDictionary<(Type dbContextType, Type entityType), Expression>
+    _primaryKeyInExpressionCache = new();
 }

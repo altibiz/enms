@@ -16,16 +16,6 @@ public static class DbContextForeignKeyExtensions
     return entity => typeBasedFunc(entity!);
   }
 
-  public static Func<T, bool> ForeignKeyEqualsCompiled<T>(
-    this DbContext context,
-    string property,
-    string id)
-  {
-    var typeBasedFunc = context
-      .ForeignKeyEqualsCompiled(typeof(T), property, id);
-    return entity => typeBasedFunc(entity!);
-  }
-
   public static Expression<Func<T, object>> ForeignKeyOf<T>(
     this DbContext context,
     string property)
@@ -37,12 +27,39 @@ public static class DbContextForeignKeyExtensions
     return Expression.Lambda<Func<T, object>>(body, parameter);
   }
 
+  public static Func<T, bool> ForeignKeyEqualsCompiled<T>(
+    this DbContext context,
+    string property,
+    string id)
+  {
+    var typeBasedFunc = context
+      .ForeignKeyEqualsCompiled(typeof(T), property, id);
+    return entity => typeBasedFunc(entity!);
+  }
+
   public static Expression<Func<T, bool>> ForeignKeyEquals<T>(
     this DbContext context,
     string property,
     string id)
   {
     var typeBasedExpr = context.ForeignKeyEquals(typeof(T), property, id);
+    var parameter = Expression.Parameter(typeof(T), "entity");
+    var cast = Expression.Convert(parameter, typeof(object));
+    var body = Expression.Invoke(typeBasedExpr, cast);
+    return Expression.Lambda<Func<T, bool>>(body, parameter);
+  }
+
+  public static Func<T, bool> ForeignKeyInCompiled<T>(
+    this DbContext context, string property, ICollection<string> ids)
+  {
+    var typeBasedFunc = context.ForeignKeyInCompiled(typeof(T), property, ids);
+    return entity => typeBasedFunc(entity!);
+  }
+
+  public static Expression<Func<T, bool>> ForeignKeyIn<T>(
+    this DbContext context, string property, ICollection<string> ids)
+  {
+    var typeBasedExpr = context.ForeignKeyIn(typeof(T), property, ids);
     var parameter = Expression.Parameter(typeof(T), "entity");
     var cast = Expression.Convert(parameter, typeof(object));
     var body = Expression.Invoke(typeBasedExpr, cast);
@@ -115,6 +132,39 @@ public static class DbContextForeignKeyExtensions
     return expr;
   }
 
+  public static Func<object, bool> ForeignKeyInCompiled(
+    this DbContext context, Type entityType, string property, ICollection<string> ids)
+  {
+    var key = (context.GetType(), entityType, property);
+
+    if (_foreignKeyInCompiledCache.TryGetValue(key, out var cachedFunc))
+    {
+      return (Func<object, bool>)cachedFunc;
+    }
+
+    var expr = context.ForeignKeyInUncached(entityType, property, ids);
+    var compiled = expr.Compile();
+    _foreignKeyInCompiledCache[key] = compiled;
+
+    return compiled;
+  }
+
+  public static Expression<Func<object, bool>> ForeignKeyIn(
+    this DbContext context, Type entityType, string property, ICollection<string> ids)
+  {
+    var key = (context.GetType(), entityType, property);
+
+    if (_foreignKeyInExpressionCache.TryGetValue(key, out var cachedExpr))
+    {
+      return (Expression<Func<object, bool>>)cachedExpr;
+    }
+
+    var expr = context.ForeignKeyInUncached(entityType, property, ids);
+    _foreignKeyInExpressionCache[key] = expr;
+
+    return expr;
+  }
+
   private static Expression<Func<object, object>> ForeignKeyOfUncached(
     this DbContext context, Type entityType, string property)
   {
@@ -181,6 +231,51 @@ public static class DbContextForeignKeyExtensions
     return Expression.Lambda<Func<object, bool>>(equalityExpression!, parameter);
   }
 
+  private static Expression<Func<object, bool>> ForeignKeyInUncached(
+    this DbContext context, Type entityType, string property, ICollection<string> ids)
+  {
+    var keyProperties = context.GetForeignKeyProperties(entityType, property);
+    var parameter = Expression.Parameter(typeof(object), "e");
+    var convertedParameter = Expression.Convert(parameter, entityType);
+
+    var idExpressions = new List<Expression>();
+
+    foreach (var id in ids)
+    {
+      var idParts = id.Split(DataDbContext.KeyJoin);
+      if (idParts.Length != keyProperties.Count)
+      {
+        throw new ArgumentException(
+          "The number of id parts must match the number of key properties.");
+      }
+
+      Expression? keyMatchExpression = null;
+
+      foreach (var (propertyExpression, idPart) in keyProperties.Zip(idParts))
+      {
+        var propertyExpressionConverted = Expression.Property(
+          convertedParameter,
+          propertyExpression.PropertyInfo!);
+        var convertedIdPart = Expression.Constant(
+          Convert.ChangeType(idPart, propertyExpression.ClrType));
+
+        var equalsExpression = Expression.Equal(
+          propertyExpressionConverted,
+          convertedIdPart);
+
+        keyMatchExpression = keyMatchExpression == null
+          ? equalsExpression
+          : Expression.AndAlso(keyMatchExpression, equalsExpression);
+      }
+
+      idExpressions.Add(keyMatchExpression!);
+    }
+
+    var finalOrExpression = idExpressions.Aggregate(Expression.OrElse);
+
+    return Expression.Lambda<Func<object, bool>>(finalOrExpression, parameter);
+  }
+
   private static IReadOnlyList<IProperty> GetForeignKeyProperties(
     this DbContext context,
     Type entityType,
@@ -218,4 +313,12 @@ public static class DbContextForeignKeyExtensions
   private static readonly
     ConcurrentDictionary<(Type dbContextType, Type entityType, string foreignKey), Expression>
     _foreignKeyEqualsExpressionCache = new();
+
+  private static readonly
+    ConcurrentDictionary<(Type dbContextType, Type entityType, string foreignKey), Delegate>
+    _foreignKeyInCompiledCache = new();
+
+  private static readonly
+    ConcurrentDictionary<(Type dbContextType, Type entityType, string foreignKey), Expression>
+    _foreignKeyInExpressionCache = new();
 }
