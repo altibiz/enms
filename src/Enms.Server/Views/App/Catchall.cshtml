@@ -1,6 +1,5 @@
-@using Enms.Client
 @{
   Layout = "_Layout.cshtml";
 }
 
-@(await Html.RenderComponentAsync<App>(RenderMode.Server))
+@(await Html.RenderComponentAsync<Enms.Client.App>(RenderMode.Server))

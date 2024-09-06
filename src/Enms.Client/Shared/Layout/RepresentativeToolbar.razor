@@ -9,11 +9,14 @@
 @inherits EnmsOwningComponentBase
 
 <MudToolBar Gutters="false">
-  <MudContainer MaxWidth="MaxWidth.Large" Class="d-flex flex-row">
+  <MudContainer
+    Style="height: 100%;"
+    MaxWidth="MaxWidth.Large"
+    Class="d-flex flex-row">
     <MudIconButton
       Icon="@Icons.Material.Outlined.Menu"
       Style="margin-left: -12px;"
-      OnClick="e => MainLayoutState.SetNavigationDrawerOpen(true)"/>
+      OnClick="e => LayoutState.SetNavigationDrawerOpen(true)"/>
     <MudSpacer />
     <Paging PageAsync="@((page) => ScopedServices
       .GetRequiredService<AgnosticQueries>()
@@ -60,5 +63,5 @@
 
 @code {
   [CascadingParameter]
-  public MainLayoutState MainLayoutState { get; set; } = default!;
+  public LayoutState LayoutState { get; set; } = default!;
 }

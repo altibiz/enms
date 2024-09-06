@@ -1,6 +1,6 @@
 namespace Enms.Client.State;
 
-public record MainLayoutState(
+public record LayoutState(
   bool IsUserDrawerOpen,
   bool IsLocalizationDrawerOpen,
   bool IsNavigationDrawerOpen,

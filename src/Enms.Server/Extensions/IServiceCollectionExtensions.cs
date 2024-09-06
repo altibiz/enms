@@ -14,19 +14,34 @@ public static class IServiceCollectionExtensions
       .Where(service =>
         !service.ServiceType.IsGenericType &&
         !service.ServiceType.IsAbstract &&
+        service.Lifetime == ServiceLifetime.Singleton &&
         service.ServiceType.IsAssignableTo(typeof(IHostedService)))
       .ToList();
 
     foreach (var hostedService in hostedServices)
     {
       services.Remove(hostedService);
-      var modularTenantEvents = new ServiceDescriptor(
-        typeof(IModularTenantEvents),
-        typeof(HostedServiceModularTenantEvents<>)
-          .MakeGenericType(
-            hostedService.ImplementationType ?? hostedService.ServiceType),
-        hostedService.Lifetime
-      );
+      var modularTenantEvents =
+      hostedService.ImplementationFactory is { } factory ?
+        new ServiceDescriptor(
+          typeof(IModularTenantEvents),
+          services => ActivatorUtilities.CreateInstance(
+            services,
+            typeof(HostedServiceModularTenantEvents<>)
+              .MakeGenericType(
+                hostedService.ImplementationType ??
+                hostedService.ServiceType),
+            factory(services)),
+          ServiceLifetime.Singleton
+        ) :
+        new ServiceDescriptor(
+          typeof(IModularTenantEvents),
+          typeof(HostedServiceModularTenantEvents<>)
+            .MakeGenericType(
+              hostedService.ImplementationType ??
+              hostedService.ServiceType),
+          ServiceLifetime.Singleton
+        );
       services.Add(modularTenantEvents);
     }
 
@@ -34,24 +49,23 @@ public static class IServiceCollectionExtensions
   }
 
   private sealed class HostedServiceModularTenantEvents<THostedService>(
-    IServiceProvider serviceProvider,
+    THostedService hostedService,
     ILogger<HostedServiceModularTenantEvents<THostedService>> logger,
     ShellSettings shellSettings
   ) : ModularTenantEvents, IDisposable, IAsyncDisposable
     where THostedService : IHostedService
   {
     private bool _disposed;
-    private THostedService? _hostedService;
     private bool _started;
 
     public async ValueTask DisposeAsync()
     {
-      if (_hostedService is not IAsyncDisposable asyncDisposable)
+      if (hostedService is not IAsyncDisposable asyncDisposable)
       {
         return;
       }
 
-      if (_disposed || _hostedService is null)
+      if (_disposed)
       {
         _disposed = true;
         return;
@@ -59,7 +73,7 @@ public static class IServiceCollectionExtensions
 
       if (_started)
       {
-        await _hostedService.StopAsync(CancellationToken.None);
+        await hostedService.StopAsync(CancellationToken.None);
         _started = false;
       }
 
@@ -69,12 +83,12 @@ public static class IServiceCollectionExtensions
 
     public void Dispose()
     {
-      if (_hostedService is not IDisposable disposable)
+      if (hostedService is not IDisposable disposable)
       {
         return;
       }
 
-      if (_disposed || _hostedService is null)
+      if (_disposed)
       {
         _disposed = true;
         return;
@@ -82,7 +96,7 @@ public static class IServiceCollectionExtensions
 
       if (_started)
       {
-        _hostedService
+        hostedService
           .StopAsync(CancellationToken.None)
           .GetAwaiter()
           .GetResult();
@@ -97,7 +111,7 @@ public static class IServiceCollectionExtensions
     {
       ObjectDisposedException.ThrowIf(
         _disposed,
-        _hostedService!
+        hostedService
       );
 
       if (_started)
@@ -111,10 +125,7 @@ public static class IServiceCollectionExtensions
         shellSettings.Name
       );
 
-      _hostedService = ActivatorUtilities
-        .CreateInstance<THostedService>(serviceProvider);
-
-      await _hostedService
+      await hostedService
         .StartAsync(CancellationToken.None)
         .ConfigureAwait(false);
 
@@ -125,10 +136,10 @@ public static class IServiceCollectionExtensions
     {
       ObjectDisposedException.ThrowIf(
         _disposed,
-        _hostedService!
+        hostedService
       );
 
-      if (_hostedService is null || !_started)
+      if (!_started)
       {
         return;
       }
@@ -139,7 +150,7 @@ public static class IServiceCollectionExtensions
         shellSettings.Name
       );
 
-      await _hostedService
+      await hostedService
         .StopAsync(CancellationToken.None)
         .ConfigureAwait(false);
 

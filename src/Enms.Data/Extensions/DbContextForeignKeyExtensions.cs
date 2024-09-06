@@ -146,7 +146,23 @@ public static class DbContextForeignKeyExtensions
     }
     else
     {
-      var tupleType = typeof(ValueTuple<>).MakeGenericType(
+      var genericTupleType =
+        propertyExpressions.Count == 1
+        ? typeof(ValueTuple<>)
+        : propertyExpressions.Count == 2
+        ? typeof(ValueTuple<,>)
+        : propertyExpressions.Count == 3
+        ? typeof(ValueTuple<,,>)
+        : propertyExpressions.Count == 4
+        ? typeof(ValueTuple<,,,>)
+        : propertyExpressions.Count == 5
+        ? typeof(ValueTuple<,,,,>)
+        : propertyExpressions.Count == 6
+        ? typeof(ValueTuple<,,,,,>)
+        : propertyExpressions.Count == 7
+        ? typeof(ValueTuple<,,,,,,>)
+        : typeof(ValueTuple<,,,,,,,>);
+      var tupleType = genericTupleType.MakeGenericType(
         propertyExpressions.Select(p => p.Type).ToArray());
       var constructor = tupleType.GetConstructors().Single();
 

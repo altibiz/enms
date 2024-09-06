@@ -51,15 +51,20 @@ public static class IServiceCollectionExtensions
     services.AddCascadingAuthenticationState();
     services.AddCascadingValue(_ => default(UserState));
     services.AddCascadingValue(
-      _ => new MainLayoutState(
+      _ => new LayoutState(
         false,
         false,
-        true,
+        false,
         _ => { },
         _ => { },
         _ => { }
       ));
     services.AddCascadingValue(
-      _ => new ThemeState(ThemeState.Default(), _ => { }));
+      _ => new ThemeState(
+        ThemeState.Default(),
+        false,
+        _ => { },
+        _ => { }
+      ));
   }
 }

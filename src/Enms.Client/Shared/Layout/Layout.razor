@@ -1,0 +1,97 @@
+@namespace Enms.Client.Shared.Layout
+@using Enms.Business.Models.Composite
+@using Enms.Client.Shared.Streaming
+@using Enms.Client.State
+@using MudBlazor
+@using Microsoft.AspNetCore.Components.Web
+@inherits Enms.Client.Base.EnmsLayoutComponentBase
+
+<HeadContent>
+  <title>HelbEx</title>
+
+  <style>
+    html, body {
+      height: 100vh;
+    }
+
+    body {
+      display: flex;
+      flex-direction: column;
+    }
+
+    main {
+      flex: 1;
+    }
+
+    footer {
+      min-height: 120px;
+      margin-top: 64px;
+    }
+
+    footer {
+      @(ThemeState.IsDarkMode
+        ? $"background-color: {ThemeState.Theme.PaletteDark.GrayDefault};"
+        : $"background-color: {ThemeState.Theme.PaletteLight.GrayDefault};")
+    }
+  </style>
+</HeadContent>
+
+<CascadingValue Value="ThemeState">
+  <CascadingValue Value="LayoutState">
+    <MudThemeProvider
+      @ref="_mudThemeProvider"
+      Theme="ThemeState.Theme"
+      IsDarkMode="ThemeState.IsDarkMode" />
+    <MudPopoverProvider/>
+    <MudDialogProvider/>
+    <MudSnackbarProvider/>
+
+    <MudBreakpointProvider>
+      <Loading
+        T="UserState"
+        LoadAsync="LoadAsync">
+        <Found Context="userState">
+          <CascadingValue Value="userState">
+            <main>
+              <MudLayout>
+                <UserToolbar />
+                @if (userState.User.MaybeRepresentative is { })
+                {
+                  <RepresentativeToolbar />
+                }
+
+                <LocalizationDrawer />
+                <UserDrawer />
+                @if (userState.User.MaybeRepresentative is { })
+                {
+                  <NavigationDrawer />
+                }
+
+                <MudHidden Breakpoint="Breakpoint.SmAndDown">
+                  <MudContainer MaxWidth="MaxWidth.Large" Class="mt-8">
+                    @Body
+                  </MudContainer>
+                </MudHidden>
+                <MudHidden Breakpoint="Breakpoint.MdAndUp">
+                  <MudContainer MaxWidth="MaxWidth.Large" Class="mt-4">
+                    @Body
+                  </MudContainer>
+                </MudHidden>
+              </MudLayout>
+            </main>
+            <footer style="
+            @(ThemeState.IsDarkMode
+              ? $"background-color: {ThemeState.Theme.PaletteDark.GrayDefault};"
+              : $"background-color: {ThemeState.Theme.PaletteLight.GrayDefault};")">
+              <MudContainer
+                MaxWidth="MaxWidth.Large"
+                Style="height: 100%; padding-top: 12px;">
+                <Footer />
+              </MudContainer>
+            </footer>
+          </CascadingValue>
+        </Found>
+      </Loading>
+    </MudBreakpointProvider>
+  </CascadingValue>
+</CascadingValue>

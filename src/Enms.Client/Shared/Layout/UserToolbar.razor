@@ -5,7 +5,10 @@
 @inherits EnmsComponentBase
 
 <MudToolBar Gutters="false">
-  <MudContainer MaxWidth="MaxWidth.Large" Class="d-flex flex-row">
+  <MudContainer
+    Style="height: 100%;"
+    MaxWidth="MaxWidth.Large"
+    Class="d-flex flex-row">
     <MudHidden Breakpoint="Breakpoint.SmAndDown">
       <MudButton
         Href="@($"/app/{Culture}")"
@@ -33,7 +36,28 @@
       <MudButton
         Variant="Variant.Text"
         Color="Color.Primary"
-        OnClick="e => MainLayoutState.SetLocalizationDrawerOpen(true)"
+        OnClick="e => ThemeState.SetDarkMode(!ThemeState.IsDarkMode)"
+        Class="d-flex flex-row align-center">
+        @if(ThemeState.IsDarkMode)
+        {
+          <MudIcon Icon="@Icons.Material.Filled.DarkMode" />
+        }
+        else
+        {
+          <MudIcon Icon="@Icons.Material.Filled.LightMode" />
+        }
+        <MudHidden Breakpoint="Breakpoint.SmAndDown">
+          <div Class="ml-2">
+            <MudText>
+              (@Translate(ThemeState.IsDarkMode ? "Dark" : "Light"))
+            </MudText>
+          </div>
+        </MudHidden>
+      </MudButton>
+      <MudButton
+        Variant="Variant.Text"
+        Color="Color.Primary"
+        OnClick="e => LayoutState.SetLocalizationDrawerOpen(true)"
         Class="d-flex flex-row align-center">
         <MudIcon Icon="@Icons.Material.Filled.Language" />
         <MudHidden Breakpoint="Breakpoint.SmAndDown">
@@ -44,7 +68,7 @@
       </MudButton>
       <MudHidden Breakpoint="Breakpoint.MdAndUp">
         <MudButton
-          OnClick="e => MainLayoutState.SetUserDrawerOpen(true)"
+          OnClick="e => LayoutState.SetUserDrawerOpen(true)"
           Variant="Variant.Text"
           Color="Color.Primary"
           Class="d-flex flex-row align-center"
@@ -54,7 +78,7 @@
       </MudHidden>
       <MudHidden Breakpoint="Breakpoint.SmAndDown">
         <MudButton
-          OnClick="e => MainLayoutState.SetUserDrawerOpen(true)"
+          OnClick="e => LayoutState.SetUserDrawerOpen(true)"
           Variant="Variant.Text"
           Color="Color.Primary"
           Class="d-flex flex-row align-center"
@@ -76,8 +100,11 @@
 
 @code {
   [CascadingParameter]
-  public MainLayoutState MainLayoutState { get; set; } = default!;
+  public LayoutState LayoutState { get; set; } = default!;
 
   [CascadingParameter]
   public UserState UserState { get; set; } = default!;
+
+  [CascadingParameter]
+  public ThemeState ThemeState { get; set; } = default!;
 }

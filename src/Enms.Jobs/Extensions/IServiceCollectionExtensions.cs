@@ -49,7 +49,9 @@ public static class IServiceCollectionExtensions
     {
       foreach (var interfaceType in conversionType.GetAllInterfaces())
       {
-        services.AddSingleton(interfaceType, conversionType);
+        services.AddSingleton(conversionType);
+        services.AddSingleton(interfaceType, services =>
+          services.GetRequiredService(conversionType));
       }
     }
   }

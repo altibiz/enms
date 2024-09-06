@@ -4,10 +4,13 @@ using Enms.Client.State;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.Extensions.DependencyInjection;
+using MudBlazor;
+
+// FIXME: detecting dark mode preference is broken
 
 namespace Enms.Client.Shared.Layout;
 
-public partial class MainLayout : EnmsLayoutComponentBase
+public partial class Layout : EnmsLayoutComponentBase
 {
   [CascadingParameter]
   private Task<AuthenticationState>? AuthenticationStateTask { get; set; }
@@ -18,13 +21,31 @@ public partial class MainLayout : EnmsLayoutComponentBase
   [Inject]
   private IServiceScopeFactory ServiceScopeFactory { get; set; } = default!;
 
-  private MainLayoutState LayoutState { get; set; } = default!;
+  private LayoutState LayoutState { get; set; } = default!;
 
   private ThemeState ThemeState { get; set; } = default!;
 
+#pragma warning disable S4487 // Unread "private" fields should be removed
+  private MudThemeProvider? _mudThemeProvider;
+#pragma warning restore S4487 // Unread "private" fields should be removed
+
+#pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
+  protected override async Task OnAfterRenderAsync(bool firstRender)
+#pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
+  {
+    if (firstRender)
+    {
+#pragma warning disable S125 // Sections of code should not be commented out
+      // ThemeState.SetDarkMode(
+      //   await _mudThemeProvider?.GetSystemPreference());
+      // StateHasChanged();
+#pragma warning restore S125 // Sections of code should not be commented out
+    }
+  }
+
   protected override void OnInitialized()
   {
-    LayoutState = new MainLayoutState(
+    LayoutState = new LayoutState(
       IsUserDrawerOpen: false,
       IsLocalizationDrawerOpen: false,
       IsNavigationDrawerOpen: false,
@@ -55,10 +76,16 @@ public partial class MainLayout : EnmsLayoutComponentBase
     );
 
     ThemeState = new ThemeState(
-      ThemeState.Default(),
-      (theme) =>
+      Theme: ThemeState.Default(),
+      IsDarkMode: false,
+      SetTheme: theme =>
       {
         ThemeState = ThemeState with { Theme = theme };
+        InvokeAsync(StateHasChanged);
+      },
+      SetDarkMode: isDarkMode =>
+      {
+        ThemeState = ThemeState with { IsDarkMode = isDarkMode };
         InvokeAsync(StateHasChanged);
       }
     );

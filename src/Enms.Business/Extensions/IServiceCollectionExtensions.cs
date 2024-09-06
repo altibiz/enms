@@ -86,12 +86,12 @@ public static class IServiceCollectionExtensions
 
     foreach (var conversionType in conversionTypes)
     {
+      services.AddSingleton(conversionType);
       foreach (var interfaceType in conversionType.GetInterfaces())
       {
-        services.AddSingleton(interfaceType, conversionType);
+        services.AddSingleton(interfaceType, services =>
+          services.GetRequiredService(conversionType));
       }
-
-      services.AddSingleton(conversionType);
     }
   }
 
@@ -111,12 +111,12 @@ public static class IServiceCollectionExtensions
 
     foreach (var conversionType in conversionTypes)
     {
+      services.AddScoped(conversionType);
       foreach (var interfaceType in conversionType.GetAllInterfaces())
       {
-        services.AddScoped(interfaceType, conversionType);
+        services.AddScoped(interfaceType, services =>
+          services.GetRequiredService(conversionType));
       }
-
-      services.AddScoped(conversionType);
     }
   }
 
@@ -136,12 +136,12 @@ public static class IServiceCollectionExtensions
 
     foreach (var conversionType in conversionTypes)
     {
+      services.AddTransient(conversionType);
       foreach (var interfaceType in conversionType.GetAllInterfaces())
       {
-        services.AddTransient(interfaceType, conversionType);
+        services.AddTransient(interfaceType, services =>
+          services.GetRequiredService(conversionType));
       }
-
-      services.AddTransient(conversionType);
     }
   }
 

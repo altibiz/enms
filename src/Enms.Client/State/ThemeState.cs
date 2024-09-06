@@ -4,7 +4,9 @@ namespace Enms.Client.State;
 
 public record ThemeState(
   MudTheme Theme,
-  Action<MudTheme> SetTheme
+  bool IsDarkMode,
+  Action<MudTheme> SetTheme,
+  Action<bool> SetDarkMode
 )
 {
   public static MudTheme Default()
@@ -17,8 +19,6 @@ public record ThemeState(
         Secondary = new("#338ed2"),
         Tertiary = new("#a7d6f2"),
         GrayDefault = "#e3e3e3",
-        AppbarBackground = "#ffffff",
-        AppbarText = "#000000",
       },
       PaletteDark = new()
       {
@@ -26,8 +26,6 @@ public record ThemeState(
         Secondary = new("#338ed2"),
         Tertiary = new("#a7d6f2"),
         GrayDefault = "#e3e3e3",
-        AppbarBackground = "#ffffff",
-        AppbarText = "#000000",
       },
       LayoutProperties = new()
       {
