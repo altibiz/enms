@@ -8,7 +8,7 @@ public class AppController : Controller
 {
   public IActionResult Catchall([FromRoute] string culture)
   {
-    CultureInfo? cultureInfo = null;
+    CultureInfo? cultureInfo;
     try
     {
       cultureInfo = new CultureInfo(culture);
