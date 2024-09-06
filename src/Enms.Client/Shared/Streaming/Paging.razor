@@ -50,21 +50,24 @@
         }
       }
 
-      if (Pagination is not null)
+      if (page.TotalCount != page.Items.Count)
       {
-        @Pagination(
-          new PaginationOptions(
-            PageCount,
-            _pageNumber,
-            page.TotalCount
+        if (Pagination is not null)
+        {
+          @Pagination(
+            new PaginationOptions(
+              PageCount,
+              _pageNumber,
+              page.TotalCount
+            )
           )
-        )
-      }
-      else
-      {
-        <MudPagination
-          class="mt-4"
-          @bind-Selected="_pageNumber" />
+        }
+        else
+        {
+          <MudPagination
+            class="mt-4"
+            @bind-Selected="_pageNumber" />
+        }
       }
     }
   </Found>
