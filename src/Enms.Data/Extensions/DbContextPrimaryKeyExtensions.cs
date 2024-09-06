@@ -126,7 +126,12 @@ public static class DbContextPrimaryKeyExtensions
     var convertedParameter = Expression.Convert(parameter, entityType);
 
     var propertyExpressions = keyProperties
-      .Select(p => Expression.Property(convertedParameter, p.PropertyInfo!))
+      .Select(p =>
+        p.PropertyInfo is { } propertyInfo
+        ? Expression.Property(convertedParameter, propertyInfo)
+        : Expression.Field(convertedParameter, p.FieldInfo
+          ?? throw new InvalidOperationException(
+            $"No field info found for {p}")))
       .ToList();
 
     Expression resultExpression;
@@ -171,7 +176,11 @@ public static class DbContextPrimaryKeyExtensions
     foreach (var (property, idValue) in keyProperties.Zip(idParts))
     {
       var propertyExpression =
-        Expression.Property(convertedParameter, property.PropertyInfo!);
+        property.PropertyInfo is { } propertyInfo
+         ? Expression.Property(convertedParameter, propertyInfo)
+         : Expression.Field(convertedParameter, property.FieldInfo
+           ?? throw new InvalidOperationException(
+             $"No field info found for {property}"));
       var convertedId = Expression.Constant(
         Convert.ChangeType(idValue, property.ClrType));
 
@@ -208,7 +217,11 @@ public static class DbContextPrimaryKeyExtensions
       foreach (var (property, idPart) in keyProperties.Zip(idParts))
       {
         var propertyExpression =
-          Expression.Property(convertedParameter, property.PropertyInfo!);
+          property.PropertyInfo is { } propertyInfo
+          ? Expression.Property(convertedParameter, propertyInfo)
+          : Expression.Field(convertedParameter, property.FieldInfo
+            ?? throw new InvalidOperationException(
+              $"No field info found for {property}"));
         var convertedIdPart = Expression.Constant(
           Convert.ChangeType(idPart, property.ClrType));
 

@@ -131,7 +131,12 @@ public static class DbContextForeignKeyExtensions
     var convertedParameter = Expression.Convert(parameter, entityType);
 
     var propertyExpressions = keyProperties
-      .Select(p => Expression.Property(convertedParameter, p.PropertyInfo!))
+      .Select(p =>
+        p.PropertyInfo is { } propertyInfo
+        ? Expression.Property(convertedParameter, propertyInfo)
+        : Expression.Field(convertedParameter, p.FieldInfo
+          ?? throw new InvalidOperationException(
+            $"No field info found for {p}")))
       .ToList();
 
     Expression resultExpression;
@@ -176,7 +181,11 @@ public static class DbContextForeignKeyExtensions
     foreach (var (keyProperty, idValue) in keyProperties.Zip(idParts))
     {
       var propertyExpression =
-        Expression.Property(convertedParameter, keyProperty.PropertyInfo!);
+        keyProperty.PropertyInfo is { } propertyInfo
+        ? Expression.Property(convertedParameter, propertyInfo)
+        : Expression.Field(convertedParameter, keyProperty.FieldInfo
+          ?? throw new InvalidOperationException(
+            $"No field info found for {property}"));
       var convertedId = Expression.Constant(
         Convert.ChangeType(idValue, keyProperty.ClrType));
       var equalsExpression = Expression.Equal(propertyExpression, convertedId);
@@ -211,9 +220,12 @@ public static class DbContextForeignKeyExtensions
 
       foreach (var (propertyExpression, idPart) in keyProperties.Zip(idParts))
       {
-        var propertyExpressionConverted = Expression.Property(
-          convertedParameter,
-          propertyExpression.PropertyInfo!);
+        var propertyExpressionConverted =
+          propertyExpression.PropertyInfo is { } propertyInfo
+          ? Expression.Property(convertedParameter, propertyInfo)
+          : Expression.Field(convertedParameter, propertyExpression.FieldInfo
+            ?? throw new InvalidOperationException(
+              $"No field info found for {property}"));
         var convertedIdPart = Expression.Constant(
           Convert.ChangeType(idPart, propertyExpression.ClrType));
 
