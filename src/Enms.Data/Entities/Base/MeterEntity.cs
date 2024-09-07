@@ -45,5 +45,6 @@ public class
       .HasDiscriminator<string>("kind");
 
     builder.ComplexProperty(nameof(MeterEntity.MaxMaxInactivityPeriod));
+    builder.ComplexProperty(nameof(MeterEntity.PushDelayPeriod));
   }
 }
