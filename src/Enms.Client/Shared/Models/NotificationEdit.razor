@@ -5,39 +5,6 @@
 @using MudBlazor
 @inherits Enms.Client.Base.EnmsComponentBase
 
-<MudTextField
-  Label="Title"
-  @bind-Value="Model.Title"
-  For="@(() => Model.Title)"/>
-<MudTextField
-  Label="Name"
-  @bind-Value="Model.LegalPerson.Name"
-  For="@(() => Model.LegalPerson.Name)"/>
-<MudTextField
-  Label="SocialSecurityNumber"
-  @bind-Value="Model.LegalPerson.SocialSecurityNumber"
-  For="@(() => Model.LegalPerson.SocialSecurityNumber)"/>
-<MudTextField
-  Label="Address"
-  @bind-Value="Model.LegalPerson.Address"
-  For="@(() => Model.LegalPerson.Address)"/>
-<MudTextField
-  Label="PostalCode"
-  @bind-Value="Model.LegalPerson.PostalCode"
-  For="@(() => Model.LegalPerson.PostalCode)"/>
-<MudTextField
-  Label="City"
-  @bind-Value="Model.LegalPerson.City"
-  For="@(() => Model.LegalPerson.City)"/>
-<MudTextField
-  Label="Email"
-  @bind-Value="Model.LegalPerson.Email"
-  For="@(() => Model.LegalPerson.Email)"/>
-<MudTextField
-  Label="PhoneNumber"
-  @bind-Value="Model.LegalPerson.PhoneNumber"
-  For="@(() => Model.LegalPerson.PhoneNumber)"/>
-
 @code {
 
   [Parameter]
