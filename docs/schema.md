@@ -156,8 +156,8 @@ erDiagram
         character_varying kind 
         text last_updated_by_id FK 
         timestamp_with_time_zone last_updated_on 
-        duration_entity max_max_inactivity_period_duration 
-        bigint max_max_inactivity_period_multiplier 
+        duration_entity max_inactivity_period_duration 
+        bigint max_inactivity_period_multiplier 
         duration_entity push_delay_period_duration 
         bigint push_delay_period_multiplier 
         text title 

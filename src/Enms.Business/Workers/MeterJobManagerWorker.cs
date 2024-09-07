@@ -32,7 +32,7 @@ public class MeterJobManagerWorker(
       {
         await manager.EnsureInactivityMonitorJob(
           meter.Id,
-          meter.MaxMaxInactivityPeriod.ToModel().ToTimeSpan()
+          meter.MaxInactivityPeriod.ToModel().ToTimeSpan()
         );
       }
     }
@@ -82,7 +82,7 @@ public class MeterJobManagerWorker(
       {
         await manager.EnsureInactivityMonitorJob(
           meter.Id,
-          meter.MaxMaxInactivityPeriod.ToModel().ToTimeSpan()
+          meter.MaxInactivityPeriod.ToModel().ToTimeSpan()
         );
       }
 
@@ -95,7 +95,7 @@ public class MeterJobManagerWorker(
       {
         await manager.RescheduleInactivityMonitorJob(
           meter.Id,
-          meter.MaxMaxInactivityPeriod.ToModel().ToTimeSpan()
+          meter.MaxInactivityPeriod.ToModel().ToTimeSpan()
         );
       }
     }
