@@ -19,6 +19,11 @@
 @using MudBlazor
 @inherits Enms.Client.Base.EnmsOwningComponentBase
 
+<MudText Typo="Typo.h5" Class="mb-6">
+  @Translate("Users")
+</MudText>
+<MudDivider />
+
 <Paging
   T="MaybeRepresentingUserModel"
   PageAsync="@(page => ScopedServices.GetRequiredService<RepresentativeQueries>().MaybeRepresentingUsers(pageNumber: page))">
@@ -26,20 +31,24 @@
     @{
       var href = $"user/{maybeRepresentingUser.User.Id}";
 
-      <MudCard>
-        <MudCardContent>
-          <MaybeRepresentingUserSummary Model="@maybeRepresentingUser"/>
-        </MudCardContent>
-        <MudCardActions>
-          <MudLink Href="@href">
-            @Translate("Details")
-          </MudLink>
-        </MudCardActions>
-      </MudCard>
+      <MudLink
+        Href="@href"
+        Underline="Underline.Hover"
+        Color="Color.Dark">
+        <div class="pt-4 pb-2">
+          <MaybeRepresentingUserSummary
+            Model="@maybeRepresentingUser"/>
+        </div>
+      </MudLink>
+      <MudDivider />
     }
   </Summary>
 </Paging>
 
-<MudLink Href="user">
-  @Translate("Create")
-</MudLink>
+<MudFab
+  Href="user"
+  Size="Size.Medium"
+  Color="Color.Tertiary"
+  StartIcon="@Icons.Material.Filled.Add"
+  Class="absolute mx-8 my-8"
+  Style="bottom: 0; right: 0;" />

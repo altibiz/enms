@@ -22,57 +22,111 @@
   NewAsync="@NewAsync"
   ActivateAsync>
   <Found Context="model">
-    @if (_mutating)
+    @if (Label is not null)
     {
-      <EditForm
-        Model="@model"
-        OnValidSubmit="@(() => OnUpdate(model))">
-        @Edit(model)
-        <DataAnnotationsValidator/>
-        <ValidationSummary/>
-        <MudButton ButtonType="ButtonType.Submit">
-          @Translate("Update")
-        </MudButton>
-      </EditForm>
-      <MudButton OnClick="@(() => OnDelete(model))">
-        @Translate("Delete")
-      </MudButton>
-      <MudButton OnClick="@(() => _mutating = !_mutating)">
-        @Translate("Back")
-      </MudButton>
+      @Label
     }
     else
     {
-      @Details(model)
-      <MudButton OnClick="@(() => _mutating = !_mutating)">
-        @Translate("Mutate")
-      </MudButton>
+      <MudText Typo="Typo.h5" Class="mb-2">
+        @Translate("Update") @(typeof(T).Name)
+      </MudText>
     }
+    <MudDivider Class="mb-4" />
+    <EditForm
+      Model="@model"
+      OnValidSubmit="@(() => OnUpdate(model))">
+      <DataAnnotationsValidator/>
+      @if (_mutating)
+      {
+        @Edit(model)
+        <div Class="d-flex flex-column mt-4">
+          <div Class="d-flex flex-row">
+            <MudButton
+              Variant="Variant.Filled"
+              Color="Color.Success"
+              ButtonType="ButtonType.Submit">
+              @Translate("Update")
+            </MudButton>
+            <MudButton
+              Variant="Variant.Filled"
+              Color="Color.Secondary"
+              OnClick="@(() => _mutating = !_mutating)"
+              Class="ml-4">
+              @Translate("Preview")
+            </MudButton>
+          </div>
+          <MudButton
+            Variant="Variant.Filled"
+            Color="Color.Error"
+            OnClick="@(() => OnDelete(model))"
+            Class="mt-8 align-self-start">
+            @Translate("Delete")
+          </MudButton>
+        </div>
+      }
+      else
+      {
+        @Details(model)
+        <div Class="d-flex flex-row mt-4">
+          <MudButton
+            Variant="Variant.Filled"
+            Color="Color.Warning"
+            OnClick="@(() => _mutating = !_mutating)">
+            @Translate("Edit")
+          </MudButton>
+        </div>
+      }
+    </EditForm>
   </Found>
   <Created Context="model">
-    @if (!_mutating)
+    @if (Label is not null)
     {
-      <EditForm
-        Model="@model"
-        OnValidSubmit="@(() => OnCreate(model))">
-        @Edit(model)
-        <DataAnnotationsValidator/>
-        <ValidationSummary/>
-        <MudButton ButtonType="ButtonType.Submit">
-          @Translate("Create")
-        </MudButton>
-      </EditForm>
-      <MudButton OnClick="@(() => _mutating = !_mutating)">
-        @Translate("Preview")
-      </MudButton>
+      @Label
     }
     else
     {
-      @Details(model)
-      <MudButton OnClick="@(() => _mutating = !_mutating)">
-        @Translate("Mutate")
-      </MudButton>
+      <MudText Typo="Typo.h5" Class="mb-2">
+        @Translate("Create") @(typeof(T).Name)
+      </MudText>
     }
+    <MudDivider Class="mb-4" />
+    <EditForm
+      Model="@model"
+      OnValidSubmit="@(() => OnCreate(model))">
+      <DataAnnotationsValidator/>
+      @if (!_mutating)
+      {
+        @Edit(model)
+        <div Class="d-flex flex-row mt-4">
+          <MudButton
+            ButtonType="ButtonType.Submit"
+            Variant="Variant.Filled"
+            Color="Color.Success">
+            @Translate("Create")
+          </MudButton>
+          <MudButton
+            OnClick="@(() => _mutating = !_mutating)"
+            Variant="Variant.Filled"
+            Color="Color.Secondary"
+            Class="ml-4">
+            @Translate("Preview")
+          </MudButton>
+        </div>
+      }
+      else
+      {
+        @Details(model)
+        <div Class="d-flex flex-row mt-4">
+          <MudButton
+            OnClick="@(() => _mutating = !_mutating)"
+            Variant="Variant.Filled"
+            Color="Color.Warning">
+            @Translate("Edit")
+          </MudButton>
+        </div>
+      }
+    </EditForm>
   </Created>
 </Loading>
 
@@ -83,6 +137,9 @@
 
   [Parameter]
   public string? Id { get; set; } = default!;
+
+  [Parameter]
+  public RenderFragment? Label { get; set; } = default!;
 
   [Parameter]
   public RenderFragment? Progress { get; set; }

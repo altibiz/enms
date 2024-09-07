@@ -1,37 +1,40 @@
 @using Enms.Business.Models
+@using Enms.Client.Base
+@using Enms.Client.Shared.Fields
 @using MudBlazor
 @namespace Enms.Client.Shared.Models
+@inherits EnmsComponentBase
 
-<MudText>
+<DetailsField Title="@Translate("Id")">
   @Model.Id
-</MudText>
-<MudText>
+</DetailsField>
+<DetailsField Title="@Translate("Title")">
   @Model.Title
-</MudText>
-<MudText>
+</DetailsField>
+<DetailsField Title="@Translate("Name")">
   @Model.LegalPerson.Name
-</MudText>
-<MudText>
+</DetailsField>
+<DetailsField Title="@Translate("Social security number")">
   @Model.LegalPerson.SocialSecurityNumber
-</MudText>
-<MudText>
+</DetailsField>
+<DetailsField Title="@Translate("Email")">
   @Model.LegalPerson.Email
-</MudText>
-<MudText>
+</DetailsField>
+<DetailsField Title="@Translate("Address")">
   @Model.LegalPerson.Address
-</MudText>
-<MudText>
+</DetailsField>
+<DetailsField Title="@Translate("Postal code")">
   @Model.LegalPerson.PostalCode
-</MudText>
-<MudText>
+</DetailsField>
+<DetailsField Title="@Translate("City")">
   @Model.LegalPerson.City
-</MudText>
-<MudText>
+</DetailsField>
+<DetailsField Title="@Translate("Country")">
   @Model.LegalPerson.Email
-</MudText>
-<MudText>
+</DetailsField>
+<DetailsField Title="@Translate("Phone number")">
   @Model.LegalPerson.PhoneNumber
-</MudText>
+</DetailsField>
 
 
 @code {

@@ -16,25 +16,33 @@
 @using MudBlazor
 @inherits Enms.Client.Base.EnmsOwningComponentBase
 
+<MudText Typo="Typo.h5" Class="mb-6">
+  @Translate("Lines")
+</MudText>
+<MudDivider />
+
 <Paging T="EgaugeLineModel">
   <Summary Context="line">
     @{
       var href = $"line/{line.Id}";
 
-      <MudCard>
-        <MudCardContent>
+      <MudLink
+        Href="@href"
+        Underline="Underline.Hover"
+        Color="Color.Dark">
+        <div class="pt-4 pb-2">
           <EgaugeLineSummary Model="@line"/>
-        </MudCardContent>
-        <MudCardActions>
-          <MudNavLink Href="@href">
-            @Translate("Details")
-          </MudNavLink>
-        </MudCardActions>
-      </MudCard>
+        </div>
+      </MudLink>
+      <MudDivider />
     }
   </Summary>
 </Paging>
 
-<MudLink Href="line">
-  @Translate("Create")
-</MudLink>
+<MudFab
+  Href="line"
+  Size="Size.Medium"
+  Color="Color.Tertiary"
+  StartIcon="@Icons.Material.Filled.Add"
+  Class="absolute mx-8 my-8"
+  Style="bottom: 0; right: 0;" />

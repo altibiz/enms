@@ -25,7 +25,7 @@
 
     footer {
       min-height: 120px;
-      margin-top: 64px;
+      margin-top: 32px;
     }
 
     footer {
@@ -53,7 +53,7 @@
         <Found Context="userState">
           <CascadingValue Value="userState">
             <main>
-              <MudLayout>
+              <MudLayout Class="d-flex flex-column">
                 <UserToolbar />
                 @if (userState.User.MaybeRepresentative is { })
                 {
@@ -68,12 +68,18 @@
                 }
 
                 <MudHidden Breakpoint="Breakpoint.SmAndDown">
-                  <MudContainer MaxWidth="MaxWidth.Large" Class="mt-8">
+                  <MudContainer
+                    MaxWidth="MaxWidth.Large"
+                    Class="mt-8 relative"
+                    Style="flex: 1;">
                     @Body
                   </MudContainer>
                 </MudHidden>
                 <MudHidden Breakpoint="Breakpoint.MdAndUp">
-                  <MudContainer MaxWidth="MaxWidth.Large" Class="mt-4">
+                  <MudContainer
+                    MaxWidth="MaxWidth.Large"
+                    Class="mt-4 relative"
+                    Style="flex: 1;">
                     @Body
                   </MudContainer>
                 </MudHidden>

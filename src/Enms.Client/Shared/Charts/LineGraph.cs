@@ -80,19 +80,17 @@ public partial class LineGraph : EnmsOwningComponentBase
   protected override async Task OnParametersSetAsync()
   {
     _measurements = await LoadAsync();
+    if (_chart is { } chart)
+    {
+      await chart.UpdateSeriesAsync();
+    }
   }
 
   protected override async Task OnAfterRenderAsync(bool firstRender)
   {
-    if (firstRender)
+    if (firstRender && _chart is { } chart)
     {
-      return;
-    }
-
-    if (_chart is not null)
-    {
-      await _chart.UpdateSeriesAsync();
-      await _chart.UpdateOptionsAsync(false, true, false);
+      await chart.UpdateOptionsAsync(false, true, false);
     }
   }
 
