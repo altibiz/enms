@@ -351,7 +351,8 @@ public partial class LineGraph : EnmsOwningComponentBase
           Zoomout = false,
           Download = false,
           Pan = false,
-          Selection = false
+          Selection = false,
+          Reset = false
         }
       }
     };

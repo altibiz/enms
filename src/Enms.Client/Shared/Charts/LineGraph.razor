@@ -6,23 +6,6 @@
 @using MudBlazor
 @inherits Enms.Client.Base.EnmsOwningComponentBase
 
-<EnumPicker
-  @bind-Value="Measure"
-  Label="x => Translate(x.ToTitle())"/>
-<EnumPicker
-  @bind-Value="Resolution"
-  Label="x => Translate(x.ToTitle(Multiplier))"/>
-<MultiEnumPicker
-  @bind-Value="Phases"
-  Title="@Translate("Phase")"
-  Label="x => Translate(x.ToTitle())"/>
-<MudNumericField
-  @bind-Value="Multiplier"
-  Label="@Translate("Multiplier")"
-  Min="1"
-  Max="@Resolution.MaxMultiplier()"
-  Step="1"/>
-
 <ApexChart XAxisType="XAxisType.Datetime"
            Options="@_options"
            @ref="_chart">
@@ -37,3 +20,35 @@
       Stroke="@(new SeriesStroke { Color = phase.ToColor(), Width = 4 })"/>
   }
 </ApexChart>
+
+<MudExpansionPanel
+  Style=".mud-expand-panel-header { padding-left: 0; }"
+  Gutters="false"
+  Text="@Translate("Graph controls")">
+  <MudGrid Spacing="2" Justify="Justify.Center">
+    <MudItem xs="12" sm="6" md="3">
+      <EnumPicker
+        @bind-Value="Measure"
+        Label="x => Translate(x.ToTitle())"/>
+    </MudItem>
+    <MudItem xs="12" sm="6" md="3">
+      <MultiEnumPicker
+        @bind-Value="Phases"
+        Title="@Translate("Phase")"
+        Label="x => Translate(x.ToTitle())"/>
+    </MudItem>
+    <MudItem xs="12" sm="6" md="3">
+      <EnumPicker
+        @bind-Value="Resolution"
+        Label="x => Translate(x.ToTitle(Multiplier))"/>
+    </MudItem>
+    <MudItem xs="12" sm="6" md="3">
+      <MudNumericField
+        @bind-Value="Multiplier"
+        Label="@Translate("Multiplier")"
+        Min="1"
+        Max="@Resolution.MaxMultiplier()"
+        Step="1"/>
+    </MudItem>
+  </MudGrid>
+</MudExpansionPanel>

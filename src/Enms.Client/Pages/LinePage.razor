@@ -7,19 +7,24 @@
 @using Enms.Client.Shared.Charts
 @using Enms.Client.Shared.Models
 @using Enms.Client.Shared.Streaming
+@using Enms.Client.Shared.Fields
 @using Microsoft.AspNetCore.Authorization
-@inherits Enms.Client.Base.EnmsOwningComponentBase
+@using MudBlazor
+@using Enms.Client.Base
+@inherits EnmsOwningComponentBase
 
 <Mutating T="EgaugeLineModel" Id="@Id">
-  <Label>
+  <Label Context="model">
     <MudText Typo="Typo.h5" Class="mb-2">
       @(model.Title)
     </MudText>
     <MudDivider Class="mb-4" />
+    <div class="mt-4 mb-4">
+      <LineGraph Model="@model"/>
+    </div>
     <DetailsField Title="@Translate("Id")">
       @model.Id
     </DetailsField>
-    <LineGraph Model="@model"/>
   </Label>
   <Edit Context="model">
     <EgaugeLineEdit Model="@model"/>
