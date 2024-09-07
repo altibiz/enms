@@ -5,26 +5,49 @@
 
 @attribute [Authorize]
 @using Enms.Business.Models.Base
+@using Enms.Business.Models.Enums
 @using Enms.Client.Shared.Models
 @using Enms.Client.Shared.Streaming
+@using Enms.Client.State
 @using Microsoft.AspNetCore.Authorization
 @inherits Enms.Client.Base.EnmsOwningComponentBase
+
+<MudText Typo="Typo.h5" Class="mb-6">
+  @Translate("Notifications")
+</MudText>
+<MudDivider />
 
 <Paging T="NotificationModel">
   <Summary Context="notification">
     @{
       var href = $"notification/{notification.Id}";
 
-      <MudCard>
-        <MudCardContent>
+      <MudLink
+        Href="@href"
+        Underline="Underline.Hover"
+        Color="Color.Dark">
+        <div class="pt-4 pb-2">
           <NotificationSummary Model="@notification"/>
-        </MudCardContent>
-        <MudCardActions>
-          <MudNavLink Href="@href">
-            @Translate("Details")
-          </MudNavLink>
-        </MudCardActions>
-      </MudCard>
+        </div>
+      </MudLink>
+      <MudDivider />
     }
   </Summary>
 </Paging>
+
+@if (UserState.User.MaybeRepresentative is
+  { Role: RoleModel.OperatorRepresentative })
+{
+  <MudFab
+    Href="notification"
+    Size="Size.Medium"
+    Color="Color.Tertiary"
+    StartIcon="@Icons.Material.Filled.Add"
+    Class="absolute mx-8 my-8"
+    Style="bottom: 0; right: 0;" />
+}
+
+@code {
+  [CascadingParameter]
+  public UserState UserState { get; set; } = default!;
+}

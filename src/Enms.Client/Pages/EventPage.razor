@@ -7,10 +7,19 @@
 @using Enms.Client.Shared.Models
 @using Enms.Client.Shared.Streaming
 @using Microsoft.AspNetCore.Authorization
+@using MudBlazor
+@using Enms.Client.Shared.Fields
 @inherits Enms.Client.Base.EnmsOwningComponentBase
 
 <Loading T="EventModel" Id="@Id">
   <Found Context="model">
+    <MudText Typo="Typo.h5" Class="mb-2">
+      @(model.Title)
+    </MudText>
+    <MudDivider Class="mb-4" />
+    <DetailsField Title="@Translate("Id")">
+      @model.Id
+    </DetailsField>
     <EventDetails Model="@model"/>
   </Found>
 </Loading>

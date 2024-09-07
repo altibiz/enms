@@ -20,41 +20,21 @@
     <MudSpacer />
     <Paging PageAsync="@((page) => ScopedServices
       .GetRequiredService<AgnosticQueries>()
-      .Read<EventModel>(pageNumber: page))">
+      .Read<NotificationModel>(pageNumber: page))">
       <Found Context="events">
-        <MudMenu>
-          <ActivatorContent>
-            <MudIcon Icon="@Icons.Material.Filled.NotificationsActive"/>
-            <MudItem class="d-flex">
-              <MudIcon Icon="@Icons.Material.Filled.Circle"/>
-              <MudText>@events.TotalCount</MudText>
-            </MudItem>
-          </ActivatorContent>
-          <ChildContent>
-            <MudList T="EventModel">
-              @foreach(var e in events.Items) {
-                <MudListItem
-                  Text="@e.Title"
-                  Icon="@Icons.Material.Filled.Circle"
-                  IconColor="@MudBlazor.Color.Error"
-                  Href="@($"event/{e.Id}")"/>
-                <hr />
-              }
-            </MudList>
-          </ChildContent>
-        </MudMenu>
+        <MudIcon Icon="@Icons.Material.Filled.NotificationsActive"/>
+        <MudItem>
+          <MudIcon Icon="@Icons.Material.Filled.Circle"/>
+          <MudText>@events.TotalCount</MudText>
+        </MudItem>
       </Found>
       <Empty>
-        <MudMenu>
-          <ActivatorContent>
-            <MudButton
-              Size="Size.Small"
-              Style="margin-right: -20px;"
-              Href="@($"/app/{Culture}/notifications")">
-              <MudIcon Icon="@Icons.Material.Filled.NotificationsNone" />
-            </MudButton>
-          </ActivatorContent>
-        </MudMenu>
+        <MudButton
+          Size="Size.Small"
+          Style="margin-right: -20px;"
+          Href="@($"/app/{Culture}/notifications")">
+          <MudIcon Icon="@Icons.Material.Filled.NotificationsNone" />
+        </MudButton>
       </Empty>
       <Pagination />
     </Paging>

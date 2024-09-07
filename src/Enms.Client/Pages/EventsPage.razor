@@ -15,21 +15,25 @@
 @using MudBlazor
 @inherits Enms.Client.Base.EnmsOwningComponentBase
 
-<Paging T="EventModel">
-  <Summary Context="model">
-    @{
-      var href = $"event/{model.Id}";
+<MudText Typo="Typo.h5" Class="mb-6">
+  @Translate("Events")
+</MudText>
+<MudDivider />
 
-      <MudCard>
-        <MudCardContent>
-          <EventSummary Model="@model"/>
-        </MudCardContent>
-        <MudCardActions>
-          <MudNavLink Href="@href">
-            @Translate("Details")
-          </MudNavLink>
-        </MudCardActions>
-      </MudCard>
+<Paging T="EventModel">
+  <Summary Context="e">
+    @{
+      var href = $"event/{e.Id}";
+
+      <MudLink
+        Href="@href"
+        Underline="Underline.Hover"
+        Color="Color.Dark">
+        <div class="pt-4 pb-2">
+          <EventSummary Model="@e"/>
+        </div>
+      </MudLink>
+      <MudDivider />
     }
   </Summary>
 </Paging>

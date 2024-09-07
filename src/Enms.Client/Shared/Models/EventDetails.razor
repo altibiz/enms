@@ -2,15 +2,25 @@
 @using MudBlazor
 @using Enms.Client.Base
 @using Enms.Client.Shared.Fields
+@using Enms.Client.Shared.Streaming
 @namespace Enms.Client.Shared.Models
 @inherits EnmsComponentBase
 
 <DetailsField Title="@Translate("Timestamp")">
-  @Model.Timestamp
+  @DateTimeString(Model.Timestamp)
 </DetailsField>
-<DetailsField Title="@Translate("Content")">
-  @Model.Content
+<DetailsField Title="@Translate("Level")">
+  @Model.Level
 </DetailsField>
+<DetailsField Title="@Translate("Categories")">
+  @string.Join(", ", Model.Categories)
+</DetailsField>
+<MudText Typo="Typo.h6" Class="mt-4">
+  @Translate("Content")
+</MudText>
+<MudText Type="Typo.body2" Style="white-space: pre; text-wrap: pretty;">
+  <Serialized Value="@Model.Content"/>
+</MudText>
 
 @code {
 
