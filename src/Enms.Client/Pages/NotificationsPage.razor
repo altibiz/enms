@@ -33,6 +33,11 @@
       <MudDivider />
     }
   </Summary>
+  <Empty>
+    <MudText Align="Align.Center" Typo="Typo.h6" Class="pt-16 pb-8">
+      @Translate("Woohooo, you have no notifications!")
+    </MudText>
+  </Empty>
 </Paging>
 
 @if (UserState.User.MaybeRepresentative is
