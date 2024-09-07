@@ -10,7 +10,6 @@ using Enms.Business.Localization.Abstractions;
 using Enms.Business.Mutations.Abstractions;
 using Enms.Business.Naming.Abstractions;
 using Enms.Business.Naming.Agnostic;
-using Enms.Business.Notifications.Abstractions;
 using Enms.Business.Observers.Abstractions;
 using Enms.Business.Queries.Abstractions;
 using Enms.Business.Workers.Abstractions;
@@ -53,9 +52,6 @@ public static class IServiceCollectionExtensions
     // Naming
     services.AddTransientAssignableTo(typeof(ILineNamingConvention));
     services.AddSingleton(typeof(AgnosticLineNamingConvention));
-
-    // Notifications
-    services.AddSingletonAssignableTo(typeof(INotificationSender));
 
     // Observers
     services.AddSingletonAssignableTo(typeof(IPublisher));

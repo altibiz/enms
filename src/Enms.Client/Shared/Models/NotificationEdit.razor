@@ -2,12 +2,28 @@
 @using Enms.Business.Activation
 @using Enms.Business.Models.Enums
 @using Enms.Business.Models
+@using Enms.Business.Models.Base
 @using MudBlazor
 @inherits Enms.Client.Base.EnmsComponentBase
+
+<MudTextField
+  Label="@Translate("Title")"
+  @bind-Value="Model.Title"
+  For="@(() => Model.Title)"/>
+<MudTextField
+  Label="@Translate("Summary")"
+  Lines="3"
+  @bind-Value="Model.Summary"
+  For="@(() => Model.Summary)"/>
+<MudTextField
+  Label="@Translate("Content")"
+  Lines="10"
+  @bind-Value="Model.Content"
+  For="@(() => Model.Content)"/>
 
 @code {
 
   [Parameter]
-  public SystemNotificationModel Model { get; set; } = default!;
+  public NotificationModel Model { get; set; } = default!;
 
 }

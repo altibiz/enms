@@ -3,8 +3,9 @@ using System.Text.Json;
 using System.Threading.Channels;
 using Enms.Business.Activation;
 using Enms.Business.Conversion;
+using Enms.Business.Conversion.Agnostic;
 using Enms.Business.Models.Enums;
-using Enms.Business.Notifications.Abstractions;
+using Enms.Business.Models.Joins;
 using Enms.Business.Workers.Abstractions;
 using Enms.Data.Context;
 using Enms.Data.Entities;
@@ -67,8 +68,8 @@ public class MeterInactivityWorker(
     IServiceProvider serviceProvider,
     MeterInactivityEventArgs eventArgs)
   {
-    var sender = serviceProvider.GetRequiredService<INotificationSender>();
     var context = serviceProvider.GetRequiredService<DataDbContext>();
+    var converter = serviceProvider.GetRequiredService<AgnosticModelEntityConverter>();
 
     var meter = (await context.Meters
         .FirstOrDefaultAsync(
@@ -121,6 +122,16 @@ public class MeterInactivityWorker(
       notification.Content = builder.ToString();
     }
 
-    await sender.SendAsync(notification, recipients);
+    context.Add(converter.ToEntity(notification));
+    context.AddRange(
+      recipients
+        .Select(
+          recipient => new NotificationRecipientModel
+          {
+            NotificationId = notification.Id,
+            RepresentativeId = recipient.Id
+          })
+        .Select(converter.ToEntity));
+    await context.SaveChangesAsync();
   }
 }

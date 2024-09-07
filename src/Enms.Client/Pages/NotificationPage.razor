@@ -1,9 +1,10 @@
-@page "/notification/{id}"
+@page "/notification/{id?}"
 
 @namespace Enms.Client.Pages
 
 @attribute [Authorize]
 @using Enms.Business.Models.Base
+@using Enms.Business.Models
 @using Enms.Business.Models.Enums
 @using Enms.Client.Shared.Models
 @using Enms.Client.Shared.Streaming
@@ -21,6 +22,15 @@
   </Loading>
   return;
 }
+
+<Mutating T="SystemNotificationModel" Id="@Id">
+  <Edit Context="model">
+    <NotificationEdit Model="@model"/>
+  </Edit>
+  <Details Context="model">
+    <NotificationDetails Model="@model"/>
+  </Details>
+</Mutating>
 
 @code {
 
