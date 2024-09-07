@@ -104,6 +104,7 @@ public class MeasurementUpsertWorker(
         {
           Type = aggregate.GetType(),
           aggregate.LineId,
+          aggregate.MeterId,
           aggregate.Timestamp,
           aggregate.Interval
         })
