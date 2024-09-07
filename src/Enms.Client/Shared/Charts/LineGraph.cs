@@ -82,7 +82,7 @@ public partial class LineGraph : EnmsOwningComponentBase
     _measurements = await LoadAsync();
     if (_chart is { } chart)
     {
-      await chart.UpdateSeriesAsync();
+      await chart.UpdateSeriesAsync(animate: false);
     }
   }
 
@@ -90,7 +90,7 @@ public partial class LineGraph : EnmsOwningComponentBase
   {
     if (firstRender && _chart is { } chart)
     {
-      await chart.UpdateOptionsAsync(false, true, false);
+      await chart.UpdateOptionsAsync(false, false, false);
     }
   }
 
