@@ -1,5 +1,12 @@
 @using Enms.Business.Models
+@using Enms.Client.Shared.Fields
+@using Enms.Client.Base
 @namespace Enms.Client.Shared.Models
+@inherits EnmsComponentBase
+
+<DetailsField Title="@Translate("Inactivity duration")">
+  @Model.InactivityDuration
+</DetailsField>
 
 @code {
 

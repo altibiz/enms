@@ -5,6 +5,7 @@
 @using Enms.Business.Mutations.Agnostic
 @using Microsoft.AspNetCore.Components.Forms
 @using Microsoft.Extensions.DependencyInjection
+@using Enms.Client.Shared.Fields
 @using MudBlazor
 @inherits Enms.Client.Base.EnmsOwningComponentBase
 
@@ -24,15 +25,26 @@
   <Found Context="model">
     @if (Label is not null)
     {
-      @Label
+      @Label(model)
+      <MudDivider Class="mb-4" />
+    }
+    else if (model is IIdentifiable identifiable)
+    {
+      <MudText Typo="Typo.h5" Class="mb-2">
+        @Translate("Edit") @(identifiable.Title)
+      </MudText>
+      <MudDivider Class="mb-4" />
+      <DetailsField Title="@Translate("Id")">
+        @identifiable.Id
+      </DetailsField>
     }
     else
     {
       <MudText Typo="Typo.h5" Class="mb-2">
-        @Translate("Update") @(typeof(T).Name)
+        @Translate("Edit") @(typeof(T).Name)
       </MudText>
+      <MudDivider Class="mb-4" />
     }
-    <MudDivider Class="mb-4" />
     <EditForm
       Model="@model"
       OnValidSubmit="@(() => OnUpdate(model))">
@@ -82,7 +94,7 @@
   <Created Context="model">
     @if (Label is not null)
     {
-      @Label
+      @Label(model)
     }
     else
     {
@@ -139,7 +151,7 @@
   public string? Id { get; set; } = default!;
 
   [Parameter]
-  public RenderFragment? Label { get; set; } = default!;
+  public RenderFragment<T>? Label { get; set; } = default!;
 
   [Parameter]
   public RenderFragment? Progress { get; set; }

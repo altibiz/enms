@@ -11,12 +11,21 @@
 @inherits Enms.Client.Base.EnmsOwningComponentBase
 
 <Mutating T="EgaugeLineModel" Id="@Id">
+  <Label>
+    <MudText Typo="Typo.h5" Class="mb-2">
+      @(model.Title)
+    </MudText>
+    <MudDivider Class="mb-4" />
+    <DetailsField Title="@Translate("Id")">
+      @model.Id
+    </DetailsField>
+    <LineGraph Model="@model"/>
+  </Label>
   <Edit Context="model">
     <EgaugeLineEdit Model="@model"/>
   </Edit>
   <Details Context="model">
     <EgaugeLineDetails Model="@model"/>
-    <LineGraph Model="@model"/>
   </Details>
 </Mutating>
 

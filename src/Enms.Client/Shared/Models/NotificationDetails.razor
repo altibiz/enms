@@ -1,19 +1,17 @@
 @using Enms.Business.Models.Base
 @using MudBlazor
+@using Enms.Client.Shared.Fields
+@using Enms.Client.Base
 @namespace Enms.Client.Shared.Models
+@inherits EnmsComponentBase
 
-<MudText>
-  @Model.Id
-</MudText>
-<MudText>
-  @Model.Title
-</MudText>
-<MudText>
+
+<DetailsField Title="@Translate("Timestamp")">
   @Model.Timestamp
-</MudText>
-<MudText>
+</DetailsField>
+<DetailsField Title="@Translate("Content")">
   @Model.Content
-</MudText>
+</DetailsField>
 
 @code {
 
