@@ -26,7 +26,9 @@ public class MeterEntity : AuditableEntity
     set;
   } = default!;
 
-  public TimeSpanEntity MaxInactivityPeriod { get; set; } = default!;
+  public PeriodEntity MaxMaxInactivityPeriod { get; set; } = default!;
+
+  public PeriodEntity PushDelayPeriod { get; set; } = default!;
 }
 
 public class
@@ -42,6 +44,6 @@ public class
       .ToTable("meters")
       .HasDiscriminator<string>("kind");
 
-    builder.ComplexProperty(nameof(MeterEntity.MaxInactivityPeriod));
+    builder.ComplexProperty(nameof(MeterEntity.MaxMaxInactivityPeriod));
   }
 }

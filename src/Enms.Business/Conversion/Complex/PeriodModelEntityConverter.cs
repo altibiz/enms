@@ -5,15 +5,15 @@ using Enms.Data.Entities.Complex;
 
 namespace Enms.Business.Conversion.Complex;
 
-public class TimeSpanModelEntityConverter : ModelEntityConverter<
-  TimeSpanModel, TimeSpanEntity>
+public class PeriodModelEntityConverter : ModelEntityConverter<
+  PeriodModel, PeriodEntity>
 {
-  protected override TimeSpanEntity ToEntity(TimeSpanModel model)
+  protected override PeriodEntity ToEntity(PeriodModel model)
   {
     return model.ToEntity();
   }
 
-  protected override TimeSpanModel ToModel(TimeSpanEntity entity)
+  protected override PeriodModel ToModel(PeriodEntity entity)
   {
     return entity.ToModel();
   }
@@ -21,18 +21,18 @@ public class TimeSpanModelEntityConverter : ModelEntityConverter<
 
 public static class TimeSpanModelEntityConverterExtensions
 {
-  public static TimeSpanEntity ToEntity(this TimeSpanModel model)
+  public static PeriodEntity ToEntity(this PeriodModel model)
   {
-    return new TimeSpanEntity
+    return new PeriodEntity
     {
       Duration = model.Duration.ToEntity(),
       Multiplier = model.Multiplier
     };
   }
 
-  public static TimeSpanModel ToModel(this TimeSpanEntity entity)
+  public static PeriodModel ToModel(this PeriodEntity entity)
   {
-    return new TimeSpanModel
+    return new PeriodModel
     {
       Duration = entity.Duration.ToModel(),
       Multiplier = entity.Multiplier

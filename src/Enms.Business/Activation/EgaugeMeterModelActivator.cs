@@ -24,7 +24,8 @@ public class EgaugeMeterModelActivator : ModelActivator<EgaugeMeterModel>
       IsDeleted = false,
       DeletedOn = null,
       DeletedById = null,
-      InactivityDuration = TimeSpanModelActivator.New()
+      MaxInactivityPeriod = PeriodModelActivator.New(),
+      PushDelayPeriod = PeriodModelActivator.New()
     };
   }
 }

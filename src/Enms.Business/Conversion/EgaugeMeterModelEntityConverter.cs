@@ -35,7 +35,8 @@ public static class EgaugeMeterModelEntityConverterExtensions
       IsDeleted = model.IsDeleted,
       DeletedOn = model.DeletedOn,
       DeletedById = model.DeletedById,
-      MaxInactivityPeriod = model.InactivityDuration.ToEntity()
+      MaxMaxInactivityPeriod = model.MaxInactivityPeriod.ToEntity(),
+      PushDelayPeriod = model.PushDelayPeriod.ToEntity()
     };
   }
 
@@ -52,7 +53,8 @@ public static class EgaugeMeterModelEntityConverterExtensions
       IsDeleted = entity.IsDeleted,
       DeletedOn = entity.DeletedOn,
       DeletedById = entity.DeletedById,
-      InactivityDuration = entity.MaxInactivityPeriod.ToModel()
+      MaxInactivityPeriod = entity.MaxMaxInactivityPeriod.ToModel(),
+      PushDelayPeriod = entity.PushDelayPeriod.ToModel()
     };
   }
 }

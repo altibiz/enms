@@ -1,5 +1,7 @@
 @namespace Enms.Client.Shared.Models
 @using Enms.Business.Models
+@using Enms.Client.Shared.Fields
+@using Enms.Business.Models.Enums
 @using MudBlazor
 @inherits Enms.Client.Base.EnmsComponentBase
 
@@ -11,6 +13,32 @@
   Label="@Translate("Title")"
   @bind-Value="Model.Title"
   For="@(() => Model.Title)"/>
+<div class="d-flex flex-row">
+  <MudText>@Translate("Inactivity period")</MudText>
+  <EnumPicker
+    @bind-Value="Model.MaxInactivityPeriod.Duration"
+    Title="@Translate("Duration")"
+    Label="x => Translate(x.ToString())"/>
+  <MudNumericField
+    @bind-Value="Model.MaxInactivityPeriod.Multiplier"
+    Label="@Translate("Multiplier")"
+    Min="1u"
+    Max="1000u"
+    Step="1u"/>
+</div>
+<div class="d-flex flex-row">
+  <MudText>@Translate("Delay period")</MudText>
+  <EnumPicker
+    @bind-Value="Model.PushDelayPeriod.Duration"
+    Title="@Translate("Duration")"
+    Label="x => Translate(x.ToString())"/>
+  <MudNumericField
+    @bind-Value="Model.PushDelayPeriod.Multiplier"
+    Label="@Translate("Multiplier")"
+    Min="1u"
+    Max="1000u"
+    Step="1u"/>
+</div>
 
 @code {
 

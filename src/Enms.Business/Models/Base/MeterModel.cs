@@ -7,5 +7,8 @@ namespace Enms.Business.Models.Base;
 public class MeterModel : AuditableModel, IMeter
 {
   [Required]
-  public required TimeSpanModel InactivityDuration { get; set; }
+  public required PeriodModel MaxInactivityPeriod { get; set; }
+
+  [Required]
+  public required PeriodModel PushDelayPeriod { get; set; }
 }

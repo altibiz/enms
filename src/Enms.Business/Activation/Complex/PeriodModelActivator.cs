@@ -4,20 +4,20 @@ using Enms.Business.Models.Enums;
 
 namespace Enms.Business.Activation.Complex;
 
-public class TimeSpanModelActivator : ModelActivator<TimeSpanModel>
+public class PeriodModelActivator : ModelActivator<PeriodModel>
 {
-  public override TimeSpanModel ActivateConcrete()
+  public override PeriodModel ActivateConcrete()
   {
-    return new TimeSpanModel
+    return new PeriodModel
     {
       Duration = DurationModel.Second,
       Multiplier = 1
     };
   }
 
-  public static TimeSpanModel New()
+  public static PeriodModel New()
   {
-    return new TimeSpanModel
+    return new PeriodModel
     {
       Duration = DurationModel.Second,
       Multiplier = 1

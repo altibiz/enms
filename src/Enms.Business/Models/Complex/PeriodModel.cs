@@ -4,7 +4,7 @@ using Enms.Business.Models.Enums;
 
 namespace Enms.Business.Models.Complex;
 
-public class TimeSpanModel : IModel, IValidatableObject
+public class PeriodModel : IModel, IValidatableObject
 {
   public DurationModel Duration { get; set; }
 
@@ -17,9 +17,9 @@ public class TimeSpanModel : IModel, IValidatableObject
   }
 }
 
-public static class TimeSpanModelExtensions
+public static class PeriodModelExtensions
 {
-  public static TimeSpan ToTimeSpan(this TimeSpanModel model)
+  public static TimeSpan ToTimeSpan(this PeriodModel model)
   {
     return model.Duration.ToTimeSpan() * model.Multiplier;
   }

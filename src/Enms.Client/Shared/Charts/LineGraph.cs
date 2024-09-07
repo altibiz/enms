@@ -177,13 +177,6 @@ public partial class LineGraph : EnmsOwningComponentBase
   private ApexChartOptions<IMeasurement> CreateGraphOptions()
   {
     var measure = $"{Translate(Measure.ToTitle())} ({Measure.ToUnit()})";
-    var min = _measurements.Items
-      .OrderBy(x => x.Timestamp)
-      .FirstOrDefault()?.Timestamp;
-    var max = _measurements.Items
-      .OrderByDescending(x => x.Timestamp)
-      .FirstOrDefault()?.Timestamp;
-    var range = (max - min)?.TotalMilliseconds;
     var maxPower = _measurements.Items
       .OrderByDescending(
         m => m.ActivePower_W.TariffUnary().DuplexImport().PhaseSum())
@@ -203,15 +196,6 @@ public partial class LineGraph : EnmsOwningComponentBase
         options,
         measure
       );
-      if (min is { } && max is { } && range is { })
-      {
-        // options = SetSmAndDownTimeRangeGraphOptions(
-        //   options,
-        //   range.Value,
-        //   min.Value,
-        //   max.Value
-        // );
-      }
     }
     else
     {
@@ -219,59 +203,7 @@ public partial class LineGraph : EnmsOwningComponentBase
         options,
         measure
       );
-      if (min is { } && max is { } && range is { })
-      {
-        // options = SetMdAndUpTimeRangeGraphOptions(
-        //   options,
-        //   range.Value,
-        //   min.Value,
-        //   max.Value
-        // );
-      }
     }
-
-    return options;
-  }
-
-  private static ApexChartOptions<IMeasurement>
-    SetSmAndDownTimeRangeGraphOptions(
-      ApexChartOptions<IMeasurement>? options,
-      double range,
-      DateTimeOffset min,
-      DateTimeOffset max
-    )
-  {
-    options ??= NewApexChartOptions<IMeasurement>();
-
-    options.Xaxis = new XAxis
-    {
-      Type = XAxisType.Datetime,
-      Labels = new XAxisLabels { Show = false },
-      Range = range,
-      Min = DateTimeChart(min),
-      Max = DateTimeChart(max)
-    };
-
-    return options;
-  }
-
-  private static ApexChartOptions<IMeasurement> SetMdAndUpTimeRangeGraphOptions(
-    ApexChartOptions<IMeasurement>? options,
-    double range,
-    DateTimeOffset min,
-    DateTimeOffset max
-  )
-  {
-    options ??= NewApexChartOptions<IMeasurement>();
-
-    options.Xaxis = new XAxis
-    {
-      Type = XAxisType.Datetime,
-      AxisTicks = new AxisTicks(),
-      Range = range,
-      Min = DateTimeChart(min),
-      Max = DateTimeChart(max)
-    };
 
     return options;
   }

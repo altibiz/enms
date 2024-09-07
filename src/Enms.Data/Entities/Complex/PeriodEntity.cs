@@ -2,7 +2,7 @@ using Enms.Data.Entities.Enums;
 
 namespace Enms.Data.Entities.Complex;
 
-public class TimeSpanEntity
+public class PeriodEntity
 {
   public DurationEntity Duration { get; set; }
 

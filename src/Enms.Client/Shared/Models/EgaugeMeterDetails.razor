@@ -4,8 +4,11 @@
 @namespace Enms.Client.Shared.Models
 @inherits EnmsComponentBase
 
-<DetailsField Title="@Translate("Inactivity duration")">
-  @Model.InactivityDuration
+<DetailsField Title="@(Translate("Inactivity period"))">
+  @Model.MaxInactivityPeriod
+</DetailsField>
+<DetailsField Title="@(Translate("Delay period"))">
+  @Model.PushDelayPeriod
 </DetailsField>
 
 @code {
