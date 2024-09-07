@@ -1,4 +1,5 @@
 using ApexCharts;
+using Enms.Business.Aggregation.Agnostic;
 using Enms.Business.Models;
 using Enms.Business.Models.Abstractions;
 using Enms.Business.Models.Enums;
@@ -44,7 +45,7 @@ public partial class LineGraph : EnmsOwningComponentBase
     Enum.GetValues<PhaseModel>().ToHashSet();
 
   [Parameter]
-  public int Multiplier { get; set; } = 1;
+  public int Multiplier { get; set; } = 5;
 
   [Parameter]
   public bool Refresh { get; set; } = true;
@@ -55,7 +56,8 @@ public partial class LineGraph : EnmsOwningComponentBase
   [Inject]
   public IMeasurementSubscriber MeasurementSubscriber { get; set; } = default!;
 
-  private SemaphoreSlim _semaphore = new(1, 1);
+  [Inject]
+  public AgnosticAggregateUpserter AggregateUpserter { get; set; } = default!;
 
   protected override void OnInitialized()
   {
@@ -72,71 +74,12 @@ public partial class LineGraph : EnmsOwningComponentBase
     }
   }
 
-  protected override async Task OnAfterRenderAsync(bool firstRender)
+  protected override async Task OnInitializedAsync()
   {
-    await _semaphore.WaitAsync();
-
-    _measurements = await LoadAsync();
-    _options = CreateGraphOptions();
-
-    if (_chart is { } chart)
-    {
-      await chart.UpdateSeriesAsync(animate: true);
-      await chart.UpdateOptionsAsync(false, true, false);
-    }
-
-    _semaphore.Release();
+    await OnParametersSetAsync();
   }
 
-  private void OnUpsert(
-    object? _sender,
-    MeasurementUpsertEventArgs args)
-  {
-    if (!Refresh)
-    {
-      return;
-    }
-
-    Task.Run(async () =>
-    {
-      await _semaphore.WaitAsync();
-
-      var now = DateTimeOffset.UtcNow;
-      var timestamp = _measurements.Items.LastOrDefault()?.Timestamp ?? Timestamp ?? now;
-      var timeSpan = Resolution.ToTimeSpan(Multiplier, timestamp);
-      var appropriateInterval = QueryConstants.AppropriateInterval(timeSpan, now);
-
-      var newMeasurements = appropriateInterval is null
-        ? args.Measurements
-          .Where(x => x.Timestamp >= timestamp)
-          .Where(x => x.LineId == Model.LineId)
-          .Where(x => x.MeterId == Model.MeterId)
-          .OrderBy(x => x.Timestamp)
-          .ToList()
-        : args.Aggregates
-          .Where(x => x.Timestamp >= timestamp)
-          .Where(x => x.Interval == appropriateInterval)
-          .Where(x => x.LineId == Model.LineId)
-          .Where(x => x.MeterId == Model.MeterId)
-          .OrderBy(x => x.Timestamp)
-          .OfType<IMeasurement>()
-          .ToList();
-
-      _measurements = new PaginatedList<IMeasurement>(
-        _measurements.Items.Concat(newMeasurements).ToList(),
-        _measurements.TotalCount + newMeasurements.Count
-      );
-
-      if (_chart is { } chart)
-      {
-        await chart.AppendDataAsync(newMeasurements);
-      }
-
-      _semaphore.Release();
-    });
-  }
-
-  private async Task<PaginatedList<IMeasurement>> LoadAsync()
+  protected override async Task OnParametersSetAsync()
   {
     var now = DateTimeOffset.UtcNow;
     var timestamp = Timestamp ?? now;
@@ -155,23 +98,98 @@ public partial class LineGraph : EnmsOwningComponentBase
         lineId: Model.LineId,
         meterId: Model.MeterId
       );
-      return measurements;
+      _measurements = measurements;
+    }
+    else
+    {
+      var aggregateQueries = ScopedServices
+        .GetRequiredService<AggregateQueries>();
+      var aggregates = await aggregateQueries.ReadDynamic(
+        timestamp.Subtract(timeSpan),
+        timestamp,
+        interval: appropriateInterval,
+        lineId: Model.LineId,
+        meterId: Model.MeterId
+      );
+      var casted = new PaginatedList<IMeasurement>(
+        aggregates.Items.Cast<IMeasurement>().ToList(),
+        aggregates.TotalCount
+      );
+      _measurements = casted;
     }
 
-    var aggregateQueries = ScopedServices
-      .GetRequiredService<AggregateQueries>();
-    var aggregates = await aggregateQueries.ReadDynamic(
-      timestamp.Subtract(timeSpan),
-      timestamp,
-      interval: appropriateInterval,
-      lineId: Model.LineId,
-      meterId: Model.MeterId
-    );
-    var casted = new PaginatedList<IMeasurement>(
-      aggregates.Items.Cast<IMeasurement>().ToList(),
-      aggregates.TotalCount
-    );
-    return casted;
+    _options = CreateGraphOptions();
+
+    if (_chart is { } chart)
+    {
+      await chart.UpdateSeriesAsync(animate: true);
+      await chart.UpdateOptionsAsync(false, true, false);
+    }
+  }
+
+  private void OnUpsert(
+    object? _sender,
+    MeasurementUpsertEventArgs args)
+  {
+    if (!Refresh)
+    {
+      return;
+    }
+
+    Task.Run(async () =>
+    {
+      var now = DateTimeOffset.UtcNow;
+      var timestamp = _measurements.Items.LastOrDefault()?.Timestamp ?? Timestamp ?? now;
+      var timeSpan = Resolution.ToTimeSpan(Multiplier, timestamp);
+      var appropriateInterval = QueryConstants.AppropriateInterval(timeSpan, now);
+
+      if (appropriateInterval is null)
+      {
+        var newMeasurements = args.Measurements
+          .Where(x => x.Timestamp >= timestamp)
+          .Where(x => x.LineId == Model.LineId)
+          .Where(x => x.MeterId == Model.MeterId)
+          .OrderBy(x => x.Timestamp)
+          .ToList();
+        var concatenated = _measurements.Items.Concat(newMeasurements).ToList();
+        _measurements = new PaginatedList<IMeasurement>(
+          concatenated,
+          _measurements.TotalCount + newMeasurements.Count
+        );
+
+        if (_chart is { } chart)
+        {
+          await chart.AppendDataAsync(newMeasurements);
+        }
+      }
+      else
+      {
+        var newAggregates = args.Aggregates
+          .Where(x => x.Timestamp >= timestamp)
+          .Where(x => x.Interval == appropriateInterval)
+          .Where(x => x.LineId == Model.LineId)
+          .Where(x => x.MeterId == Model.MeterId)
+          .OrderBy(x => x.Timestamp)
+          .OfType<IAggregate>()
+          .ToList();
+        var aggregated = _measurements.Items.OfType<IAggregate>()
+          .Concat(newAggregates)
+          .GroupBy(x => x.Timestamp)
+          .Select(x => x
+            .Aggregate(AggregateUpserter.UpsertModelAgnostic))
+          .OfType<IMeasurement>()
+          .ToList();
+        _measurements = new PaginatedList<IMeasurement>(
+          aggregated.ToList(),
+          _measurements.TotalCount - _measurements.Items.Count + aggregated.Count
+        );
+
+        if (_chart is { } chart)
+        {
+          await chart.UpdateSeriesAsync();
+        }
+      }
+    });
   }
 
   private ApexChartOptions<IMeasurement> CreateGraphOptions()

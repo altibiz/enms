@@ -7,6 +7,7 @@ namespace Enms.Data.Entities.Enums;
 public enum CategoryEntity
 {
   All,
+  Audit,
   Meter,
   MeterPush
 }

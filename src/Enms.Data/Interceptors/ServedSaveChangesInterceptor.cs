@@ -2,6 +2,8 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 
 namespace Enms.Data.Interceptors;
 
+// TODO: synchronous versions
+
 public class ServedSaveChangesInterceptor(IServiceProvider serviceProvider)
   : SaveChangesInterceptor
 {

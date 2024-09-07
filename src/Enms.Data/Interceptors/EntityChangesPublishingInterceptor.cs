@@ -17,6 +17,22 @@ public class EntityChangesPublishingInterceptor(
     get { return 0; }
   }
 
+  public override InterceptionResult<int> SavingChanges(
+    DbContextEventData eventData,
+    InterceptionResult<int> result)
+  {
+    var context = eventData.Context;
+    if (context is null)
+    {
+      return base.SavingChanges(eventData, result);
+    }
+
+    ProcessSavingChanges(context);
+    PublishEntitiesChanging();
+
+    return base.SavingChanges(eventData, result);
+  }
+
   public override async ValueTask<InterceptionResult<int>> SavingChangesAsync(
     DbContextEventData eventData,
     InterceptionResult<int> result,
@@ -29,6 +45,32 @@ public class EntityChangesPublishingInterceptor(
         eventData, result, cancellationToken);
     }
 
+    ProcessSavingChanges(context);
+    PublishEntitiesChanging();
+
+    return await base.SavingChangesAsync(eventData, result, cancellationToken);
+  }
+
+  public override int SavedChanges(
+    SaveChangesCompletedEventData eventData,
+    int result)
+  {
+    PublishEntitiesChanged();
+    return base.SavedChanges(eventData, result);
+  }
+
+  public override ValueTask<int> SavedChangesAsync(
+    SaveChangesCompletedEventData eventData,
+    int result,
+    CancellationToken cancellationToken = default
+  )
+  {
+    PublishEntitiesChanged();
+    return base.SavedChangesAsync(eventData, result, cancellationToken);
+  }
+
+  private void ProcessSavingChanges(DbContext context)
+  {
     context.ChangeTracker.DetectChanges();
     foreach (var entry in context.ChangeTracker.Entries())
     {
@@ -55,7 +97,10 @@ public class EntityChangesPublishingInterceptor(
           },
           entity));
     }
+  }
 
+  private void PublishEntitiesChanging()
+  {
     var publisher = serviceProvider
       .GetRequiredService<IEntityChangesPublisher>();
 
@@ -77,20 +122,10 @@ public class EntityChangesPublishingInterceptor(
           )
           .ToList()
       });
-
-    return await base.SavingChangesAsync(eventData, result, cancellationToken);
   }
 
-  public override int SavedChanges(
-    SaveChangesCompletedEventData eventData,
-    int result)
+  private void PublishEntitiesChanged()
   {
-    var context = eventData.Context;
-    if (context is null)
-    {
-      return base.SavedChanges(eventData, result);
-    }
-
     var publisher = serviceProvider
       .GetRequiredService<IEntityChangesPublisher>();
 
@@ -112,8 +147,6 @@ public class EntityChangesPublishingInterceptor(
           )
           .ToList()
       });
-
-    return base.SavedChanges(eventData, result);
   }
 
   private enum EntityChanges

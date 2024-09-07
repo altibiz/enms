@@ -28,6 +28,16 @@ public class AuditingInterceptor(IServiceProvider serviceProvider)
     return base.SavingChanges(eventData, result);
   }
 
+  public override async ValueTask<InterceptionResult<int>> SavingChangesAsync(
+    DbContextEventData eventData,
+    InterceptionResult<int> result,
+    CancellationToken cancellationToken = default
+  )
+  {
+    Audit(eventData);
+    return await base.SavingChangesAsync(eventData, result, cancellationToken);
+  }
+
   public void Audit(DbContextEventData eventData)
   {
     if (eventData.Context is null)
@@ -56,15 +66,12 @@ public class AuditingInterceptor(IServiceProvider serviceProvider)
             {
               Timestamp = now,
               Title =
-                $"Created {
-                  auditable.Entity.GetType().Name
-                } {
-                  auditable.Entity.Title
-                }",
+                $"Created {auditable.Entity.GetType().Name} {auditable.Entity.Title}",
               RepresentativeId = representativeId,
               Level = LevelEntity.Debug,
               Audit = AuditEntity.Creation,
-              Content = CreateAddedMessage(auditable)
+              Content = CreateAddedMessage(auditable),
+              Categories = [CategoryEntity.All, CategoryEntity.Audit]
             });
         }
         else
@@ -75,14 +82,11 @@ public class AuditingInterceptor(IServiceProvider serviceProvider)
             {
               Timestamp = now,
               Title =
-                $"Created {
-                  auditable.Entity.GetType().Name
-                } {
-                  auditable.Entity.Title
-                }",
+                $"Created {auditable.Entity.GetType().Name} {auditable.Entity.Title}",
               Level = LevelEntity.Debug,
               Audit = AuditEntity.Creation,
-              Content = CreateAddedMessage(auditable)
+              Content = CreateAddedMessage(auditable),
+              Categories = [CategoryEntity.All, CategoryEntity.Audit]
             });
         }
       }
@@ -98,15 +102,12 @@ public class AuditingInterceptor(IServiceProvider serviceProvider)
             {
               Timestamp = now,
               Title =
-                $"Updated {
-                  auditable.Entity.GetType().Name
-                } {
-                  auditable.Entity.Title
-                }",
+                $"Updated {auditable.Entity.GetType().Name} {auditable.Entity.Title}",
               RepresentativeId = representativeId,
               Level = LevelEntity.Debug,
               Audit = AuditEntity.Modification,
-              Content = CreateModifiedMessage(auditable)
+              Content = CreateModifiedMessage(auditable),
+              Categories = [CategoryEntity.All, CategoryEntity.Audit]
             });
         }
         else
@@ -117,14 +118,11 @@ public class AuditingInterceptor(IServiceProvider serviceProvider)
             {
               Timestamp = now,
               Title =
-                $"Updated {
-                  auditable.Entity.GetType().Name
-                } {
-                  auditable.Entity.Title
-                }",
+                $"Updated {auditable.Entity.GetType().Name} {auditable.Entity.Title}",
               Level = LevelEntity.Debug,
               Audit = AuditEntity.Modification,
-              Content = CreateModifiedMessage(auditable)
+              Content = CreateModifiedMessage(auditable),
+              Categories = [CategoryEntity.All, CategoryEntity.Audit]
             });
         }
       }
@@ -142,15 +140,12 @@ public class AuditingInterceptor(IServiceProvider serviceProvider)
             {
               Timestamp = now,
               Title =
-                $"Deleted {
-                  auditable.Entity.GetType().Name
-                } {
-                  auditable.Entity.Title
-                }",
+                $"Deleted {auditable.Entity.GetType().Name} {auditable.Entity.Title}",
               RepresentativeId = representativeId,
               Level = LevelEntity.Debug,
               Audit = AuditEntity.Deletion,
-              Content = CreateDeletedMessage(auditable)
+              Content = CreateDeletedMessage(auditable),
+              Categories = [CategoryEntity.All, CategoryEntity.Audit]
             });
         }
         else
@@ -161,14 +156,11 @@ public class AuditingInterceptor(IServiceProvider serviceProvider)
             {
               Timestamp = now,
               Title =
-                $"Deleted {
-                  auditable.Entity.GetType().Name
-                } {
-                  auditable.Entity.Title
-                }",
+                $"Deleted {auditable.Entity.GetType().Name} {auditable.Entity.Title}",
               Level = LevelEntity.Debug,
               Audit = AuditEntity.Deletion,
-              Content = CreateDeletedMessage(auditable)
+              Content = CreateDeletedMessage(auditable),
+              Categories = [CategoryEntity.All, CategoryEntity.Audit]
             });
         }
       }

@@ -6,16 +6,21 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 
 namespace Enms.Data.Interceptors;
 
-public class CascadingDeleteInterceptor : ServedSaveChangesInterceptor
+public class CascadingDeleteInterceptor(IServiceProvider serviceProvider)
+  : ServedSaveChangesInterceptor(serviceProvider)
 {
-  public CascadingDeleteInterceptor(IServiceProvider serviceProvider)
-    : base(serviceProvider)
-  {
-  }
-
   public override int Order
   {
     get { return 10; }
+  }
+
+  public override InterceptionResult<int> SavingChanges(
+    DbContextEventData eventData,
+    InterceptionResult<int> result
+  )
+  {
+    AddCascadingDeletes(eventData).GetAwaiter().GetResult();
+    return base.SavingChanges(eventData, result);
   }
 
   public override async ValueTask<InterceptionResult<int>> SavingChangesAsync(
@@ -27,7 +32,7 @@ public class CascadingDeleteInterceptor : ServedSaveChangesInterceptor
     return await base.SavingChangesAsync(eventData, result, cancellationToken);
   }
 
-  private static async ValueTask AddCascadingDeletes(
+  private static async Task AddCascadingDeletes(
     DbContextEventData eventData)
   {
     var context = eventData.Context;

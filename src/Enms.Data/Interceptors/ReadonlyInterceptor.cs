@@ -21,17 +21,27 @@ public class ReadonlyInterceptor : ServedSaveChangesInterceptor
     InterceptionResult<int> result
   )
   {
-    return PreventReadonlyModifications(eventData, result);
+    PreventReadonlyModifications(eventData);
+    return base.SavingChanges(eventData, result);
   }
 
-  public InterceptionResult<int> PreventReadonlyModifications(
+  public override async ValueTask<InterceptionResult<int>> SavingChangesAsync(
     DbContextEventData eventData,
-    InterceptionResult<int> result
+    InterceptionResult<int> result,
+    CancellationToken cancellationToken = default
+  )
+  {
+    PreventReadonlyModifications(eventData);
+    return await base.SavingChangesAsync(eventData, result, cancellationToken);
+  }
+
+  public void PreventReadonlyModifications(
+    DbContextEventData eventData
   )
   {
     if (eventData.Context is null)
     {
-      return result;
+      return;
     }
 
     eventData.Context.ChangeTracker.DetectChanges();
@@ -47,7 +57,5 @@ public class ReadonlyInterceptor : ServedSaveChangesInterceptor
       throw new InvalidOperationException(
         $"Cannot modify readonly entity {entry.Entity.GetType().Name}.");
     }
-
-    return result;
   }
 }

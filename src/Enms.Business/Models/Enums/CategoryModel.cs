@@ -5,8 +5,9 @@ namespace Enms.Business.Models.Enums;
 public enum CategoryModel
 {
   All,
-  Messenger,
-  MessengerPush
+  Audit,
+  Meter,
+  MeterPush
 }
 
 public static class CategoryModelExtensions
@@ -16,8 +17,9 @@ public static class CategoryModelExtensions
     return entity switch
     {
       CategoryEntity.All => CategoryModel.All,
-      CategoryEntity.Meter => CategoryModel.Messenger,
-      CategoryEntity.MeterPush => CategoryModel.MessengerPush,
+      CategoryEntity.Audit => CategoryModel.Audit,
+      CategoryEntity.Meter => CategoryModel.Meter,
+      CategoryEntity.MeterPush => CategoryModel.MeterPush,
       _ => throw new ArgumentOutOfRangeException(nameof(entity), entity, null)
     };
   }
@@ -27,8 +29,9 @@ public static class CategoryModelExtensions
     return model switch
     {
       CategoryModel.All => CategoryEntity.All,
-      CategoryModel.Messenger => CategoryEntity.Meter,
-      CategoryModel.MessengerPush => CategoryEntity.MeterPush,
+      CategoryModel.Audit => CategoryEntity.Audit,
+      CategoryModel.Meter => CategoryEntity.Meter,
+      CategoryModel.MeterPush => CategoryEntity.MeterPush,
       _ => throw new ArgumentOutOfRangeException(nameof(model), model, null)
     };
   }
@@ -38,8 +41,8 @@ public static class CategoryModelExtensions
     return model switch
     {
       CategoryModel.All => "General",
-      CategoryModel.Messenger => "Messenger",
-      CategoryModel.MessengerPush => "Messenger push",
+      CategoryModel.Meter => "Messenger",
+      CategoryModel.MeterPush => "Messenger push",
       _ => throw new ArgumentOutOfRangeException(nameof(model), model, null)
     };
   }
