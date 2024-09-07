@@ -53,6 +53,8 @@ public partial class LineGraph : EnmsOwningComponentBase
   [Inject]
   public IMeasurementSubscriber MeasurementSubscriber { get; set; } = default!;
 
+  private SemaphoreSlim _semaphore = new(1, 1);
+
   protected override void OnInitialized()
   {
     MeasurementSubscriber.SubscribeUpsert(OnUpsert);
@@ -80,18 +82,24 @@ public partial class LineGraph : EnmsOwningComponentBase
   protected override async Task OnParametersSetAsync()
   {
     _measurements = await LoadAsync();
-    if (_chart is { } chart)
-    {
-      await chart.UpdateSeriesAsync(animate: false);
-    }
+    Console.WriteLine($"Measurements: {_measurements.Items.Count}");
   }
 
   protected override async Task OnAfterRenderAsync(bool firstRender)
   {
-    if (firstRender && _chart is { } chart)
+    await _semaphore.WaitAsync();
+
+    _measurements = await LoadAsync();
+    _options = CreateGraphOptions();
+    Console.WriteLine($"Measurements: {_measurements.Items.Count}");
+
+    if (_chart is { } chart)
     {
-      await chart.UpdateOptionsAsync(false, false, false);
+      await chart.UpdateSeriesAsync(animate: false);
+      await chart.UpdateOptionsAsync(true, false, false);
     }
+
+    _semaphore.Release();
   }
 
   private void OnUpsert(
@@ -103,46 +111,50 @@ public partial class LineGraph : EnmsOwningComponentBase
       return;
     }
 
-    Task.Run(
-      async () =>
+    Task.Run(async () =>
+    {
+      await _semaphore.WaitAsync();
+
+      var now = DateTimeOffset.UtcNow;
+      Timestamp = now.Subtract(Resolution.ToTimeSpan(Multiplier, now));
+
+      var timeSpan = Resolution.ToTimeSpan(Multiplier, Timestamp);
+      var appropriateInterval = QueryConstants
+        .AppropriateInterval(timeSpan, Timestamp);
+
+      var newMeasurements = appropriateInterval is null
+        ? args.Measurements
+          .Where(x => x.Timestamp >= Timestamp)
+          .Where(x => x.LineId == Model.LineId)
+          .Where(x => x.MeterId == Model.MeterId)
+          .OrderByDescending(x => x.Timestamp)
+          .ToList()
+        : args.Aggregates
+          .Where(x => x.Timestamp >= Timestamp)
+          .Where(x => x.Interval == appropriateInterval)
+          .Where(x => x.LineId == Model.LineId)
+          .Where(x => x.MeterId == Model.MeterId)
+          .OrderByDescending(x => x.Timestamp)
+          .OfType<IMeasurement>()
+          .ToList();
+
+      _measurements = new PaginatedList<IMeasurement>(
+        _measurements.Items.Concat(newMeasurements).ToList(),
+        _measurements.TotalCount + newMeasurements.Count
+      );
+      Console.WriteLine($"New measurements: {newMeasurements.Count}");
+
+      _options = CreateGraphOptions(_measurements.Items
+        .OrderByDescending(x => x.Timestamp)
+        .FirstOrDefault()?.Timestamp);
+      if (_chart is { } chart)
       {
-        var now = DateTimeOffset.UtcNow;
-        Timestamp = now.Subtract(Resolution.ToTimeSpan(Multiplier, now));
+        await chart.AppendDataAsync(newMeasurements);
+        await chart.UpdateOptionsAsync(false, true, false);
+      }
 
-        var timeSpan = Resolution.ToTimeSpan(Multiplier, Timestamp);
-        var appropriateInterval = QueryConstants
-          .AppropriateInterval(timeSpan, Timestamp);
-
-        var newMeasurements = appropriateInterval is null
-          ? args.Measurements
-            .Where(x => x.Timestamp >= Timestamp)
-            .Where(x => x.LineId == Model.LineId)
-            .Where(x => x.MeterId == Model.MeterId)
-            .OrderByDescending(x => x.Timestamp)
-            .ToList()
-          : args.Aggregates
-            .Where(x => x.Timestamp >= Timestamp)
-            .Where(x => x.Interval == appropriateInterval)
-            .Where(x => x.LineId == Model.LineId)
-            .Where(x => x.MeterId == Model.MeterId)
-            .OrderByDescending(x => x.Timestamp)
-            .OfType<IMeasurement>()
-            .ToList();
-
-        _measurements = new PaginatedList<IMeasurement>(
-          _measurements.Items.Concat(newMeasurements).ToList(),
-          _measurements.TotalCount + newMeasurements.Count
-        );
-
-        _options = CreateGraphOptions();
-        if (_chart is null)
-        {
-          return;
-        }
-
-        await _chart.AppendDataAsync(newMeasurements);
-        await _chart.UpdateOptionsAsync(false, true, false);
-      });
+      _semaphore.Release();
+    });
   }
 
   private async Task<PaginatedList<IMeasurement>> LoadAsync()
@@ -180,10 +192,13 @@ public partial class LineGraph : EnmsOwningComponentBase
     return casted;
   }
 
-  private ApexChartOptions<IMeasurement> CreateGraphOptions()
+  private ApexChartOptions<IMeasurement> CreateGraphOptions(
+    DateTimeOffset? max = null
+  )
   {
     var measure = $"{Translate(Measure.ToTitle())} ({Measure.ToUnit()})";
-    var milliseconds = Resolution.ToTimeSpan(Multiplier, Timestamp).TotalMilliseconds;
+    max ??= Timestamp;
+    var min = max.Value.Add(-Resolution.ToTimeSpan(Multiplier, max.Value));
     var maxPower = _measurements.Items
       .OrderByDescending(
         m => m.ActivePower_W.TariffUnary().DuplexImport().PhaseSum())
@@ -201,24 +216,24 @@ public partial class LineGraph : EnmsOwningComponentBase
     {
       options = SetSmAndDownGraphOptions(
         options,
-        measure,
-        milliseconds
+        measure
       );
       options = SetSmAndDownTimeRangeGraphOptions(
         options,
-        milliseconds
+        min,
+        max.Value
       );
     }
     else
     {
-      options = CreateMdAndUpGraphOptions(
+      options = SetMdAndUpGraphOptions(
         options,
-        $"{Translate(Measure.ToTitle())} ({Measure.ToUnit()})",
-        Resolution.ToTimeSpan(Multiplier, Timestamp).TotalMilliseconds
+        measure
       );
       options = SetMdAndUpTimeRangeGraphOptions(
         options,
-        milliseconds
+        min,
+        max.Value
       );
     }
 
@@ -228,7 +243,8 @@ public partial class LineGraph : EnmsOwningComponentBase
   private static ApexChartOptions<IMeasurement>
     SetSmAndDownTimeRangeGraphOptions(
       ApexChartOptions<IMeasurement>? options,
-      double milliseconds
+      DateTimeOffset min,
+      DateTimeOffset max
     )
   {
     options ??= NewApexChartOptions<IMeasurement>();
@@ -236,7 +252,8 @@ public partial class LineGraph : EnmsOwningComponentBase
     options.Xaxis = new XAxis
     {
       Labels = new XAxisLabels { Show = false },
-      Range = milliseconds
+      Min = DateTimeChart(min),
+      Max = DateTimeChart(max)
     };
 
     return options;
@@ -244,7 +261,8 @@ public partial class LineGraph : EnmsOwningComponentBase
 
   private static ApexChartOptions<IMeasurement> SetMdAndUpTimeRangeGraphOptions(
     ApexChartOptions<IMeasurement>? options,
-    double milliseconds
+    DateTimeOffset min,
+    DateTimeOffset max
   )
   {
     options ??= NewApexChartOptions<IMeasurement>();
@@ -253,7 +271,8 @@ public partial class LineGraph : EnmsOwningComponentBase
     {
       Type = XAxisType.Datetime,
       AxisTicks = new AxisTicks(),
-      Range = milliseconds
+      Min = DateTimeChart(min),
+      Max = DateTimeChart(max)
     };
 
     return options;
@@ -305,8 +324,7 @@ public partial class LineGraph : EnmsOwningComponentBase
 
   private static ApexChartOptions<IMeasurement> SetSmAndDownGraphOptions(
     ApexChartOptions<IMeasurement>? options,
-    string measure,
-    double milliseconds
+    string measure
   )
   {
     options ??= NewApexChartOptions<IMeasurement>();
@@ -343,7 +361,6 @@ public partial class LineGraph : EnmsOwningComponentBase
     options.Xaxis = new XAxis
     {
       Labels = new XAxisLabels { Show = false },
-      Range = milliseconds
     };
     options.Chart = new Chart
     {
@@ -364,10 +381,9 @@ public partial class LineGraph : EnmsOwningComponentBase
     return options;
   }
 
-  private static ApexChartOptions<IMeasurement> CreateMdAndUpGraphOptions(
+  private static ApexChartOptions<IMeasurement> SetMdAndUpGraphOptions(
     ApexChartOptions<IMeasurement>? options,
-    string measure,
-    double milliseconds
+    string measure
   )
   {
     options ??= NewApexChartOptions<IMeasurement>();
@@ -421,7 +437,6 @@ public partial class LineGraph : EnmsOwningComponentBase
     {
       Type = XAxisType.Datetime,
       AxisTicks = new AxisTicks(),
-      Range = milliseconds
     };
 
     return options;

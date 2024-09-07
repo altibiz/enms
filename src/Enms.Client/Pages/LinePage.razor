@@ -20,7 +20,7 @@
     </MudText>
     <MudDivider Class="mb-4" />
     <div class="mt-4 mb-4">
-      <LineGraph Model="@model"/>
+      <LineGraph Refresh="false" Model="@model"/>
     </div>
     <DetailsField Title="@Translate("Id")">
       @model.Id
