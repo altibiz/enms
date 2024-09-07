@@ -118,12 +118,14 @@ public partial class LineGraph : EnmsOwningComponentBase
             .Where(x => x.Timestamp >= Timestamp)
             .Where(x => x.LineId == Model.LineId)
             .Where(x => x.MeterId == Model.MeterId)
+            .OrderByDescending(x => x.Timestamp)
             .ToList()
           : args.Aggregates
             .Where(x => x.Timestamp >= Timestamp)
             .Where(x => x.Interval == appropriateInterval)
             .Where(x => x.LineId == Model.LineId)
             .Where(x => x.MeterId == Model.MeterId)
+            .OrderByDescending(x => x.Timestamp)
             .OfType<IMeasurement>()
             .ToList();
 
@@ -180,96 +182,91 @@ public partial class LineGraph : EnmsOwningComponentBase
 
   private ApexChartOptions<IMeasurement> CreateGraphOptions()
   {
+    var measure = $"{Translate(Measure.ToTitle())} ({Measure.ToUnit()})";
+    var milliseconds = Resolution.ToTimeSpan(Multiplier, Timestamp).TotalMilliseconds;
+    var maxPower = _measurements.Items
+      .OrderByDescending(
+        m => m.ActivePower_W.TariffUnary().DuplexImport().PhaseSum())
+      .FirstOrDefault()
+      ?.ActivePower_W.TariffUnary().DuplexImport().PhaseSum();
+
+    var options = SetPowerAnnotationGraphOptions(
+      null,
+      Translate("CONNECTION POWER"),
+      Model.ConnectionPower_W,
+      maxPower
+    );
+
     if (Breakpoint <= Breakpoint.Sm)
     {
-      var options = CreateSmAndDownGraphOptions(
-        Resolution,
-        Timestamp,
-        Multiplier
-      );
-      options = SetPowerAnnotationGraphOptions(
+      options = SetSmAndDownGraphOptions(
         options,
-        Translate("CONNECTION POWER"),
-        Model.ConnectionPower_W,
-        _measurements.Items
-          .OrderByDescending(
-            m => m.ActivePower_W.TariffUnary().DuplexImport().PhaseSum())
-          .FirstOrDefault()
-          ?.ActivePower_W.TariffUnary().DuplexImport().PhaseSum());
+        measure,
+        milliseconds
+      );
       options = SetSmAndDownTimeRangeGraphOptions(
         options,
-        Resolution,
-        Timestamp,
-        Multiplier
+        milliseconds
       );
-      return options;
     }
     else
     {
-      var options = CreateMdAndUpGraphOptions(
-        Resolution,
-        Timestamp,
-        Multiplier
-      );
-      options = SetPowerAnnotationGraphOptions(
+      options = CreateMdAndUpGraphOptions(
         options,
-        Translate("CONNECTION POWER"),
-        Model.ConnectionPower_W,
-        _measurements.Items
-          .OrderByDescending(
-            m => m.ActivePower_W.TariffUnary().DuplexImport().PhaseSum())
-          .FirstOrDefault()
-          ?.ActivePower_W.TariffUnary().DuplexImport().PhaseSum());
+        $"{Translate(Measure.ToTitle())} ({Measure.ToUnit()})",
+        Resolution.ToTimeSpan(Multiplier, Timestamp).TotalMilliseconds
+      );
       options = SetMdAndUpTimeRangeGraphOptions(
         options,
-        Resolution,
-        Timestamp,
-        Multiplier
+        milliseconds
       );
-      return options;
     }
+
+    return options;
   }
 
   private static ApexChartOptions<IMeasurement>
     SetSmAndDownTimeRangeGraphOptions(
-      ApexChartOptions<IMeasurement> options,
-      ResolutionModel resolution,
-      DateTimeOffset timestamp,
-      int multiplier
+      ApexChartOptions<IMeasurement>? options,
+      double milliseconds
     )
   {
+    options ??= NewApexChartOptions<IMeasurement>();
+
     options.Xaxis = new XAxis
     {
       Labels = new XAxisLabels { Show = false },
-      Range = resolution.ToTimeSpan(multiplier, timestamp).TotalMilliseconds
+      Range = milliseconds
     };
 
     return options;
   }
 
   private static ApexChartOptions<IMeasurement> SetMdAndUpTimeRangeGraphOptions(
-    ApexChartOptions<IMeasurement> options,
-    ResolutionModel resolution,
-    DateTimeOffset timestamp,
-    int multiplier
+    ApexChartOptions<IMeasurement>? options,
+    double milliseconds
   )
   {
+    options ??= NewApexChartOptions<IMeasurement>();
+
     options.Xaxis = new XAxis
     {
       Type = XAxisType.Datetime,
       AxisTicks = new AxisTicks(),
-      Range = resolution.ToTimeSpan(multiplier, timestamp).TotalMilliseconds
+      Range = milliseconds
     };
 
     return options;
   }
 
   private static ApexChartOptions<IMeasurement> SetPowerAnnotationGraphOptions(
-    ApexChartOptions<IMeasurement> options,
+    ApexChartOptions<IMeasurement>? options,
     string label,
     decimal connectionPower,
     decimal? maxPower)
   {
+    options ??= NewApexChartOptions<IMeasurement>();
+
     if (maxPower is null)
     {
       options.Yaxis =
@@ -306,25 +303,32 @@ public partial class LineGraph : EnmsOwningComponentBase
     return options;
   }
 
-  private static ApexChartOptions<IMeasurement> CreateSmAndDownGraphOptions(
-    ResolutionModel resolution,
-    DateTimeOffset timestamp,
-    int multiplier
+  private static ApexChartOptions<IMeasurement> SetSmAndDownGraphOptions(
+    ApexChartOptions<IMeasurement>? options,
+    string measure,
+    double milliseconds
   )
   {
-    var options = NewApexChartOptions<IMeasurement>();
+    options ??= NewApexChartOptions<IMeasurement>();
     options.Grid = new Grid
     {
       BorderColor = "#e7e7e7",
       Row = new GridRow
       {
-        Colors = new List<string> { "#f3f3f3", "transparent" },
+        Colors = new List<string> { "#ddeeff", "transparent" },
         Opacity = 0.5d
       }
     };
     options.Tooltip = new Tooltip
     {
-      X = new TooltipX { Format = @"HH:mm:ss" }
+      X = new TooltipX { Format = @"HH:mm:ss" },
+      Y = new TooltipY
+      {
+        Title = new TooltipYTitle
+        {
+          Formatter = $"function(name) {{ return '{measure} ' + name; }}"
+        }
+      }
     };
     options.Yaxis =
     [
@@ -339,7 +343,7 @@ public partial class LineGraph : EnmsOwningComponentBase
     options.Xaxis = new XAxis
     {
       Labels = new XAxisLabels { Show = false },
-      Range = resolution.ToTimeSpan(multiplier, timestamp).TotalMilliseconds
+      Range = milliseconds
     };
     options.Chart = new Chart
     {
@@ -361,18 +365,18 @@ public partial class LineGraph : EnmsOwningComponentBase
   }
 
   private static ApexChartOptions<IMeasurement> CreateMdAndUpGraphOptions(
-    ResolutionModel resolution,
-    DateTimeOffset timestamp,
-    int multiplier
+    ApexChartOptions<IMeasurement>? options,
+    string measure,
+    double milliseconds
   )
   {
-    var options = NewApexChartOptions<IMeasurement>();
+    options ??= NewApexChartOptions<IMeasurement>();
     options.Grid = new Grid
     {
       BorderColor = "#e7e7e7",
       Row = new GridRow
       {
-        Colors = new List<string> { "#f3f3f3", "transparent" },
+        Colors = new List<string> { "#ddeeff", "transparent" },
         Opacity = 0.5d
       }
     };
@@ -386,14 +390,22 @@ public partial class LineGraph : EnmsOwningComponentBase
           Zoomout = false,
           Zoom = false,
           Download = false,
-          Pan = true,
-          Selection = false
+          Pan = false,
+          Selection = false,
+          Reset = false
         }
       }
     };
     options.Tooltip = new Tooltip
     {
-      X = new TooltipX { Format = @"HH:mm:ss" }
+      X = new TooltipX { Format = @"HH:mm:ss" },
+      Y = new TooltipY
+      {
+        Title = new TooltipYTitle
+        {
+          Formatter = $"function(name) {{ return '{measure} ' + name; }}"
+        }
+      }
     };
     options.Yaxis =
     [
@@ -409,7 +421,7 @@ public partial class LineGraph : EnmsOwningComponentBase
     {
       Type = XAxisType.Datetime,
       AxisTicks = new AxisTicks(),
-      Range = resolution.ToTimeSpan(multiplier, timestamp).TotalMilliseconds
+      Range = milliseconds
     };
 
     return options;

@@ -6,6 +6,15 @@
 @using MudBlazor
 @inherits Enms.Client.Base.EnmsOwningComponentBase
 
+<div class="d-flex justify-center">
+  <MudText>
+    @Translate(Measure.ToTitle())
+    (@Translate(Measure.ToUnit()))
+    over last
+    @(Multiplier == 1 ? "" : Multiplier.ToString())
+    @Translate(Resolution.ToTitle(Multiplier))
+  </MudText>
+</div>
 <ApexChart XAxisType="XAxisType.Datetime"
            Options="@_options"
            @ref="_chart">
@@ -21,8 +30,14 @@
   }
 </ApexChart>
 
+<style>
+  #graph-controls > .mud-expand-panel-header {
+    padding: 0px !important;
+  }
+</style>
+
 <MudExpansionPanel
-  Style=".mud-expand-panel-header { padding-left: 0; }"
+  id="graph-controls"
   Gutters="false"
   Text="@Translate("Graph controls")">
   <MudGrid Spacing="2" Justify="Justify.Center">

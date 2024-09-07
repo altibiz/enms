@@ -66,6 +66,22 @@ public static class ChartMeasureExtensions
     };
   }
 
+  public static string ToUnit(this MeasureModel measure)
+  {
+    return measure switch
+    {
+      MeasureModel.Current => "A",
+      MeasureModel.Voltage => "V",
+      MeasureModel.ActivePower => "W",
+      MeasureModel.ReactivePower => "VAR",
+      MeasureModel.ApparentPower => "VA",
+      MeasureModel.ActiveEnergy => "Wh",
+      MeasureModel.ReactiveEnergy => "VARh",
+      MeasureModel.ApparentEnergy => "VAh",
+      _ => throw new ArgumentOutOfRangeException(nameof(measure), measure, null)
+    };
+  }
+
   public static TariffMeasure<decimal> GetMeasure(
     this IMeasurement measurement,
     MeasureModel measure)
