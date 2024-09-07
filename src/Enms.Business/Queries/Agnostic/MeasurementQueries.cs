@@ -137,7 +137,7 @@ public class MeasurementQueries(
           aggregate.LineId == lineId && aggregate.MeterId == meterId);
 
     var ordered = filtered
-      .OrderByDescending(aggregate => aggregate.Timestamp);
+      .OrderBy(aggregate => aggregate.Timestamp);
 
     var count = await filtered.CountAsync();
 

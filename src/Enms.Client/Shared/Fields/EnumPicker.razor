@@ -2,7 +2,7 @@
 @using MudBlazor
 @typeparam T where T : struct, Enum
 
-<MudSelect Label="@Label(Value)" Value="Value" ValueChanged="ValueChanged">
+<MudSelect Label="@Title" Value="Value" ValueChanged="ValueChanged">
   @foreach (var value in Enum.GetValues<T>())
   {
     <MudSelectItem Value="value">
@@ -18,6 +18,9 @@
 
   [Parameter]
   public EventCallback<T> ValueChanged { get; set; } = default!;
+
+  [Parameter]
+  public string Title { get; set; } = default!;
 
   [Parameter]
   public Func<T, string> Label { get; set; } = default!;

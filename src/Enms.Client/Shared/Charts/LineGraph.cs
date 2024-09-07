@@ -11,6 +11,8 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.DependencyInjection;
 using MudBlazor;
 
+// FIXME: chart updates are always behind by one render
+
 namespace Enms.Client.Shared.Charts;
 
 #pragma warning disable S3881 // "IDisposable" should be implemented correctly
@@ -29,7 +31,7 @@ public partial class LineGraph : EnmsOwningComponentBase
   public ILine Model { get; set; } = default!;
 
   [Parameter]
-  public DateTimeOffset Timestamp { get; set; } = default!;
+  public DateTimeOffset? Timestamp { get; set; } = default!;
 
   [Parameter]
   public MeasureModel Measure { get; set; } = MeasureModel.ActivePower;
@@ -58,6 +60,8 @@ public partial class LineGraph : EnmsOwningComponentBase
   protected override void OnInitialized()
   {
     MeasurementSubscriber.SubscribeUpsert(OnUpsert);
+
+    _options = CreateGraphOptions();
   }
 
   protected override void Dispose(bool disposing)
@@ -68,35 +72,17 @@ public partial class LineGraph : EnmsOwningComponentBase
     }
   }
 
-  protected override void OnParametersSet()
-  {
-    var now = DateTimeOffset.UtcNow;
-    if (Timestamp == default)
-    {
-      Timestamp = now.Subtract(Resolution.ToTimeSpan(Multiplier, now));
-    }
-
-    _options = CreateGraphOptions();
-  }
-
-  protected override async Task OnParametersSetAsync()
-  {
-    _measurements = await LoadAsync();
-    Console.WriteLine($"Measurements: {_measurements.Items.Count}");
-  }
-
   protected override async Task OnAfterRenderAsync(bool firstRender)
   {
     await _semaphore.WaitAsync();
 
     _measurements = await LoadAsync();
     _options = CreateGraphOptions();
-    Console.WriteLine($"Measurements: {_measurements.Items.Count}");
 
     if (_chart is { } chart)
     {
-      await chart.UpdateSeriesAsync(animate: false);
-      await chart.UpdateOptionsAsync(true, false, false);
+      await chart.UpdateSeriesAsync(animate: true);
+      await chart.UpdateOptionsAsync(false, true, false);
     }
 
     _semaphore.Release();
@@ -116,25 +102,23 @@ public partial class LineGraph : EnmsOwningComponentBase
       await _semaphore.WaitAsync();
 
       var now = DateTimeOffset.UtcNow;
-      Timestamp = now.Subtract(Resolution.ToTimeSpan(Multiplier, now));
-
-      var timeSpan = Resolution.ToTimeSpan(Multiplier, Timestamp);
-      var appropriateInterval = QueryConstants
-        .AppropriateInterval(timeSpan, Timestamp);
+      var timestamp = _measurements.Items.LastOrDefault()?.Timestamp ?? Timestamp ?? now;
+      var timeSpan = Resolution.ToTimeSpan(Multiplier, timestamp);
+      var appropriateInterval = QueryConstants.AppropriateInterval(timeSpan, now);
 
       var newMeasurements = appropriateInterval is null
         ? args.Measurements
-          .Where(x => x.Timestamp >= Timestamp)
+          .Where(x => x.Timestamp >= timestamp)
           .Where(x => x.LineId == Model.LineId)
           .Where(x => x.MeterId == Model.MeterId)
-          .OrderByDescending(x => x.Timestamp)
+          .OrderBy(x => x.Timestamp)
           .ToList()
         : args.Aggregates
-          .Where(x => x.Timestamp >= Timestamp)
+          .Where(x => x.Timestamp >= timestamp)
           .Where(x => x.Interval == appropriateInterval)
           .Where(x => x.LineId == Model.LineId)
           .Where(x => x.MeterId == Model.MeterId)
-          .OrderByDescending(x => x.Timestamp)
+          .OrderBy(x => x.Timestamp)
           .OfType<IMeasurement>()
           .ToList();
 
@@ -142,15 +126,10 @@ public partial class LineGraph : EnmsOwningComponentBase
         _measurements.Items.Concat(newMeasurements).ToList(),
         _measurements.TotalCount + newMeasurements.Count
       );
-      Console.WriteLine($"New measurements: {newMeasurements.Count}");
 
-      _options = CreateGraphOptions(_measurements.Items
-        .OrderByDescending(x => x.Timestamp)
-        .FirstOrDefault()?.Timestamp);
       if (_chart is { } chart)
       {
         await chart.AppendDataAsync(newMeasurements);
-        await chart.UpdateOptionsAsync(false, true, false);
       }
 
       _semaphore.Release();
@@ -159,17 +138,20 @@ public partial class LineGraph : EnmsOwningComponentBase
 
   private async Task<PaginatedList<IMeasurement>> LoadAsync()
   {
-    var timeSpan = Resolution.ToTimeSpan(Multiplier, Timestamp);
+    var now = DateTimeOffset.UtcNow;
+    var timestamp = Timestamp ?? now;
+    var timeSpan = Resolution
+      .ToTimeSpan(Multiplier, timestamp);
     var appropriateInterval = QueryConstants
-      .AppropriateInterval(timeSpan, Timestamp);
+      .AppropriateInterval(timeSpan, timestamp);
 
     if (appropriateInterval is null)
     {
       var measurementQueries = ScopedServices
         .GetRequiredService<MeasurementQueries>();
       var measurements = await measurementQueries.ReadDynamic(
-        Timestamp,
-        Timestamp.Add(timeSpan),
+        timestamp.Subtract(timeSpan),
+        timestamp,
         lineId: Model.LineId,
         meterId: Model.MeterId
       );
@@ -179,8 +161,8 @@ public partial class LineGraph : EnmsOwningComponentBase
     var aggregateQueries = ScopedServices
       .GetRequiredService<AggregateQueries>();
     var aggregates = await aggregateQueries.ReadDynamic(
-      Timestamp,
-      Timestamp.Add(timeSpan),
+      timestamp.Subtract(timeSpan),
+      timestamp,
       interval: appropriateInterval,
       lineId: Model.LineId,
       meterId: Model.MeterId
@@ -192,13 +174,16 @@ public partial class LineGraph : EnmsOwningComponentBase
     return casted;
   }
 
-  private ApexChartOptions<IMeasurement> CreateGraphOptions(
-    DateTimeOffset? max = null
-  )
+  private ApexChartOptions<IMeasurement> CreateGraphOptions()
   {
     var measure = $"{Translate(Measure.ToTitle())} ({Measure.ToUnit()})";
-    max ??= Timestamp;
-    var min = max.Value.Add(-Resolution.ToTimeSpan(Multiplier, max.Value));
+    var min = _measurements.Items
+      .OrderBy(x => x.Timestamp)
+      .FirstOrDefault()?.Timestamp;
+    var max = _measurements.Items
+      .OrderByDescending(x => x.Timestamp)
+      .FirstOrDefault()?.Timestamp;
+    var range = (max - min)?.TotalMilliseconds;
     var maxPower = _measurements.Items
       .OrderByDescending(
         m => m.ActivePower_W.TariffUnary().DuplexImport().PhaseSum())
@@ -218,11 +203,15 @@ public partial class LineGraph : EnmsOwningComponentBase
         options,
         measure
       );
-      options = SetSmAndDownTimeRangeGraphOptions(
-        options,
-        min,
-        max.Value
-      );
+      if (min is { } && max is { } && range is { })
+      {
+        // options = SetSmAndDownTimeRangeGraphOptions(
+        //   options,
+        //   range.Value,
+        //   min.Value,
+        //   max.Value
+        // );
+      }
     }
     else
     {
@@ -230,11 +219,15 @@ public partial class LineGraph : EnmsOwningComponentBase
         options,
         measure
       );
-      options = SetMdAndUpTimeRangeGraphOptions(
-        options,
-        min,
-        max.Value
-      );
+      if (min is { } && max is { } && range is { })
+      {
+        // options = SetMdAndUpTimeRangeGraphOptions(
+        //   options,
+        //   range.Value,
+        //   min.Value,
+        //   max.Value
+        // );
+      }
     }
 
     return options;
@@ -243,6 +236,7 @@ public partial class LineGraph : EnmsOwningComponentBase
   private static ApexChartOptions<IMeasurement>
     SetSmAndDownTimeRangeGraphOptions(
       ApexChartOptions<IMeasurement>? options,
+      double range,
       DateTimeOffset min,
       DateTimeOffset max
     )
@@ -251,7 +245,9 @@ public partial class LineGraph : EnmsOwningComponentBase
 
     options.Xaxis = new XAxis
     {
+      Type = XAxisType.Datetime,
       Labels = new XAxisLabels { Show = false },
+      Range = range,
       Min = DateTimeChart(min),
       Max = DateTimeChart(max)
     };
@@ -261,6 +257,7 @@ public partial class LineGraph : EnmsOwningComponentBase
 
   private static ApexChartOptions<IMeasurement> SetMdAndUpTimeRangeGraphOptions(
     ApexChartOptions<IMeasurement>? options,
+    double range,
     DateTimeOffset min,
     DateTimeOffset max
   )
@@ -271,6 +268,7 @@ public partial class LineGraph : EnmsOwningComponentBase
     {
       Type = XAxisType.Datetime,
       AxisTicks = new AxisTicks(),
+      Range = range,
       Min = DateTimeChart(min),
       Max = DateTimeChart(max)
     };
