@@ -7,6 +7,8 @@ using Enms.Business.Models.Joins;
 using Enms.Business.Mutations.Abstractions;
 using Enms.Data.Context;
 using Enms.Data.Entities.Base;
+using Enms.Data.Entities.Joins;
+using Enms.Data.Extensions;
 using Microsoft.EntityFrameworkCore;
 
 namespace Enms.Business.Mutations;
@@ -52,8 +54,13 @@ public class NotificationMutations(
   public async Task Seen(INotification model, RepresentativeModel representative)
   {
     var recipient = await context.NotificationRecipients
-      .FirstOrDefaultAsync(x => x.NotificationId == model.Id &&
-                                x.RecipientId == representative.Id);
+      .Where(context.ForeignKeyEquals<NotificationRecipientEntity>(
+        nameof(NotificationRecipientEntity.Notification),
+        model.Id))
+      .Where(context.ForeignKeyEquals<NotificationRecipientEntity>(
+        nameof(NotificationRecipientEntity.Recipient),
+        representative.Id))
+      .FirstOrDefaultAsync();
 
     if (recipient is null)
     {
