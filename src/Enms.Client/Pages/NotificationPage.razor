@@ -14,6 +14,7 @@
 @using Microsoft.AspNetCore.Authorization
 @using Microsoft.Extensions.DependencyInjection
 @using Enms.Client.State
+@using MudBlazor
 @inherits Enms.Client.Base.EnmsOwningComponentBase
 
 @if (UserState.User.MaybeRepresentative is not
@@ -44,6 +45,14 @@
   </Edit>
   <Details Context="model">
     <NotificationDetails Model="@model"/>
+    <div class="d-flex flex-row mt-4 justify-end">
+      <MudButton
+        Variant="Variant.Filled"
+        Class="align-self-end"
+        OnClick="() => OnMarkAsSeen(model)">
+        @Translate("Mark as seen")
+      </MudButton>
+    </div>
   </Details>
 </Mutating>
 
@@ -54,4 +63,12 @@
 
   [CascadingParameter]
   public UserState UserState { get; set; } = default!;
+
+  private async Task OnMarkAsSeen(NotificationModel model)
+  {
+    await ScopedServices
+      .GetRequiredService<NotificationMutations>()
+      .Seen(model, UserState.User.MaybeRepresentative!);
+    NavigateToPage<NotificationsPage>();
+  }
 }

@@ -2,6 +2,10 @@
 
 @namespace Enms.Client.Pages
 
+@attribute [Navigation(
+  RouteValue = "account",
+  IsVisible = false
+)]
 @attribute [Authorize]
 @using Microsoft.AspNetCore.Authorization
 @using Enms.Business.Models.Composite

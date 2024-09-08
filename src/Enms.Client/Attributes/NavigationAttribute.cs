@@ -9,7 +9,9 @@ public class NavigationAttribute : Attribute
 
   public string? Title { get; set; }
 
-  public string? RouteValue { get; set; }
+  public bool IsVisible { get; set; } = true;
+
+  public string RouteValue { get; set; } = string.Empty;
 
   public string Icon { get; set; } = "home";
 

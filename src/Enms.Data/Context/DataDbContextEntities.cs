@@ -1,5 +1,6 @@
 using Enms.Data.Entities;
 using Enms.Data.Entities.Base;
+using Enms.Data.Entities.Joins;
 using Microsoft.EntityFrameworkCore;
 
 namespace Enms.Data.Context;
@@ -18,4 +19,9 @@ public partial class DataDbContext : DbContext
   public DbSet<EgaugeAggregateEntity> EgaugeAggregates { get; set; } = default!;
 
   public DbSet<EventEntity> Events { get; set; } = default!;
+
+  public DbSet<NotificationEntity> Notifications { get; set; } = default!;
+
+  public DbSet<NotificationRecipientEntity> NotificationRecipients { get; set; } =
+    default!;
 }

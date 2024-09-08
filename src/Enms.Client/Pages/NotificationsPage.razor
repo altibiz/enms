@@ -3,13 +3,19 @@
 @using MudBlazor
 @namespace Enms.Client.Pages
 
+@attribute [Navigation(
+  RouteValue = "notifications",
+  IsVisible = false
+)]
 @attribute [Authorize]
 @using Enms.Business.Models.Base
 @using Enms.Business.Models.Enums
+@using Enms.Business.Queries
 @using Enms.Client.Shared.Models
 @using Enms.Client.Shared.Streaming
 @using Enms.Client.State
 @using Microsoft.AspNetCore.Authorization
+@using Microsoft.Extensions.DependencyInjection
 @inherits Enms.Client.Base.EnmsOwningComponentBase
 
 <MudText Typo="Typo.h5" Class="mb-6">
@@ -17,7 +23,11 @@
 </MudText>
 <MudDivider />
 
-<Paging T="NotificationModel">
+<Paging PageAsync="(page) => ScopedServices
+  .GetRequiredService<NotificationQueries>()
+  .Read(
+    recipientId: UserState.User.User.Id,
+    pageNumber: page)">
   <Summary Context="notification">
     @{
       var href = $"notification/{notification.Id}";

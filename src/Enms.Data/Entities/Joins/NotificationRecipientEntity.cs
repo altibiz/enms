@@ -51,6 +51,7 @@ public class NotificationRecipientEntityModelConfiguration : IModelConfiguration
         {
           entity.Ignore(nameof(NotificationRecipientEntity.NotificationId));
           entity
+            .ToTable("notification_recipients")
             .Property("_notificationId")
             .HasColumnName("notification_id");
         }

@@ -57,6 +57,15 @@ public abstract class EnmsComponentBase : ComponentBase
       $"/login?returnUrl={Uri.EscapeDataString(NavigationManager.Uri)}");
   }
 
+  protected void NavigateToPage<T>()
+  {
+    var navigationAttribute = typeof(T)
+      .GetCustomAttributes<NavigationAttribute>()
+      .FirstOrDefault() ?? throw new InvalidOperationException(
+        $"No navigation attribute found for {typeof(T)}");
+    NavigationManager.NavigateTo(navigationAttribute.RouteValue);
+  }
+
   protected string Translate(string unlocalized)
   {
     return Localizer.TranslateForCurrentCulture(unlocalized);

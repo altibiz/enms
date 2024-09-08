@@ -51,4 +51,22 @@ public class NotificationMutations(
 
     await context.SaveChangesAsync();
   }
+
+  public async Task Seen(INotification model, RepresentativeModel representative)
+  {
+    var recipient = await context.NotificationRecipients
+      .FirstOrDefaultAsync(x => x.NotificationId == model.Id &&
+                                x.RecipientId == representative.Id);
+
+    if (recipient is null)
+    {
+      throw new InvalidOperationException(
+        $"No notification recipient found for {model.Id} "
+        + $"and {representative.Id}");
+    }
+
+    recipient.SeenOn = DateTimeOffset.UtcNow;
+    context.Update(recipient);
+    await context.SaveChangesAsync();
+  }
 }

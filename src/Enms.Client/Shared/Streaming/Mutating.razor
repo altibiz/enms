@@ -31,7 +31,11 @@
     else if (model is IIdentifiable identifiable)
     {
       <MudText Typo="Typo.h5" Class="mb-2">
-        @Translate("Edit") @(identifiable.Title)
+        @if (_mutating)
+        {
+          @Translate("Edit")
+        }
+        @(identifiable.Title)
       </MudText>
       <MudDivider Class="mb-4" />
       <DetailsField Title="@Translate("Id")">
@@ -41,7 +45,11 @@
     else
     {
       <MudText Typo="Typo.h5" Class="mb-2">
-        @Translate("Edit") @(typeof(T).Name)
+        @if (_mutating)
+        {
+          @Translate("Edit")
+        }
+        @(typeof(T).Name)
       </MudText>
       <MudDivider Class="mb-4" />
     }
@@ -87,14 +95,6 @@
         else
         {
           @Details(model)
-          <div Class="d-flex flex-row mt-4">
-            <MudButton
-              Variant="Variant.Filled"
-              Color="Color.Warning"
-              OnClick="@(() => _mutating = !_mutating)">
-              @Translate("Edit")
-            </MudButton>
-          </div>
         }
       </EditForm>
     }

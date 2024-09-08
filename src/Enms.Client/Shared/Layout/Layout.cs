@@ -104,7 +104,7 @@ public partial class Layout : EnmsLayoutComponentBase
         "No claims principal found.");
     if (!(claimsPrincipal.Identity?.IsAuthenticated ?? false))
     {
-      NavigationManager.NavigateTo($"/login?returnUrl={NavigationManager.Uri}");
+      NavigateToLogin();
       return default;
     }
 
@@ -115,7 +115,7 @@ public partial class Layout : EnmsLayoutComponentBase
       claimsPrincipal);
     if (user is null)
     {
-      NavigationManager.NavigateTo($"/login?returnUrl={NavigationManager.Uri}");
+      NavigateToLogin();
       return default;
     }
 

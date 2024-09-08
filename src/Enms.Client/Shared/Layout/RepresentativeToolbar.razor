@@ -1,10 +1,12 @@
 @namespace Enms.Client.Shared.Layout
+@using Enms.Business.Models.Joins
 @using MudBlazor
 @using Enms.Client.Base
 @using Enms.Client.State
 @using Enms.Client.Shared.Streaming
-@using Enms.Business.Queries.Agnostic
+@using Enms.Business.Queries
 @using Enms.Business.Models.Base
+@using Enms.Business.Models
 @using Microsoft.Extensions.DependencyInjection
 @inherits EnmsOwningComponentBase
 
@@ -18,35 +20,42 @@
       Style="margin-left: -12px;"
       OnClick="e => LayoutState.SetNavigationDrawerOpen(true)"/>
     <MudSpacer />
-    <Paging PageAsync="@((page) => ScopedServices
-      .GetRequiredService<AgnosticQueries>()
-      .Read<NotificationModel>(pageNumber: page))">
-      <Found Context="events">
-        <MudButton
-          Size="Size.Small"
-          Style="margin-right: -20px;"
-          Href="@($"/app/{Culture}/notifications")">
-          <MudIcon Icon="@Icons.Material.Filled.NotificationsActive"/>
-          <MudItem>
-            <MudIcon Icon="@Icons.Material.Filled.Circle"/>
-            <MudText>@events.TotalCount</MudText>
-          </MudItem>
-        </MudButton>
-      </Found>
-      <Empty>
-        <MudButton
-          Size="Size.Small"
-          Style="margin-right: -20px;"
-          Href="@($"/app/{Culture}/notifications")">
-          <MudIcon Icon="@Icons.Material.Filled.NotificationsNone" />
-        </MudButton>
-      </Empty>
-      <Pagination />
-    </Paging>
+    @if (UserState.User.MaybeRepresentative
+      is RepresentativeModel representative)
+    {
+      <Paging PageAsync="@((page) => ScopedServices
+        .GetRequiredService<NotificationQueries>()
+        .Read(representative.Id, pageNumber: page))">
+        <Found Context="events">
+          <MudButton
+            Size="Size.Small"
+            Style="margin-right: -20px;"
+            Href="@($"/app/{Culture}/notifications")">
+            <MudIcon Icon="@Icons.Material.Filled.NotificationsActive"/>
+            <MudItem>
+              <MudIcon Icon="@Icons.Material.Filled.Circle"/>
+              <MudText>@events.TotalCount</MudText>
+            </MudItem>
+          </MudButton>
+        </Found>
+        <Empty>
+          <MudButton
+            Size="Size.Small"
+            Style="margin-right: -20px;"
+            Href="@($"/app/{Culture}/notifications")">
+            <MudIcon Icon="@Icons.Material.Filled.NotificationsNone" />
+          </MudButton>
+        </Empty>
+        <Pagination />
+      </Paging>
+    }
   </MudContainer>
 </MudToolBar>
 
 @code {
   [CascadingParameter]
   public LayoutState LayoutState { get; set; } = default!;
+
+  [CascadingParameter]
+  public UserState UserState { get; set; } = default!;
 }
