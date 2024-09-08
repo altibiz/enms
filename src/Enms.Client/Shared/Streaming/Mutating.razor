@@ -47,7 +47,7 @@
       <MudText Typo="Typo.h5" Class="mb-2">
         @if (_mutating)
         {
-          @Translate("Edit")
+          @Translate("Edit ")
         }
         @(typeof(T).Name)
       </MudText>
@@ -95,6 +95,17 @@
         else
         {
           @Details(model)
+          @if (model is not IReadonly)
+          {
+            <div Class="d-flex flex-row mt-4">
+              <MudButton
+                OnClick="@(() => _mutating = !_mutating)"
+                Variant="Variant.Filled"
+                Color="Color.Warning">
+                @Translate("Edit")
+              </MudButton>
+            </div>
+          }
         }
       </EditForm>
     }
@@ -226,7 +237,7 @@
       else
       {
         throw new InvalidOperationException(
-          $"No create strategy found for {model.GetType()}");
+          $"No create strategy found for {typeof(T).Name}");
       }
     }
     catch (Exception ex)
@@ -263,7 +274,7 @@
       else
       {
         throw new InvalidOperationException(
-          $"No update strategy found for {model.GetType()}");
+          $"No update strategy found for {typeof(T).Name}");
       }
     }
     catch (Exception ex)
@@ -300,7 +311,7 @@
       else
       {
         throw new InvalidOperationException(
-          $"No delete strategy found for {model.GetType()}");
+          $"No delete strategy found for {typeof(T).Name}");
       }
     }
     catch (Exception ex)

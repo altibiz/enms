@@ -41,6 +41,7 @@ public static class TopicModelExtensions
     return model switch
     {
       TopicModel.All => "General",
+      TopicModel.System => "System",
       TopicModel.Meter => "Messenger",
       TopicModel.MeterInactivity => "Messenger inactivity",
       _ => throw new ArgumentOutOfRangeException(nameof(model), model, null)
@@ -54,10 +55,13 @@ public static class TopicModelExtensions
       RoleModel.OperatorRepresentative =>
       [
         TopicModel.All,
+        TopicModel.System,
         TopicModel.Meter,
         TopicModel.MeterInactivity
       ],
-      RoleModel.UserRepresentative => [],
+      RoleModel.UserRepresentative => [
+        TopicModel.System
+      ],
       _ => throw new ArgumentOutOfRangeException(nameof(model), model, null)
     };
   }

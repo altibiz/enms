@@ -5,7 +5,7 @@ using Enms.Business.Extensions;
 using Enms.Business.Models;
 using Enms.Business.Models.Composite;
 using Enms.Business.Queries.Abstractions;
-using Enms.Data.Context;
+using Enms.Data.Concurrency;
 using Enms.Data.Entities;
 using Enms.Data.Entities.Enums;
 using Enms.Data.Extensions;
@@ -15,12 +15,15 @@ using Microsoft.EntityFrameworkCore;
 namespace Enms.Business.Queries;
 
 public class RepresentativeQueries(
-  DataDbContext context,
+  DataDbContextMutex mutex,
   IUserQueries userQueries
 ) : IQueries
 {
   public async Task<RepresentativeModel?> RepresentativeById(string id)
   {
+    using var @lock = await mutex.LockAsync();
+    var context = @lock.Context;
+
     return await context.Representatives
       .Where(context.PrimaryKeyEquals<RepresentativeEntity>(id))
       .FirstOrDefaultAsync() is { } entity
@@ -34,6 +37,9 @@ public class RepresentativeQueries(
     int pageCount = QueryConstants.DefaultPageCount
   )
   {
+    using var @lock = await mutex.LockAsync();
+    var context = @lock.Context;
+
     return await context.Representatives
       .Where(entity => entity.Role == RoleEntity.OperatorRepresentative)
       .OrderBy(context.PrimaryKeyOf<RepresentativeEntity>())
@@ -48,6 +54,9 @@ public class RepresentativeQueries(
   public async Task<RepresentativeModel?> RepresentativeByUserId(
     string userId)
   {
+    using var @lock = await mutex.LockAsync();
+    var context = @lock.Context;
+
     return await context.Representatives
       .Where(context.PrimaryKeyEquals<RepresentativeEntity>(userId))
       .FirstOrDefaultAsync() is { } entity
@@ -64,6 +73,9 @@ public class RepresentativeQueries(
     var userIds = users.Items
       .Select(user => user.Id)
       .ToList();
+
+    using var @lock = await mutex.LockAsync();
+    var context = @lock.Context;
 
     var representatives = await context.Representatives
       .Where(context.PrimaryKeyIn<RepresentativeEntity>(userIds))
@@ -91,6 +103,9 @@ public class RepresentativeQueries(
     var ids = users.Items
       .Select(user => user.Id)
       .ToList();
+
+    using var @lock = await mutex.LockAsync();
+    var context = @lock.Context;
 
     var representatives = await context.Representatives
       .Where(context.PrimaryKeyIn<RepresentativeEntity>(ids))
@@ -131,6 +146,9 @@ public class RepresentativeQueries(
       return null;
     }
 
+    using var @lock = await mutex.LockAsync();
+    var context = @lock.Context;
+
     var representative =
       await context.Representatives
         .Where(context.PrimaryKeyEquals<RepresentativeEntity>(user.Id))
@@ -157,6 +175,9 @@ public class RepresentativeQueries(
       return null;
     }
 
+    using var @lock = await mutex.LockAsync();
+    var context = @lock.Context;
+
     var representative =
       await context.Representatives
         .Where(context.PrimaryKeyEquals<RepresentativeEntity>(id))
@@ -177,6 +198,9 @@ public class RepresentativeQueries(
   public async Task<RepresentingUserModel?>
     RepresentingUserByRepresentativeId(string id)
   {
+    using var @lock = await mutex.LockAsync();
+    var context = @lock.Context;
+
     var representative =
       await context.Representatives
         .Where(context.PrimaryKeyEquals<RepresentativeEntity>(id))
@@ -209,6 +233,9 @@ public class RepresentativeQueries(
       return null;
     }
 
+    using var @lock = await mutex.LockAsync();
+    var context = @lock.Context;
+
     var representative =
       await context.Representatives
         .Where(context.PrimaryKeyEquals<RepresentativeEntity>(user.Id))
@@ -234,6 +261,9 @@ public class RepresentativeQueries(
     {
       return null;
     }
+
+    using var @lock = await mutex.LockAsync();
+    var context = @lock.Context;
 
     var representative =
       await context.Representatives

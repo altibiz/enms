@@ -4,11 +4,13 @@
 
 @attribute [Authorize]
 @using Enms.Business.Models
+@using Enms.Business.Models.Enums
 @using Enms.Business.Models.Composite
 @using Enms.Business.Mutations
 @using Enms.Business.Queries
 @using Enms.Client.Shared.Models
 @using Enms.Client.Shared.Streaming
+@using Enms.Client.State
 @using Microsoft.AspNetCore.Authorization
 @using Microsoft.Extensions.DependencyInjection
 @using MudBlazor
@@ -28,21 +30,34 @@
   </Details>
 </Mutating>
 
-<Paging T="RepresentativeAuditEventModel">
-  <Summary Context="model">
-    @{
-      var href = $"event/{model.Id}";
+@if (UserState.User.MaybeRepresentative is not
+  { Role: RoleModel.OperatorRepresentative }
+  || Id is null)
+{
+  return;
+}
 
-      <MudCard>
-        <MudCardContent>
-          <EventSummary Model="@model"/>
-        </MudCardContent>
-        <MudCardActions>
-          <MudNavLink Href="@href">
-            @Translate("Details")
-          </MudNavLink>
-        </MudCardActions>
-      </MudCard>
+<MudText Typo="Typo.h6" Class="mt-8 mb-6">
+  @Translate("Audit events")
+</MudText>
+<MudDivider />
+
+<Paging PageAsync="(page) => ScopedServices
+  .GetRequiredService<EventQueries>()
+  .ReadRepresentativeAuditEvents(Id, page)">
+  <Summary Context="e">
+    @{
+      var href = $"event/{e.Id}";
+
+      <MudLink
+        Href="@href"
+        Underline="Underline.Hover"
+        Color="Color.Dark">
+        <div class="pt-4 pb-2">
+          <EventSummary Model="@e"/>
+        </div>
+      </MudLink>
+      <MudDivider />
     }
   </Summary>
 </Paging>
@@ -51,5 +66,8 @@
 
   [Parameter]
   public string? Id { get; set; }
+
+  [CascadingParameter]
+  public UserState UserState { get; set; } = default!;
 
 }

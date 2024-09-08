@@ -1,5 +1,5 @@
 using System.ComponentModel.DataAnnotations;
-using Enms.Business.Conversion.Abstractions;
+using Enms.Business.Conversion.Agnostic;
 using Enms.Business.Models;
 using Enms.Business.Models.Abstractions;
 using Enms.Business.Models.Enums;
@@ -12,7 +12,7 @@ namespace Enms.Business.Mutations;
 
 public class NotificationMutations(
   DataDbContext context,
-  IServiceProvider serviceProvider
+  AgnosticModelEntityConverter modelEntityConverter
 ) : IMutations
 {
   public async Task Create(INotification model)
@@ -39,13 +39,6 @@ public class NotificationMutations(
       })
       .ToList();
 
-    var modelEntityConverter = serviceProvider
-        .GetServices<IModelEntityConverter>()
-        .FirstOrDefault(
-          converter => converter
-            .CanConvertToEntity(model.GetType())) ??
-      throw new InvalidOperationException(
-        $"No model entity converter found for {model.GetType()}");
     context.Add(modelEntityConverter.ToEntity(model));
     context.AddRange(recipients.Select(modelEntityConverter.ToEntity));
 

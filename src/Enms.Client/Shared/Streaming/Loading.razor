@@ -146,7 +146,7 @@
       _state = _state.WithReset();
     }
 
-    if (_state.State is not LoadingState.Loading or LoadingState.Unfound)
+    if (_state.State is not LoadingState.Loading and not LoadingState.Unfound)
     {
       return;
     }
@@ -163,7 +163,7 @@
       }
     }
 
-    if (_state.State is not LoadingState.Loading or LoadingState.Unfound)
+    if (_state.State is not LoadingState.Loading and not LoadingState.Unfound)
     {
       return;
     }
@@ -180,7 +180,7 @@
       }
     }
 
-    if (_state.State is not LoadingState.Loading or LoadingState.Unfound)
+    if (_state.State is not LoadingState.Loading and not LoadingState.Unfound)
     {
       return;
     }
@@ -218,7 +218,7 @@
       _state = _state.WithReset();
     }
 
-    if (_state.State is not LoadingState.Loading or LoadingState.Unfound)
+    if (_state.State is not LoadingState.Loading and not LoadingState.Unfound)
     {
       return;
     }
@@ -235,7 +235,7 @@
       }
     }
 
-    if (_state.State is not LoadingState.Loading or LoadingState.Unfound)
+    if (_state.State is not LoadingState.Loading and not LoadingState.Unfound)
     {
       return;
     }
@@ -255,7 +255,7 @@
       }
     }
 
-    if (_state.State is not LoadingState.Loading or LoadingState.Unfound)
+    if (_state.State is not LoadingState.Loading and not LoadingState.Unfound)
     {
       return;
     }
@@ -272,7 +272,7 @@
       }
     }
 
-    if (_state.State is not LoadingState.Loading or LoadingState.Unfound)
+    if (_state.State is not LoadingState.Loading and not LoadingState.Unfound)
     {
       return;
     }

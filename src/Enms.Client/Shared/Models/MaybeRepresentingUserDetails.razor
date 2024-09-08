@@ -1,5 +1,6 @@
 @namespace Enms.Client.Shared.Models
 @using Enms.Business.Models.Composite
+@using Enms.Business.Models.Enums
 @using Enms.Client.Shared.Fields
 @using MudBlazor
 @inherits Enms.Client.Base.EnmsComponentBase
@@ -14,12 +15,29 @@
 
 @if (Model.MaybeRepresentative is { } representative)
 {
+  <MudText Typo="Typo.h6" Class="mt-8">
+    @Translate("Representative")
+  </MudText>
+  <MudDivider />
+
   <DetailsField Title="Role">
     @representative.Role
   </DetailsField>
 
   <DetailsField Title="Name">
     @representative.PhysicalPerson.Name
+  </DetailsField>
+
+  <DetailsField Title="Email">
+    @representative.PhysicalPerson.Email
+  </DetailsField>
+
+  <DetailsField Title="Phone">
+    @representative.PhysicalPerson.PhoneNumber
+  </DetailsField>
+
+  <DetailsField Title="Topics">
+    @string.Join(", ", representative.Topics.Select(t => t.ToTitle()))
   </DetailsField>
 }
 

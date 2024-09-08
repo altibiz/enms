@@ -2,28 +2,31 @@
 @using Enms.Business.Activation
 @using Enms.Business.Models.Composite
 @using Enms.Business.Models.Enums
+@using Enms.Client.Shared.Fields
 @using MudBlazor
 @inherits Enms.Client.Base.EnmsComponentBase
 
 <!-- TODO: password -->
 
 <MudText Typo="Typo.h5">User</MudText>
-<MudPaper>
-  <MudGrid>
-    <MudItem xs="12" sm="6">
-      <MudText Typo="Typo.body1">Id</MudText>
-      <MudText Typo="Typo.body2">@Model.User.UserName</MudText>
-    </MudItem>
-    <MudItem xs="12" sm="6">
-      <MudText Typo="Typo.body1">Email</MudText>
-      <MudText Typo="Typo.body2">@Model.User.Email</MudText>
-    </MudItem>
-  </MudGrid>
-</MudPaper>
+<MudGrid>
+  <MudItem xs="12" sm="6">
+    <MudText Typo="Typo.body1">Id</MudText>
+    <MudText Typo="Typo.body2">@Model.User.UserName</MudText>
+  </MudItem>
+  <MudItem xs="12" sm="6">
+    <MudText Typo="Typo.body1">Email</MudText>
+    <MudText Typo="Typo.body2">@Model.User.Email</MudText>
+  </MudItem>
+</MudGrid>
 
 @if (Model.MaybeRepresentative is not null)
 {
-  <MudText Typo="Typo.h5">Representative</MudText>
+  <MudText Typo="Typo.h6" Class="mt-8">
+    @Translate("Representative")
+  </MudText>
+  <MudDivider />
+
   <MudTextField
     Label="Title"
     @bind-Value="Model.MaybeRepresentative.Title"
@@ -53,6 +56,10 @@
     Label="PhoneNumber"
     @bind-Value="Model.MaybeRepresentative.PhysicalPerson.PhoneNumber"
     For="@(() => Model.MaybeRepresentative.PhysicalPerson.PhoneNumber)"/>
+  <MultiEnumPicker
+    Title="@Translate("Topics")"
+    Label="topic => Translate(topic.ToTitle())"
+    @bind-Value="Model.MaybeRepresentative.Topics" />
 }
 else
 {

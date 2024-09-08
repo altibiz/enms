@@ -11,7 +11,7 @@ public class NavigationAttribute : Attribute
 
   public bool IsVisible { get; set; } = true;
 
-  public string RouteValue { get; set; } = string.Empty;
+  public required string RouteValue { get; set; }
 
   public string Icon { get; set; } = "home";
 

@@ -4,11 +4,14 @@
 
 @attribute [Navigation(
   Title = "Events",
+  RouteValue = "events",
+  Allows = [RoleModel.OperatorRepresentative],
   Order = -80,
   Icon = Icons.Material.Filled.Event
 )]
 @attribute [Authorize]
 @using Enms.Business.Models.Base
+@using Enms.Business.Models.Enums
 @using Enms.Client.Shared.Models
 @using Enms.Client.Shared.Streaming
 @using Microsoft.AspNetCore.Authorization

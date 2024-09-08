@@ -1,5 +1,6 @@
 using System.Linq.Expressions;
 using Enms.Business.Conversion.Abstractions;
+using Enms.Business.Conversion.Agnostic;
 using Enms.Business.Models.Abstractions;
 using Enms.Business.Queries.Abstractions;
 using Enms.Data.Concurrency;
@@ -14,29 +15,23 @@ namespace Enms.Business.Queries.Agnostic;
 
 public class AgnosticQueries(
   DataDbContextMutex mutex,
-  IServiceProvider serviceProvider) : IQueries
+  AgnosticModelEntityConverter modelEntityConverter
+) : IQueries
 {
   public async Task<T?> ReadSingle<T>(string id)
     where T : IIdentifiable
   {
-    var modelEntityConverter = serviceProvider
-        .GetServices<IModelEntityConverter>()
-        .FirstOrDefault(
-          converter => converter
-            .CanConvertToEntity(typeof(T)))
-      ?? throw new InvalidOperationException(
-        $"No model entity converter found for model {typeof(T)}");
-
     using var @lock = await mutex.LockAsync();
     var context = @lock.Context;
 
-    var queryable = context.GetQueryable(modelEntityConverter.EntityType())
+    var queryable = context.GetQueryable(modelEntityConverter
+      .EntityType(typeof(T)))
         as IQueryable<IIdentifiableEntity>
       ?? throw new InvalidOperationException();
 
     var item = await queryable
       .Where(
-        context.PrimaryKeyEquals(modelEntityConverter.EntityType(), id))
+        context.PrimaryKeyEquals(modelEntityConverter.EntityType(typeof(T)), id))
       .FirstOrDefaultAsync();
 
     return item is null
@@ -52,24 +47,17 @@ public class AgnosticQueries(
         $"{typeof(T)} is not identifiable");
     }
 
-    var modelEntityConverter = serviceProvider
-        .GetServices<IModelEntityConverter>()
-        .FirstOrDefault(
-          converter => converter
-            .CanConvertToEntity(typeof(T)))
-      ?? throw new InvalidOperationException(
-        $"No model entity converter found for model {typeof(T)}");
-
     using var @lock = await mutex.LockAsync();
     var context = @lock.Context;
 
-    var queryable = context.GetQueryable(modelEntityConverter.EntityType())
+    var queryable = context.GetQueryable(modelEntityConverter
+      .EntityType(typeof(T)))
         as IQueryable<IIdentifiableEntity>
       ?? throw new InvalidOperationException();
 
     var item = await queryable
       .Where(
-        context.PrimaryKeyEquals(modelEntityConverter.EntityType(), id))
+        context.PrimaryKeyEquals(modelEntityConverter.EntityType(typeof(T)), id))
       .FirstOrDefaultAsync();
 
     return item is null
@@ -86,18 +74,11 @@ public class AgnosticQueries(
   )
     where T : IModel
   {
-    var modelEntityConverter = serviceProvider
-        .GetServices<IModelEntityConverter>()
-        .FirstOrDefault(
-          converter => converter
-            .CanConvertToEntity(typeof(T)))
-      ?? throw new InvalidOperationException(
-        $"No model entity converter found for model {typeof(T)}");
-
     using var @lock = await mutex.LockAsync();
     var context = @lock.Context;
 
-    var queryable = context.GetQueryable(modelEntityConverter.EntityType())
+    var queryable = context.GetQueryable(modelEntityConverter
+      .EntityType(typeof(T)))
         as IQueryable<IEntity>
       ?? throw new InvalidOperationException();
 
@@ -109,7 +90,8 @@ public class AgnosticQueries(
     if (orderByDescClause is null && orderByAscClause is null)
     {
       var ordering = context
-        .PrimaryKeyOf(modelEntityConverter.EntityType());
+        .PrimaryKeyOf(modelEntityConverter
+          .EntityType(typeof(T)));
       var parameter = Expression.Parameter(typeof(IEntity), "e");
       var entityOrdering = Expression.Lambda<Func<IEntity, object>>(
         Expression.Invoke(
@@ -155,18 +137,11 @@ public class AgnosticQueries(
         $"{typeof(T)} is not a model");
     }
 
-    var modelEntityConverter = serviceProvider
-        .GetServices<IModelEntityConverter>()
-        .FirstOrDefault(
-          converter => converter
-            .CanConvertToEntity(typeof(T)))
-      ?? throw new InvalidOperationException(
-        $"No model entity converter found for model {typeof(T)}");
-
     using var @lock = await mutex.LockAsync();
     var context = @lock.Context;
 
-    var queryable = context.GetQueryable(modelEntityConverter.EntityType())
+    var queryable = context.GetQueryable(modelEntityConverter
+      .EntityType(typeof(T)))
         as IQueryable<IEntity>
       ?? throw new InvalidOperationException();
 
@@ -178,7 +153,7 @@ public class AgnosticQueries(
     if (orderByDescClause is null && orderByAscClause is null)
     {
       var ordering = context
-        .PrimaryKeyOf(modelEntityConverter.EntityType());
+        .PrimaryKeyOf(modelEntityConverter.EntityType(typeof(T)));
       var parameter = Expression.Parameter(typeof(IEntity), "e");
       var entityOrdering = Expression.Lambda<Func<IEntity, object>>(
         Expression.Invoke(

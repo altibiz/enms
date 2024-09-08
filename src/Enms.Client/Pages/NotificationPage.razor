@@ -30,9 +30,11 @@
 
 <Mutating
   T="NotificationModel"
-  LoadAsync="@(() => ScopedServices
-    .GetRequiredService<AgnosticQueries>()
-    .ReadSingle<NotificationModel>(Id!))"
+  LoadAsync="@(async () => Id is null
+    ? null
+    : await ScopedServices
+        .GetRequiredService<AgnosticQueries>()
+        .ReadSingle<NotificationModel>(Id))"
   NewAsync="@(async () => ScopedServices
     .GetRequiredService<AgnosticModelActivator>()
     .Activate<SystemNotificationModel>())"

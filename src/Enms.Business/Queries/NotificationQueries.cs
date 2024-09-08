@@ -1,13 +1,14 @@
 using Enms.Business.Conversion.Abstractions;
 using Enms.Business.Models.Base;
 using Enms.Business.Queries.Abstractions;
+using Enms.Data.Concurrency;
 using Enms.Data.Context;
 using Microsoft.EntityFrameworkCore;
 
 namespace Enms.Business.Queries;
 
 public class NotificationQueries(
-  DataDbContext context,
+  DataDbContextMutex mutex,
   IServiceProvider serviceProvider
 ) : IQueries
 {
@@ -26,6 +27,9 @@ public class NotificationQueries(
       ?? throw new InvalidOperationException(
         $"No model entity converter found for model {typeof(NotificationModel)}");
 
+    using var @lock = await mutex.LockAsync();
+    var context = @lock.Context;
+
     var filtered = recipientId is null
       ? context.Notifications
       : includeSeen
@@ -38,9 +42,11 @@ public class NotificationQueries(
             .Include(x => x.Notification)
             .Select(x => x.Notification);
 
+    var ordered = filtered.OrderByDescending(x => x.Timestamp);
+
     var count = await filtered.CountAsync();
 
-    var items = await filtered
+    var items = await ordered
       .Skip((pageNumber - 1) * pageCount)
       .Take(pageCount)
       .ToListAsync();
