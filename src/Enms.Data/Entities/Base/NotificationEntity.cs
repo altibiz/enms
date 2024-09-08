@@ -87,7 +87,6 @@ public class
     builder
       .HasOne(nameof(NotificationEntity.Event))
       .WithMany(nameof(EventEntity.Notifications))
-      .IsRequired(false)
       .HasForeignKey("_eventId");
 
     builder.Ignore(nameof(NotificationEntity.EventId));
