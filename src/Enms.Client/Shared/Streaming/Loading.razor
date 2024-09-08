@@ -110,8 +110,16 @@
 
   private LoadingState<T> _state = new();
 
-  public void Initialize(bool render = false)
+  public void Initialize(
+    bool reset = false,
+    bool render = false
+  )
   {
+    if (reset)
+    {
+      _state = _state.WithReset();
+    }
+
     if (Value is not null)
     {
       _state = _state.WithValue(Value);
@@ -123,8 +131,16 @@
     }
   }
 
-  public void Reload(bool render = false)
+  public void Reload(
+    bool reset = false,
+    bool render = false
+  )
   {
+    if (reset)
+    {
+      _state = _state.WithReset();
+    }
+
     if (_state.State is not LoadingState.Loading or LoadingState.Unfound)
     {
       return;
@@ -184,8 +200,16 @@
     }
   }
 
-  public async Task ReloadAsync(bool render = false)
+  public async Task ReloadAsync(
+    bool reset = false,
+    bool render = false
+  )
   {
+    if (reset)
+    {
+      _state = _state.WithReset();
+    }
+
     if (_state.State is not LoadingState.Loading or LoadingState.Unfound)
     {
       return;

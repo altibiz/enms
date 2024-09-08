@@ -69,7 +69,7 @@ public class MeterPushEventWorker(
         Timestamp = DateTimeOffset.UtcNow,
         MeterId = meter.Id,
         Level = LevelEntity.Info,
-        Content = CreateEventContent(eventArgs, meters),
+        Content = CreateEventContent(eventArgs, meter),
         Categories = [CategoryEntity.All, CategoryEntity.Meter, CategoryEntity.MeterPush],
       });
 
@@ -79,23 +79,27 @@ public class MeterPushEventWorker(
 
   private static JsonDocument CreateEventContent(
     MeasurementPushEventArgs eventArgs,
-    List<MeterModel> meters)
+    MeterModel meter)
   {
     var content = new EventContent(
-      meters.Count,
-      meters.Select(
-        meter => new EventContentLine(
-          meter.Id,
-          eventArgs.Measurements
-            .Count(x => x.MeterId == meter.Id)
-        )
-      ).ToArray()
+      meter.Id,
+      eventArgs.Measurements
+        .Where(x => x.MeterId == meter.Id)
+        .Select(x => x.LineId)
+        .Distinct()
+        .Count(),
+      eventArgs.Measurements
+        .Where(x => x.MeterId == meter.Id)
+        .GroupBy(x => x.LineId)
+        .Select(group => new EventContentLine(group.Key, group.Count()))
+        .ToArray()
     );
 
     return JsonDocument.Parse(JsonSerializer.Serialize(content));
   }
 
   private sealed record EventContent(
+    string MeterId,
     int Count,
     EventContentLine[] Lines
   );

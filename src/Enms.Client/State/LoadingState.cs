@@ -19,7 +19,9 @@ public record LoadingState<T>(
   {
     return this with
     {
-      State = LoadingState.Error, Value = default, Error = error
+      State = LoadingState.Error,
+      Value = default,
+      Error = error
     };
   }
 
@@ -28,11 +30,15 @@ public record LoadingState<T>(
     return value is null
       ? this with
       {
-        State = LoadingState.Unfound, Value = default, Error = default
+        State = LoadingState.Unfound,
+        Value = default,
+        Error = default
       }
       : this with
       {
-        State = LoadingState.Found, Value = value, Error = default
+        State = LoadingState.Found,
+        Value = value,
+        Error = default
       };
   }
 
@@ -40,7 +46,19 @@ public record LoadingState<T>(
   {
     return this with
     {
-      State = LoadingState.Created, Value = value, Error = default
+      State = LoadingState.Created,
+      Value = value,
+      Error = default
+    };
+  }
+
+  public LoadingState<T> WithReset()
+  {
+    return this with
+    {
+      State = LoadingState.Loading,
+      Value = default,
+      Error = default
     };
   }
 }
