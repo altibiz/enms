@@ -49,9 +49,10 @@ public class NotificationRecipientEntityModelConfiguration : IModelConfiguration
           .HasForeignKey(nameof(NotificationRecipientEntity.RecipientId)),
         configureJoinEntityType: entity =>
         {
+          entity.ToTable("notification_recipients");
+
           entity.Ignore(nameof(NotificationRecipientEntity.NotificationId));
           entity
-            .ToTable("notification_recipients")
             .Property("_notificationId")
             .HasColumnName("notification_id");
         }

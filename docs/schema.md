@@ -182,7 +182,7 @@ erDiagram
         text title 
     }
 
-    notification_recipient_entity {
+    notification_recipients {
         bigint notification_id PK,FK 
         text recipient_id PK,FK 
         timestamp_with_time_zone seen_on 
@@ -364,8 +364,8 @@ erDiagram
     network_users }o--|| representatives : "deleted_by_id"
     network_users }o--|| representatives : "last_updated_by_id"
     representatives }o--|| network_users : "network_user_id"
-    notification_recipient_entity }o--|| notifications : "notification_id"
-    notification_recipient_entity }o--|| representatives : "recipient_id"
+    notification_recipients }o--|| notifications : "notification_id"
+    notification_recipients }o--|| representatives : "recipient_id"
     notifications }o--|| representatives : "resolved_by_id"
     qrtz_blob_triggers }o--|| qrtz_triggers : "sched_name"
     qrtz_blob_triggers }o--|| qrtz_triggers : "trigger_group"
