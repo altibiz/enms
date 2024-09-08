@@ -110,15 +110,20 @@
 
   private LoadingState<T> _state = new();
 
-  protected override void OnInitialized()
+  public void Initialize(bool render = false)
   {
     if (Value is not null)
     {
       _state = _state.WithValue(Value);
     }
+
+    if (render)
+    {
+      InvokeAsync(StateHasChanged);
+    }
   }
 
-  protected override void OnParametersSet()
+  public void Reload(bool render = false)
   {
     if (_state.State is not LoadingState.Loading or LoadingState.Unfound)
     {
@@ -172,9 +177,14 @@
         _state = _state.WithError(e.Message);
       }
     }
+
+    if (render)
+    {
+      InvokeAsync(StateHasChanged);
+    }
   }
 
-  protected override async Task OnParametersSetAsync()
+  public async Task ReloadAsync(bool render = false)
   {
     if (_state.State is not LoadingState.Loading or LoadingState.Unfound)
     {
@@ -248,6 +258,25 @@
         _state = _state.WithError(e.Message);
       }
     }
+
+    if (render)
+    {
+      await InvokeAsync(StateHasChanged);
+    }
   }
 
+  protected override void OnInitialized()
+  {
+    Initialize();
+  }
+
+  protected override void OnParametersSet()
+  {
+    Reload();
+  }
+
+  protected override async Task OnParametersSetAsync()
+  {
+    await ReloadAsync();
+  }
 }

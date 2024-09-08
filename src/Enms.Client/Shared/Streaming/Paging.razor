@@ -6,11 +6,14 @@
 @using Enms.Business.Queries.Abstractions
 @using Enms.Business.Queries.Agnostic
 @using Microsoft.Extensions.DependencyInjection
+@using Microsoft.JSInterop
 @using MudBlazor
 @inherits Enms.Client.Base.EnmsOwningComponentBase
+@inject IJSRuntime JS
 
 <Loading
   T="PaginatedList<T>"
+  @ref="loading"
   Load="@OnPage"
   LoadAsync="@OnPageAsync"
   Progress="@Progress"
@@ -58,20 +61,68 @@
             new PaginationOptions(
               PageCount,
               _pageNumber,
-              page.TotalCount
+              page.TotalCount,
+              SetPageNumber
             )
           )
         }
         else
         {
-          <MudPagination
-            class="mt-4"
-            @bind-Selected="_pageNumber" />
+          @if (Scroll == Scroll.Paged)
+          {
+            <div style="width: 100%; text-align: center;">
+              <MudPagination
+                class="mt-4"
+                Count="@((int)Math.Ceiling(page.TotalCount / (double)PageCount))"
+                Selected="_pageNumber"
+                SelectedChanged="@((pageNumber) => {
+                  _pageNumber = pageNumber;
+                  loading?.ReloadAsync(render: true);
+                })"/>
+              <MudText Class="mt-4" Typo="Typo.body2">
+                @((_pageNumber - 1) * PageCount) -
+                @(Math.Min(_pageNumber * PageCount, page.TotalCount)) /
+                @(page.TotalCount)
+              </MudText>
+            </div>
+          }
+          else
+          {
+            <div
+              id="@infiniteScrollId"
+              style="width: 100%; text-align: center;">
+              <MudProgressCircular />
+            </div>
+            <MudScrollToTop>
+              <MudFab
+                Color="Color.Tertiary"
+                StartIcon="@Icons.Material.Filled.ArrowCircleUp" />
+            </MudScrollToTop>
+          }
         }
       }
     }
   </Found>
 </Loading>
+
+<script>
+  window.observeElement = (elementId, dotNetHelper) => {
+    const element = document.getElementById(elementId);
+
+    if (!element) {
+      console.error(`Element with id ${elementId} not found.`);
+      return;
+    }
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        dotNetHelper.invokeMethodAsync('OnScrollInView', entry.isIntersecting);
+      });
+    });
+
+    observer.observe(element);
+  };
+</script>
 
 @code {
 
@@ -102,6 +153,31 @@
   [Parameter]
   public RenderFragment<PaginationOptions>? Pagination { get; set; }
 
+  [Parameter]
+  public Scroll Scroll { get; set; } = Scroll.Paged;
+
+  private Guid infiniteScrollId = Guid.NewGuid();
+
+  private Loading<PaginatedList<T>>? loading;
+
+  protected override async Task OnAfterRenderAsync(bool firstRender)
+  {
+    if (firstRender && Pagination is null && Scroll is Scroll.Infinite)
+    {
+      var dotNetRef = DotNetObjectReference.Create(this);
+      await JS.InvokeVoidAsync("observeElement", infiniteScrollId, dotNetRef);
+    }
+  }
+
+  [JSInvokable]
+  public void OnScrollInView(bool isInView)
+  {
+    if (isInView && Pagination is null && Scroll is Scroll.Infinite)
+    {
+
+    }
+  }
+
   private Func<PaginatedList<T>>? OnPage
   {
     get
@@ -131,6 +207,12 @@
               .ReadDynamic<T>(pageNumber: _pageNumber, pageCount: PageCount)
             : null;
     }
+  }
+
+  private void SetPageNumber(int pageNumber)
+  {
+    _pageNumber = pageNumber;
+    InvokeAsync(StateHasChanged);
   }
 
   private int _pageNumber = 1;
