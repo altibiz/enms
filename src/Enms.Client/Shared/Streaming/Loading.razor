@@ -10,6 +10,11 @@
 @using Microsoft.Extensions.DependencyInjection
 @inherits Enms.Client.Base.EnmsOwningComponentBase
 
+@*
+   TODO: indstead of the reload hack preserve height and
+   add a loading indicator until the task is done
+*@
+
 @if (_state.State is LoadingState.Loading)
 {
   if (Progress is not null)
@@ -205,6 +210,9 @@
     bool render = false
   )
   {
+    // NOTE: stupid but prevents it from rerendring immediately after reseting
+    await Task.Run(() => {});
+
     if (reset)
     {
       _state = _state.WithReset();

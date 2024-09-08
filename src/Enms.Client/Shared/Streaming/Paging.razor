@@ -11,6 +11,10 @@
 @inherits Enms.Client.Base.EnmsOwningComponentBase
 @inject IJSRuntime JS
 
+@*
+  TODO: memoize Loading parameters to prevent rerendering
+*@
+
 <Loading
   T="PaginatedList<T>"
   @ref="loading"
@@ -75,10 +79,7 @@
                 class="mt-4"
                 Count="@((int)Math.Ceiling(page.TotalCount / (double)PageCount))"
                 Selected="_pageNumber"
-                SelectedChanged="@((pageNumber) => {
-                  _pageNumber = pageNumber;
-                  loading?.ReloadAsync(reset: true);
-                })"/>
+                SelectedChanged="OnSelectedChanged"/>
               <MudText Class="mt-4" Typo="Typo.body2">
                 @((_pageNumber - 1) * PageCount) -
                 @(Math.Min(_pageNumber * PageCount, page.TotalCount)) /
@@ -186,6 +187,15 @@
       return Page is null
         ? null
         : () => Page(_pageNumber);
+    }
+  }
+
+  private async Task OnSelectedChanged(int pageNumber)
+  {
+    _pageNumber = pageNumber;
+    if (loading is { } nonNullLoading)
+    {
+      await nonNullLoading.ReloadAsync(reset: true);
     }
   }
 
