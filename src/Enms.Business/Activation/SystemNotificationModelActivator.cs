@@ -16,7 +16,7 @@ public class SystemNotificationModelActivator
       Summary = "",
       Content = "",
       Timestamp = DateTimeOffset.UtcNow,
-      Topics = new HashSet<TopicModel>(),
+      Topics = [TopicModel.All, TopicModel.System],
     };
   }
 }

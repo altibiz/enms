@@ -5,6 +5,7 @@
 @attribute [Authorize]
 @using Enms.Business.Models.Base
 @using Enms.Business.Models
+@using Enms.Business.Activation.Agnostic
 @using Enms.Business.Mutations
 @using Enms.Business.Models.Enums
 @using Enms.Client.Shared.Models
@@ -26,7 +27,10 @@
 }
 
 <Mutating
-  T="SystemNotificationModel"
+  T="NotificationModel"
+  New="@(() => ScopedServices
+    .GetRequiredService<AgnosticModelActivator>()
+    .Activate<SystemNotificationModel>())"
   CreateAsync="@(async (model) => await ScopedServices
     .GetRequiredService<NotificationMutations>()
     .Create(model))"
