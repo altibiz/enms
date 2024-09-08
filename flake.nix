@@ -202,7 +202,7 @@ rec {
               mermerd
 
               # MailHog
-              apacheHttpd
+              mailhog
 
               # Spelling
               nodePackages.cspell
