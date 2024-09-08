@@ -7,6 +7,7 @@
 @using Enms.Business.Models
 @using Enms.Business.Activation.Agnostic
 @using Enms.Business.Mutations
+@using Enms.Business.Queries.Agnostic
 @using Enms.Business.Models.Enums
 @using Enms.Client.Shared.Models
 @using Enms.Client.Shared.Streaming
@@ -28,10 +29,13 @@
 
 <Mutating
   T="NotificationModel"
-  New="@(() => ScopedServices
+  LoadAsync="@(() => ScopedServices
+    .GetRequiredService<AgnosticQueries>()
+    .ReadSingle<NotificationModel>(Id!))"
+  NewAsync="@(async () => ScopedServices
     .GetRequiredService<AgnosticModelActivator>()
     .Activate<SystemNotificationModel>())"
-  CreateAsync="@(async (model) => await ScopedServices
+  CreateAsync="@((model) => ScopedServices
     .GetRequiredService<NotificationMutations>()
     .Create(model))"
   Id="@Id">

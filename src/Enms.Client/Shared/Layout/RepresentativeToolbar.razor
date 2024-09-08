@@ -22,11 +22,16 @@
       .GetRequiredService<AgnosticQueries>()
       .Read<NotificationModel>(pageNumber: page))">
       <Found Context="events">
-        <MudIcon Icon="@Icons.Material.Filled.NotificationsActive"/>
-        <MudItem>
-          <MudIcon Icon="@Icons.Material.Filled.Circle"/>
-          <MudText>@events.TotalCount</MudText>
-        </MudItem>
+        <MudButton
+          Size="Size.Small"
+          Style="margin-right: -20px;"
+          Href="@($"/app/{Culture}/notifications")">
+          <MudIcon Icon="@Icons.Material.Filled.NotificationsActive"/>
+          <MudItem>
+            <MudIcon Icon="@Icons.Material.Filled.Circle"/>
+            <MudText>@events.TotalCount</MudText>
+          </MudItem>
+        </MudButton>
       </Found>
       <Empty>
         <MudButton
