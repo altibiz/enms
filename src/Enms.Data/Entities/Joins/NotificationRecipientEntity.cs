@@ -1,10 +1,11 @@
+using Enms.Data.Entities.Abstractions;
 using Enms.Data.Entities.Base;
 using Enms.Data.Extensions;
 using Microsoft.EntityFrameworkCore;
 
 namespace Enms.Data.Entities.Joins;
 
-public class NotificationRecipientEntity
+public class NotificationRecipientEntity : IEntity
 {
   private long _notificationId;
 

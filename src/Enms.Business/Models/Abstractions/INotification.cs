@@ -2,7 +2,7 @@ using Enms.Business.Models.Enums;
 
 namespace Enms.Business.Models.Abstractions;
 
-public interface INotification : IIdentifiable
+public interface INotification : IIdentifiable, IReadonly
 {
   public string Summary { get; }
 

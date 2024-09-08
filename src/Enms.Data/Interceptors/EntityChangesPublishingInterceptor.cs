@@ -1,3 +1,4 @@
+using System.Collections.Concurrent;
 using Enms.Data.Entities.Abstractions;
 using Enms.Data.Observers.Abstractions;
 using Enms.Data.Observers.EventArgs;
@@ -11,6 +12,8 @@ public class EntityChangesPublishingInterceptor(
   : ServedSaveChangesInterceptor(serviceProvider)
 {
   private readonly List<EntityChangesEntry> _entries = new();
+
+  private readonly SemaphoreSlim _semaphore = new(1, 1);
 
   public override int Order
   {
@@ -27,6 +30,7 @@ public class EntityChangesPublishingInterceptor(
       return base.SavingChanges(eventData, result);
     }
 
+    _semaphore.Wait();
     ProcessSavingChanges(context);
     PublishEntitiesChanging();
 
@@ -45,6 +49,7 @@ public class EntityChangesPublishingInterceptor(
         eventData, result, cancellationToken);
     }
 
+    await _semaphore.WaitAsync(cancellationToken);
     ProcessSavingChanges(context);
     PublishEntitiesChanging();
 
@@ -56,6 +61,8 @@ public class EntityChangesPublishingInterceptor(
     int result)
   {
     PublishEntitiesChanged();
+    ProcessSavedChanges();
+    _semaphore.Release();
     return base.SavedChanges(eventData, result);
   }
 
@@ -66,12 +73,15 @@ public class EntityChangesPublishingInterceptor(
   )
   {
     PublishEntitiesChanged();
+    ProcessSavedChanges();
+    _semaphore.Release();
     return base.SavedChangesAsync(eventData, result, cancellationToken);
   }
 
   private void ProcessSavingChanges(DbContext context)
   {
     context.ChangeTracker.DetectChanges();
+
     foreach (var entry in context.ChangeTracker.Entries())
     {
       if (entry.Entity is not IEntity entity)
@@ -97,6 +107,11 @@ public class EntityChangesPublishingInterceptor(
           },
           entity));
     }
+  }
+
+  private void ProcessSavedChanges()
+  {
+    _entries.Clear();
   }
 
   private void PublishEntitiesChanging()

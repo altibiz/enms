@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Enms.Data.Entities.Base;
 
-public class NotificationEntity : IIdentifiableEntity
+public class NotificationEntity : IIdentifiableEntity, IReadonlyEntity
 {
   protected readonly long? _eventId;
 

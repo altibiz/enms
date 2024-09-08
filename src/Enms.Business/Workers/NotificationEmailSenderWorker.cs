@@ -16,9 +16,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Enms.Business.Workers;
 
-// TODO: paging when fetching representatives
-// TODO: use a join when fetching representatives
-// TODO: fetch notification by joining with notification recipients
+// TODO: paging when fetching
 
 public class NotificationEmailSenderWorker(
   IServiceScopeFactory serviceScopeFactory,
@@ -63,17 +61,23 @@ public class NotificationEmailSenderWorker(
     var sender = serviceProvider.GetRequiredService<IEmailSender>();
     var context = serviceProvider.GetRequiredService<DataDbContext>();
 
-    var notifications = eventArgs.Entities
-      .Where(x => x.State == EntityChangedState.Added)
-      .Select(x => x.Entity)
-      .OfType<NotificationEntity>()
-      .Select(x => x.ToModel());
-
     var recipients = eventArgs.Entities
       .Where(x => x.State == EntityChangedState.Added)
       .Select(x => x.Entity)
       .OfType<NotificationRecipientEntity>()
-      .Select(x => x.ToModel());
+      .Select(x => x.ToModel())
+      .ToList();
+    if (recipients.Count == 0)
+    {
+      return;
+    }
+
+    var notifications = await context.Notifications
+      .Where(context.PrimaryKeyIn<NotificationEntity>(
+        recipients
+          .Select(x => x.NotificationId)
+          .ToList()))
+      .ToListAsync();
 
     var representatives = await context.Representatives
       .Where(context.PrimaryKeyIn<RepresentativeEntity>(
@@ -86,12 +90,15 @@ public class NotificationEmailSenderWorker(
       .GroupBy(x => x.NotificationId)
       .Select(x => new
       {
-        Notification = notifications.First(y => y.Id == x.Key),
+        Notification = notifications
+          .FirstOrDefault(y => y.Id == x.Key)
+          ?.ToModel(),
         Recipients = x.ToList(),
         Representatives = x
           .Select(y => representatives
             .FirstOrDefault(z => z.Id == y.RepresentativeId))
             .OfType<RepresentativeEntity>()
+            .Select(z => z.ToModel())
             .ToList()
       });
 
@@ -104,7 +111,8 @@ public class NotificationEmailSenderWorker(
       }
 
       var notification = group.Notification;
-      var titleBuilder = new StringBuilder($"[ENMS]: {notification.Title}");
+      var titleBuilder = new StringBuilder(
+          $"[{nameof(Enms)}]: {notification.Title}");
       if (notification.Topics.Count > 0)
       {
         var topics = notification.Topics.Select(x => x.ToTitle());

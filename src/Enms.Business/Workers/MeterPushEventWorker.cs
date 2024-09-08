@@ -57,6 +57,7 @@ public class MeterPushEventWorker(
     var context = serviceProvider.GetRequiredService<DataDbContext>();
 
     var meterIds = eventArgs.Measurements.Select(x => x.MeterId).Distinct().ToList();
+
     var meters = await context.Meters
         .Where(context.PrimaryKeyIn<MeterEntity>(meterIds))
         .Select(x => x.ToModel())

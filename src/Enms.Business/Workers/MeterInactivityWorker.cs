@@ -19,8 +19,7 @@ using Microsoft.EntityFrameworkCore;
 namespace Enms.Business.Workers;
 
 // TODO: handle null meter
-// TODO: meter paging
-// TODO: configurable inactivity duration
+// TODO: paging when fetching
 
 public class MeterInactivityWorker(
   IServiceScopeFactory serviceScopeFactory,

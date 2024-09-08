@@ -6,9 +6,12 @@ using Enms.Business.Models.Enums;
 using Enms.Business.Models.Joins;
 using Enms.Business.Mutations.Abstractions;
 using Enms.Data.Context;
+using Enms.Data.Entities.Base;
 using Microsoft.EntityFrameworkCore;
 
 namespace Enms.Business.Mutations;
+
+// TODO: paging when fetching
 
 public class NotificationMutations(
   DataDbContext context,
@@ -31,17 +34,18 @@ public class NotificationMutations(
       .Where(x => x.Topics.Any(y => topics.Contains(y)))
       .ToListAsync();
 
+    var entity = modelEntityConverter.ToEntity<NotificationEntity>(model);
+    context.Add(entity);
+    await context.SaveChangesAsync();
+
     var recipients = representatives
       .Select(x => new NotificationRecipientModel
       {
-        NotificationId = model.Id,
+        NotificationId = entity.Id,
         RepresentativeId = x.Id
       })
       .ToList();
-
-    context.Add(modelEntityConverter.ToEntity(model));
     context.AddRange(recipients.Select(modelEntityConverter.ToEntity));
-
     await context.SaveChangesAsync();
   }
 

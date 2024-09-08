@@ -34,6 +34,7 @@
         @if (_mutating)
         {
           @Translate("Edit")
+          <span>&nbsp;</span>
         }
         @(identifiable.Title)
       </MudText>
@@ -47,7 +48,8 @@
       <MudText Typo="Typo.h5" Class="mb-2">
         @if (_mutating)
         {
-          @Translate("Edit ")
+          @Translate("Edit")
+          <span>&nbsp;</span>
         }
         @(typeof(T).Name)
       </MudText>
@@ -95,17 +97,6 @@
         else
         {
           @Details(model)
-          @if (model is not IReadonly)
-          {
-            <div Class="d-flex flex-row mt-4">
-              <MudButton
-                OnClick="@(() => _mutating = !_mutating)"
-                Variant="Variant.Filled"
-                Color="Color.Warning">
-                @Translate("Edit")
-              </MudButton>
-            </div>
-          }
         }
       </EditForm>
     }
