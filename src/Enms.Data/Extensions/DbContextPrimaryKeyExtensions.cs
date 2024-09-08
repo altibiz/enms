@@ -252,7 +252,9 @@ public static class DbContextPrimaryKeyExtensions
       idExpressions.Add(keyMatchExpression!);
     }
 
-    var finalOrExpression = idExpressions.Aggregate(Expression.OrElse);
+    var finalOrExpression = idExpressions.Count == 0
+      ? Expression.Constant(false)
+      : idExpressions.Aggregate(Expression.OrElse);
 
     return Expression.Lambda<Func<object, bool>>(finalOrExpression, parameter);
   }

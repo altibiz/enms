@@ -26,7 +26,9 @@
 
 <Paging
   T="MaybeRepresentingUserModel"
-  PageAsync="@(page => ScopedServices.GetRequiredService<RepresentativeQueries>().MaybeRepresentingUsers(pageNumber: page))">
+  PageAsync="@(page => ScopedServices
+    .GetRequiredService<RepresentativeQueries>()
+    .MaybeRepresentingUsers(pageNumber: page))">
   <Summary Context="maybeRepresentingUser">
     @{
       var href = $"user/{maybeRepresentingUser.User.Id}";
