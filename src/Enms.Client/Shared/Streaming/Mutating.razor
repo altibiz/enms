@@ -45,51 +45,59 @@
       </MudText>
       <MudDivider Class="mb-4" />
     }
-    <EditForm
-      Model="@model"
-      OnValidSubmit="@(() => OnUpdate(model))">
-      <DataAnnotationsValidator/>
-      @if (_mutating)
-      {
-        @Edit(model)
-        <div Class="d-flex flex-column mt-4">
-          <div Class="d-flex flex-row">
+
+    @if (model is IReadonly)
+    {
+      @Details(model)
+    }
+    else
+    {
+      <EditForm
+        Model="@model"
+        OnValidSubmit="@(() => OnUpdate(model))">
+        <DataAnnotationsValidator/>
+        @if (_mutating)
+        {
+          @Edit(model)
+          <div Class="d-flex flex-column mt-4">
+            <div Class="d-flex flex-row">
+              <MudButton
+                Variant="Variant.Filled"
+                Color="Color.Success"
+                ButtonType="ButtonType.Submit">
+                @Translate("Update")
+              </MudButton>
+              <MudButton
+                Variant="Variant.Filled"
+                Color="Color.Secondary"
+                OnClick="@(() => _mutating = !_mutating)"
+                Class="ml-4">
+                @Translate("Preview")
+              </MudButton>
+            </div>
             <MudButton
               Variant="Variant.Filled"
-              Color="Color.Success"
-              ButtonType="ButtonType.Submit">
-              @Translate("Update")
-            </MudButton>
-            <MudButton
-              Variant="Variant.Filled"
-              Color="Color.Secondary"
-              OnClick="@(() => _mutating = !_mutating)"
-              Class="ml-4">
-              @Translate("Preview")
+              Color="Color.Error"
+              OnClick="@(() => OnDelete(model))"
+              Class="mt-8 align-self-start">
+              @Translate("Delete")
             </MudButton>
           </div>
-          <MudButton
-            Variant="Variant.Filled"
-            Color="Color.Error"
-            OnClick="@(() => OnDelete(model))"
-            Class="mt-8 align-self-start">
-            @Translate("Delete")
-          </MudButton>
-        </div>
-      }
-      else
-      {
-        @Details(model)
-        <div Class="d-flex flex-row mt-4">
-          <MudButton
-            Variant="Variant.Filled"
-            Color="Color.Warning"
-            OnClick="@(() => _mutating = !_mutating)">
-            @Translate("Edit")
-          </MudButton>
-        </div>
-      }
-    </EditForm>
+        }
+        else
+        {
+          @Details(model)
+          <div Class="d-flex flex-row mt-4">
+            <MudButton
+              Variant="Variant.Filled"
+              Color="Color.Warning"
+              OnClick="@(() => _mutating = !_mutating)">
+              @Translate("Edit")
+            </MudButton>
+          </div>
+        }
+      </EditForm>
+    }
   </Found>
   <Created Context="model">
     @if (Label is not null)
@@ -215,6 +223,11 @@
         mutations.Create((model as IAuditable)!);
         await mutations.Save();
       }
+      else
+      {
+        throw new InvalidOperationException(
+          $"No create strategy found for {model.GetType()}");
+      }
     }
     catch (Exception ex)
     {
@@ -247,6 +260,11 @@
         mutations.Update((model as IAuditable)!);
         await mutations.Save();
       }
+      else
+      {
+        throw new InvalidOperationException(
+          $"No update strategy found for {model.GetType()}");
+      }
     }
     catch (Exception ex)
     {
@@ -278,6 +296,11 @@
         var mutations = ScopedServices.GetRequiredService<AgnosticMutations>();
         mutations.Delete((model as IAuditable)!);
         await mutations.Save();
+      }
+      else
+      {
+        throw new InvalidOperationException(
+          $"No delete strategy found for {model.GetType()}");
       }
     }
     catch (Exception ex)

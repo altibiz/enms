@@ -5,10 +5,12 @@
 @attribute [Authorize]
 @using Enms.Business.Models.Base
 @using Enms.Business.Models
+@using Enms.Business.Mutations
 @using Enms.Business.Models.Enums
 @using Enms.Client.Shared.Models
 @using Enms.Client.Shared.Streaming
 @using Microsoft.AspNetCore.Authorization
+@using Microsoft.Extensions.DependencyInjection
 @using Enms.Client.State
 @inherits Enms.Client.Base.EnmsOwningComponentBase
 
@@ -23,7 +25,12 @@
   return;
 }
 
-<Mutating T="SystemNotificationModel" Id="@Id">
+<Mutating
+  T="SystemNotificationModel"
+  CreateAsync="@(async (model) => await ScopedServices
+    .GetRequiredService<NotificationMutations>()
+    .Create(model))"
+  Id="@Id">
   <Edit Context="model">
     <NotificationEdit Model="@model"/>
   </Edit>
