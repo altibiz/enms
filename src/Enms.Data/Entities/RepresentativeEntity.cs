@@ -23,7 +23,7 @@ public class RepresentativeEntity : AuditableEntity
   public virtual string? NetworkUserId
   {
     get { return _networkUserId?.ToString(); }
-    init { _networkUserId = value is { } nonNull ? long.Parse(nonNull) : default!; }
+    init { _networkUserId = value is { } nonNull ? long.Parse(nonNull) : null; }
   }
 
   public RoleEntity Role { get; set; }

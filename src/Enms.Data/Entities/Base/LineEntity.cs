@@ -28,7 +28,7 @@ public class LineEntity : AuditableEntity
   public virtual string? OwnerId
   {
     get { return _ownerId?.ToString(); }
-    init { _ownerId = value is { } nonNull ? long.Parse(nonNull) : default!; }
+    init { _ownerId = value is { } nonNull ? long.Parse(nonNull) : null; }
   }
 
   public override string Id
