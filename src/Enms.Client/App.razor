@@ -3,27 +3,30 @@
 @using Microsoft.AspNetCore.Components.Authorization
 @using Microsoft.AspNetCore.Components.Routing
 @using Microsoft.AspNetCore.Components.Web
+@using Enms.Client.State
 @namespace Enms.Client
 
 <Router AppAssembly="@typeof(App).Assembly">
   <Found Context="routeData">
-    <AuthorizeRouteView
-      RouteData="@routeData"
-      DefaultLayout="@typeof(Layout)">
-      <Authorizing>
-        <Authorizing/>
-      </Authorizing>
-      <NotAuthorized>
-        @if (context.User.Identity?.IsAuthenticated is false)
-        {
-          <RedirectToLogin/>
-        }
-        else
-        {
-          <NotAuthorized/>
-        }
-      </NotAuthorized>
-    </AuthorizeRouteView>
+    <CascadingValue Value="LogoutTokenState">
+      <AuthorizeRouteView
+        RouteData="@routeData"
+        DefaultLayout="@typeof(Layout)">
+        <Authorizing>
+          <Authorizing/>
+        </Authorizing>
+        <NotAuthorized>
+          @if (context.User.Identity?.IsAuthenticated is false)
+          {
+            <RedirectToLogin/>
+          }
+          else
+          {
+            <NotAuthorized/>
+          }
+        </NotAuthorized>
+      </AuthorizeRouteView>
+    </CascadingValue>
   </Found>
   <NotFound>
     <LayoutView Layout="@typeof(Layout)">
@@ -31,3 +34,15 @@
     </LayoutView>
   </NotFound>
 </Router>
+
+@code {
+  [Parameter]
+  public string LogoutToken { get; set; } = default!;
+
+  private LogoutTokenState LogoutTokenState = default!;
+
+  protected override void OnParametersSet()
+  {
+    LogoutTokenState = new LogoutTokenState(LogoutToken);
+  }
+}

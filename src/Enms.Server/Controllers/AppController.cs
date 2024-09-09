@@ -1,10 +1,11 @@
 using System.Globalization;
 using Enms.Client.ViewModels;
+using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Enms.Server.Controllers;
 
-public class AppController : Controller
+public class AppController(IAntiforgery antiforgery) : Controller
 {
   public IActionResult Catchall([FromRoute] string culture)
   {
@@ -18,6 +19,21 @@ public class AppController : Controller
       return BadRequest(ex);
     }
 
-    return View(new AppViewModel { Culture = cultureInfo });
+    string? logoutToken;
+    try
+    {
+      logoutToken = antiforgery
+        .GetAndStoreTokens(Request.HttpContext).RequestToken;
+    }
+    catch (Exception ex)
+    {
+      return BadRequest(ex);
+    }
+
+    return View(new AppViewModel
+    {
+      Culture = cultureInfo,
+      LogoutToken = logoutToken!,
+    });
   }
 }

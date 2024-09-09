@@ -66,5 +66,6 @@ public static class IServiceCollectionExtensions
         _ => { },
         _ => { }
       ));
+    services.AddCascadingValue(_ => new LogoutTokenState(string.Empty));
   }
 }
