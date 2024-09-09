@@ -24,13 +24,19 @@ public static class ApexChartOptionsExtensions
   )
     where T : class
   {
-    options.Chart.Toolbar.Tools.Zoomin = false;
-    options.Chart.Toolbar.Tools.Zoomout = false;
-    options.Chart.Toolbar.Tools.Zoom = false;
-    options.Chart.Toolbar.Tools.Download = false;
-    options.Chart.Toolbar.Tools.Pan = false;
-    options.Chart.Toolbar.Tools.Selection = false;
-    options.Chart.Toolbar.Tools.Reset = false;
+    options.Chart.Toolbar = new Toolbar
+    {
+      Tools = new Tools
+      {
+        Zoomin = false,
+        Zoomout = false,
+        Zoom = false,
+        Download = false,
+        Pan = false,
+        Selection = false,
+        Reset = false
+      }
+    };
 
     options.Grid = new Grid
     {
@@ -79,13 +85,19 @@ public static class ApexChartOptionsExtensions
   )
     where T : class
   {
-    options.Chart.Toolbar.Tools.Zoomin = false;
-    options.Chart.Toolbar.Tools.Zoomout = false;
-    options.Chart.Toolbar.Tools.Zoom = false;
-    options.Chart.Toolbar.Tools.Download = false;
-    options.Chart.Toolbar.Tools.Pan = false;
-    options.Chart.Toolbar.Tools.Selection = false;
-    options.Chart.Toolbar.Tools.Reset = false;
+    options.Chart.Toolbar = new Toolbar
+    {
+      Tools = new Tools
+      {
+        Zoomin = false,
+        Zoomout = false,
+        Zoom = false,
+        Download = false,
+        Pan = false,
+        Selection = false,
+        Reset = false
+      }
+    };
 
     options.Grid = new Grid
     {

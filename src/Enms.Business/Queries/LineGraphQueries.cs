@@ -67,7 +67,7 @@ public class LineGraphQueries(
         var entityType = modelEntityConverter.EntityType(modelType);
 
         var queryable = context
-          .GetQueryable(modelEntityConverter.EntityType(entityType))
+          .GetQueryable(entityType)
           as IQueryable<AggregateEntity>
           ?? throw new InvalidOperationException(
             $"No DbSet found for {entityType}");
