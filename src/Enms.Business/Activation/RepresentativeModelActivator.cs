@@ -27,7 +27,8 @@ public class RepresentativeModelActivator : ModelActivator<RepresentativeModel>
       DeletedById = null,
       Role = RoleModel.UserRepresentative,
       Topics = RoleModel.UserRepresentative.ToTopics(),
-      PhysicalPerson = PhysicalPersonModelActivator.New()
+      PhysicalPerson = PhysicalPersonModelActivator.New(),
+      NetworkUserId = null
     };
   }
 
@@ -48,7 +49,8 @@ public class RepresentativeModelActivator : ModelActivator<RepresentativeModel>
       DeletedById = null,
       Role = role,
       Topics = role.ToTopics(),
-      PhysicalPerson = PhysicalPersonModelActivator.New(user)
+      PhysicalPerson = PhysicalPersonModelActivator.New(user),
+      NetworkUserId = null
     };
   }
 }

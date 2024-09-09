@@ -24,4 +24,6 @@ public partial class DataDbContext : DbContext
 
   public DbSet<NotificationRecipientEntity> NotificationRecipients { get; set; } =
     default!;
+
+  public DbSet<NetworkUserEntity> NetworkUsers { get; set; } = default!;
 }

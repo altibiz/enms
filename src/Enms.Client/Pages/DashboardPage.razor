@@ -11,8 +11,12 @@
 )]
 @attribute [Authorize]
 @using Enms.Client.State
+@using Enms.Client.Shared.Charts
+@using Enms.Client.Shared.Streaming
 @using Enms.Business.Models.Enums
+@using Enms.Business.Models.Composite
 @using Enms.Business.Queries.Agnostic
+@using Enms.Business.Queries
 @using Microsoft.AspNetCore.Authorization
 @using Microsoft.Extensions.DependencyInjection
 @inherits Enms.Client.Base.EnmsOwningComponentBase
@@ -39,11 +43,28 @@
 {
   @if (representative.Role == RoleModel.UserRepresentative)
   {
+    <Loading
+        T="NetworkUserLines"
+        LoadAsync="@(() => ScopedServices
+          .GetRequiredService<DashboardQueries>()
+          .NetworkUserLines(representative))">
+      <Found Context="networkUserLines">
+        <LineGraph Lines="networkUserLines.Lines" />
+      </Found>
+    </Loading>
     return;
   }
 
   @if (representative.Role == RoleModel.OperatorRepresentative)
   {
+    <Loading
+        LoadAsync="@(() => ScopedServices
+          .GetRequiredService<DashboardQueries>()
+          .OperatorLines())">
+      <Found Context="operatorLines">
+        <LineGraph Lines="operatorLines" />
+      </Found>
+    </Loading>
     return;
   }
 }

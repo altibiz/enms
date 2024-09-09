@@ -16,6 +16,8 @@ public class RepresentativeModel : AuditableModel
   [Required]
   public required HashSet<TopicModel> Topics { get; set; } = default!;
 
+  public string? NetworkUserId { get; set; } = default!;
+
   public override IEnumerable<ValidationResult> Validate(
     ValidationContext validationContext)
   {
