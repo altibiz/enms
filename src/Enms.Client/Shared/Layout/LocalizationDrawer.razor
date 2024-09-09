@@ -21,17 +21,17 @@
   <MudDrawerContainer>
     <MudList T="string">
       <MudListItem
-        Text="@(new CultureInfo("hr").NativeName)"
+        Text="@(new CultureInfo("hr-HR").NativeName)"
         Icon="@Icons.Material.Filled.Language"
         OnClick="@(e => {
-          Culture = new CultureInfo("hr");
+          Culture = new CultureInfo("hr-HR");
           LayoutState.SetLocalizationDrawerOpen(false);
         })" />
       <MudListItem
-        Text="@(new CultureInfo("en").NativeName)"
+        Text="@(new CultureInfo("en-US").NativeName)"
         Icon="@Icons.Material.Filled.Language"
         OnClick="@(e => {
-          Culture = new CultureInfo("en");
+          Culture = new CultureInfo("en-US");
           LayoutState.SetLocalizationDrawerOpen(false);
         })" />
     </MudList>

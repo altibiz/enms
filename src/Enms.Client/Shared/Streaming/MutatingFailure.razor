@@ -1,11 +1,12 @@
 @using MudBlazor
+@inherits Enms.Client.Base.EnmsComponentBase
 <MudDialog>
   <DialogContent>
-    Failure
+    @Translate("Failure")
   </DialogContent>
   <DialogActions>
     <MudButton Color="Color.Primary" OnClick="Submit">
-      Ok
+      @Translate("Ok")
     </MudButton>
   </DialogActions>
 </MudDialog>

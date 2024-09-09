@@ -41,6 +41,8 @@ public abstract class EnmsComponentBase : ComponentBase
       var segments = uri.Segments;
       segments[2] = $"{value}/";
       var path = string.Join("", segments);
+      CultureInfo.DefaultThreadCurrentCulture = value;
+      CultureInfo.DefaultThreadCurrentUICulture = value;
       NavigationManager.NavigateTo(path);
     }
   }

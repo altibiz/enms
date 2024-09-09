@@ -68,12 +68,12 @@ prepare:
   dotnet ef \
     --startup-project '{{servercsproj}}' \
     --project '{{datacsproj}}' \
-    database updat
+    database update
 
   dotnet ef \
     --startup-project '{{servercsproj}}' \
     --project '{{jobscsproj}}' \
-    database updatee
+    database update
 
   open --raw '{{migrationassets}}/current.sql' | \
     docker exec \

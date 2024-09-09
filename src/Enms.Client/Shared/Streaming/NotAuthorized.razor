@@ -1,8 +1,9 @@
 @using MudBlazor
+@inherits Enms.Client.Base.EnmsComponentBase
 @namespace Enms.Client.Shared.Streaming
 
 <MudContainer MaxWidth="MaxWidth.Small">
   <MudText Typo="Typo.h5">
-    You are not authorized to view this resource.
+    @Translate("You are not authorized to view this resource.")
   </MudText>
 </MudContainer>

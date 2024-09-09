@@ -8,14 +8,14 @@
 
 <!-- TODO: password -->
 
-<MudText Typo="Typo.h5">User</MudText>
+<MudText Typo="Typo.h5">@Translate("User")</MudText>
 <MudGrid>
   <MudItem xs="12" sm="6">
-    <MudText Typo="Typo.body1">Id</MudText>
+    <MudText Typo="Typo.body1">@Translate("Id")</MudText>
     <MudText Typo="Typo.body2">@Model.User.UserName</MudText>
   </MudItem>
   <MudItem xs="12" sm="6">
-    <MudText Typo="Typo.body1">Email</MudText>
+    <MudText Typo="Typo.body1">@Translate("Email")</MudText>
     <MudText Typo="Typo.body2">@Model.User.Email</MudText>
   </MudItem>
 </MudGrid>
@@ -28,32 +28,32 @@
   <MudDivider />
 
   <MudTextField
-    Label="Title"
+    Label="@Translate("Title")"
     @bind-Value="Model.MaybeRepresentative.Title"
     For="@(() => Model.MaybeRepresentative.Title)"/>
   <MudSelect
     T="RoleModel"
-    Label="Coffee"
+    Label="@Translate("Coffee")"
     AnchorOrigin="Origin.BottomCenter"
     @bind-Value="Model.MaybeRepresentative.Role"
     For="@(() => Model.MaybeRepresentative.Role)">
     <MudSelectItem Value="@RoleModel.OperatorRepresentative">
-      Operator Representative
+      @Translate("Operator Representative")
     </MudSelectItem>
     <MudSelectItem Value="@RoleModel.UserRepresentative">
-      Network User Representative
+      @Translate("Network User Representative")
     </MudSelectItem>
   </MudSelect>
   <MudTextField
-    Label="Name"
+    Label="@Translate("Name")"
     @bind-Value="Model.MaybeRepresentative.PhysicalPerson.Name"
     For="@(() => Model.MaybeRepresentative.PhysicalPerson.Name)"/>
   <MudTextField
-    Label="Email"
+    Label="@Translate("Email")"
     @bind-Value="Model.MaybeRepresentative.PhysicalPerson.Email"
     For="@(() => Model.MaybeRepresentative.PhysicalPerson.Email)"/>
   <MudTextField
-    Label="PhoneNumber"
+    Label="@Translate("PhoneNumber")"
     @bind-Value="Model.MaybeRepresentative.PhysicalPerson.PhoneNumber"
     For="@(() => Model.MaybeRepresentative.PhysicalPerson.PhoneNumber)"/>
   <MultiEnumPicker
