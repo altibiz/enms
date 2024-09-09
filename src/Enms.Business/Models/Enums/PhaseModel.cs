@@ -26,9 +26,9 @@ public static class PhaseModelExtensions
   {
     return phase switch
     {
-      PhaseModel.L1 => Colors[index][0],
-      PhaseModel.L2 => Colors[index][1],
-      PhaseModel.L3 => Colors[index][2],
+      PhaseModel.L1 => Colors[index % Colors.Length][0],
+      PhaseModel.L2 => Colors[index % Colors.Length][1],
+      PhaseModel.L3 => Colors[index % Colors.Length][2],
       _ => throw new ArgumentOutOfRangeException(nameof(phase), phase, null)
     };
   }
@@ -58,44 +58,24 @@ public static class PhaseModelExtensions
   // NOTE: generate { |$i| if $i <= 10 { { out: (["#FB8C00", "#E91E63", "#20F97B"] | each { |x| pastel rotate ($i * 10) $x | pastel format hex }), next: ($i + 1) } } } 1 | to json
   private static readonly string[][] Colors = [
     [
-      "#fbb400",
-      "#e91e40",
-      "#20f99f"
+      "#fbd500",
+      "#e91e25",
+      "#20f9bc"
     ],
     [
-      "#fbde00",
-      "#e91e1e",
-      "#20f9c3"
+      "#d5fb00",
+      "#e9541e",
+      "#20f5f9"
     ],
     [
-      "#eefb00",
-      "#e9401e",
-      "#20f9e7"
+      "#8afb00",
+      "#e9911e",
+      "#20b4f9"
     ],
     [
-      "#c5fb00",
-      "#e9621e",
-      "#20e7f9"
-    ],
-    [
-      "#9bfb00",
-      "#e9841e",
-      "#20c3f9"
-    ],
-    [
-      "#71fb00",
-      "#e9a51e",
-      "#209ff9"
-    ],
-    [
-      "#47fb00",
-      "#e9c71e",
-      "#207af9"
-    ],
-    [
-      "#1dfb00",
-      "#e9e91e",
-      "#2056f9"
+      "#3ffb00",
+      "#e9ce1e",
+      "#2073f9"
     ],
     [
       "#00fb0d",
@@ -103,9 +83,29 @@ public static class PhaseModelExtensions
       "#2032f9"
     ],
     [
-      "#00fb36",
-      "#a5e91e",
-      "#3220f9"
+      "#00fb58",
+      "#8ae91e",
+      "#4f20f9"
+    ],
+    [
+      "#00fba3",
+      "#4de91e",
+      "#9020f9"
+    ],
+    [
+      "#00fbee",
+      "#1ee92c",
+      "#d120f9"
+    ],
+    [
+      "#00bcfb",
+      "#1ee969",
+      "#f920e0"
+    ],
+    [
+      "#0071fb",
+      "#1ee9a5",
+      "#f9209f"
     ]
   ];
 }
