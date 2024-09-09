@@ -71,6 +71,6 @@
     await ScopedServices
       .GetRequiredService<NotificationMutations>()
       .Seen(model, UserState.User.MaybeRepresentative!);
-    NavigateToPage<NotificationsPage>();
+    NavigateToPage<NotificationsPage>(forceLoad: true);
   }
 }

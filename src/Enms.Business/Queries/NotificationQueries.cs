@@ -34,11 +34,11 @@ public class NotificationQueries(
       ? context.Notifications
       : includeSeen
         ? context.NotificationRecipients
-            .Where(x => x.RecipientId == recipientId && x.SeenOn != null)
+            .Where(x => x.RecipientId == recipientId)
             .Include(x => x.Notification)
             .Select(x => x.Notification)
         : context.NotificationRecipients
-            .Where(x => x.RecipientId == recipientId)
+            .Where(x => x.RecipientId == recipientId && x.SeenOn == null)
             .Include(x => x.Notification)
             .Select(x => x.Notification);
 

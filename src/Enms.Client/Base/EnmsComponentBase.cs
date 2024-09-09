@@ -45,7 +45,7 @@ public abstract class EnmsComponentBase : ComponentBase
     }
   }
 
-  protected void NavigateToHome()
+  protected void NavigateToHome(bool forceLoad = false)
   {
     NavigationManager.NavigateTo(
       $"/app/{Culture}");
@@ -57,13 +57,13 @@ public abstract class EnmsComponentBase : ComponentBase
       $"/login?returnUrl={Uri.EscapeDataString(NavigationManager.Uri)}");
   }
 
-  protected void NavigateToPage<T>()
+  protected void NavigateToPage<T>(bool forceLoad = false)
   {
     var navigationAttribute = typeof(T)
       .GetCustomAttributes<NavigationAttribute>()
       .FirstOrDefault() ?? throw new InvalidOperationException(
         $"No navigation attribute found for {typeof(T)}");
-    NavigationManager.NavigateTo(navigationAttribute.RouteValue);
+    NavigationManager.NavigateTo(navigationAttribute.RouteValue, forceLoad);
   }
 
   protected string Translate(string unlocalized)
