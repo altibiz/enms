@@ -24,7 +24,9 @@
   {
     @if (Lines.Count > 1)
     {
-      @foreach (var selectedLine in _selectedLines)
+      @foreach (var (selectedLine, i) in _selectedLines
+        .OrderBy(x => x.Id)
+        .Select((x, i) => (x, i)))
       {
         <ApexPointSeries
           Items="@(_measurements.Items
@@ -35,7 +37,7 @@
           SeriesType="SeriesType.Line"
           XValue='x => DateTimeChart(x.Timestamp)'
           YValue="x => x.ChartValue(Measure, phase)"
-          Stroke="@(new SeriesStroke { Color = phase.ToColor(), Width = 4 })"/>
+          Stroke="@(new SeriesStroke { Color = phase.ToColor(i), Width = 4 })"/>
       }
     }
     else
