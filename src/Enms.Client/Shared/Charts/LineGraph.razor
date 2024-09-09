@@ -31,7 +31,7 @@
             .Where(x =>
               x.LineId == selectedLine.LineId
               && x.MeterId == selectedLine.MeterId))"
-          Name="@(phase.ToTitle())"
+          Name="@($"{selectedLine.Id} {phase.ToTitle()}")"
           SeriesType="SeriesType.Line"
           XValue='x => DateTimeChart(x.Timestamp)'
           YValue="x => x.ChartValue(Measure, phase)"
@@ -62,7 +62,7 @@
   Gutters="false"
   Text="@Translate("Graph controls")">
   <MudGrid Spacing="2" Justify="Justify.Center">
-    <MudItem xs="10" md="6">
+    <MudItem xs="12" md="6">
       @if (Lines.Count > 1)
       {
         <MudSelect
@@ -70,6 +70,10 @@
           Label="@Translate("Lines")"
           SelectedValues="_selectedLines.Select(line => line.Id)"
           SelectedValuesChanged="async e => {
+            if (e.Count() == 0)
+            {
+              return;
+            }
             _selectedLines = Lines.Where(line => e.Contains(line.Id)).ToHashSet();
             await OnParametersSetAsync();
           }"
@@ -83,7 +87,7 @@
         </MudSelect>
       }
     </MudItem>
-    <MudItem xs="2" md="6">
+    <MudItem xs="12" md="6">
       <MudHidden Breakpoint="Breakpoint.MdAndUp">
         <MudCheckBox
           T="bool"
