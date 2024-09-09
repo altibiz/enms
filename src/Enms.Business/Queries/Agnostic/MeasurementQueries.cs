@@ -130,11 +130,13 @@ public class MeasurementQueries(
       .Where(aggregate => aggregate.Timestamp >= fromDate)
       .Where(aggregate => aggregate.Timestamp < toDate);
 
-    var filtered = lineId is null
-      ? timeFiltered
-      : timeFiltered.Where(
-        aggregate =>
-          aggregate.LineId == lineId && aggregate.MeterId == meterId);
+    var filtered = lineId is { } nonNullLineId
+      ? timeFiltered.Where(aggregate => aggregate.LineId == nonNullLineId)
+      : timeFiltered;
+
+    filtered = meterId is { } nonNullMeterId
+      ? filtered.Where(aggregate => aggregate.MeterId == nonNullMeterId)
+      : filtered;
 
     var ordered = filtered
       .OrderBy(aggregate => aggregate.Timestamp);

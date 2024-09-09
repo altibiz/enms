@@ -13,22 +13,25 @@ public static class QueryConstants
   public static TimeSpan AggregateThreshold(
     IntervalModel interval,
     DateTimeOffset timestamp,
+    int lineCount = 1,
     int pageCount = MeasurementPageCount
   )
   {
     var higherResolutionTimeSpan = interval.HigherResolutionTimeSpan(timestamp);
-    return pageCount * higherResolutionTimeSpan;
+    return pageCount * higherResolutionTimeSpan / lineCount;
   }
 
   public static IntervalModel? AppropriateInterval(
     TimeSpan timeSpan,
     DateTimeOffset timestamp,
+    int lineCount = 1,
     int pageCount = MeasurementPageCount
   )
   {
     var quarterHourThreshold = AggregateThreshold(
       IntervalModel.QuarterHour,
       timestamp,
+      lineCount,
       pageCount);
     if (timeSpan < quarterHourThreshold)
     {
@@ -38,6 +41,7 @@ public static class QueryConstants
     var dayThreshold = AggregateThreshold(
       IntervalModel.Day,
       timestamp,
+      lineCount,
       pageCount);
     if (timeSpan < dayThreshold)
     {
@@ -47,6 +51,7 @@ public static class QueryConstants
     var monthThreshold = AggregateThreshold(
       IntervalModel.Month,
       timestamp,
+      lineCount,
       pageCount);
     if (timeSpan < monthThreshold)
     {

@@ -5,9 +5,10 @@ using Enms.Business.Models.Abstractions;
 using Enms.Business.Models.Enums;
 using Enms.Business.Observers.Abstractions;
 using Enms.Business.Observers.EventArgs;
+using Enms.Business.Queries;
 using Enms.Business.Queries.Abstractions;
-using Enms.Business.Queries.Agnostic;
 using Enms.Client.Base;
+using Enms.Client.Extensions;
 using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.DependencyInjection;
 using MudBlazor;
@@ -20,19 +21,11 @@ namespace Enms.Client.Shared.Charts;
 public partial class LineGraph : EnmsOwningComponentBase
 #pragma warning restore S3881 // "IDisposable" should be implemented correctly
 {
-  private ApexChart<IMeasurement>? _chart = default!;
-
-  private PaginatedList<IMeasurement> _measurements = new(
-    new List<IMeasurement>(), 0);
-
-  private ApexChartOptions<IMeasurement> _options =
-    NewApexChartOptions<IMeasurement>();
+  [Parameter]
+  public List<ILine> Lines { get; set; } = default!;
 
   [Parameter]
-  public ILine Model { get; set; } = default!;
-
-  [Parameter]
-  public DateTimeOffset? Timestamp { get; set; } = default!;
+  public DateTimeOffset Timestamp { get; set; } = default!;
 
   [Parameter]
   public MeasureModel Measure { get; set; } = MeasureModel.ActivePower;
@@ -59,11 +52,23 @@ public partial class LineGraph : EnmsOwningComponentBase
   [Inject]
   public AgnosticAggregateUpserter AggregateUpserter { get; set; } = default!;
 
+  private ApexChart<IMeasurement>? _chart = default!;
+
+  private PaginatedList<IMeasurement> _measurements = new(
+    new List<IMeasurement>(), 0);
+
+  private ApexChartOptions<IMeasurement> _options =
+    new ApexChartOptions<IMeasurement>().WithFixedScriptPath();
+
+  private HashSet<ILine> _selectedLines = new();
+
   protected override void OnInitialized()
   {
     MeasurementSubscriber.SubscribeUpsert(OnUpsert);
 
     _options = CreateGraphOptions();
+
+    _selectedLines = Lines.Take(3).ToHashSet();
   }
 
   protected override void Dispose(bool disposing)
@@ -81,43 +86,14 @@ public partial class LineGraph : EnmsOwningComponentBase
 
   protected override async Task OnParametersSetAsync()
   {
-    var now = DateTimeOffset.UtcNow;
-    var timestamp = Timestamp ?? now;
-    var timeSpan = Resolution
-      .ToTimeSpan(Multiplier, timestamp);
-    var appropriateInterval = QueryConstants
-      .AppropriateInterval(timeSpan, timestamp);
+    var queries = ScopedServices.GetRequiredService<LineGraphQueries>();
 
-    if (appropriateInterval is null)
-    {
-      var measurementQueries = ScopedServices
-        .GetRequiredService<MeasurementQueries>();
-      var measurements = await measurementQueries.ReadDynamic(
-        timestamp.Subtract(timeSpan),
-        timestamp,
-        lineId: Model.LineId,
-        meterId: Model.MeterId
-      );
-      _measurements = measurements;
-    }
-    else
-    {
-      var aggregateQueries = ScopedServices
-        .GetRequiredService<AggregateQueries>();
-      var aggregates = await aggregateQueries.ReadDynamic(
-        timestamp.Subtract(timeSpan),
-        timestamp,
-        interval: appropriateInterval,
-        lineId: Model.LineId,
-        meterId: Model.MeterId
-      );
-      var casted = new PaginatedList<IMeasurement>(
-        aggregates.Items.Cast<IMeasurement>().ToList(),
-        aggregates.TotalCount
-      );
-      _measurements = casted;
-    }
-
+    _measurements = await queries.Read(
+      Lines,
+      Resolution,
+      Multiplier,
+      fromDate: Timestamp
+    );
     _options = CreateGraphOptions();
 
     if (_chart is { } chart)
@@ -139,7 +115,7 @@ public partial class LineGraph : EnmsOwningComponentBase
     Task.Run(async () =>
     {
       var now = DateTimeOffset.UtcNow;
-      var timestamp = _measurements.Items.LastOrDefault()?.Timestamp ?? Timestamp ?? now;
+      var timestamp = _measurements.Items.LastOrDefault()?.Timestamp ?? now;
       var timeSpan = Resolution.ToTimeSpan(Multiplier, timestamp);
       var appropriateInterval = QueryConstants.AppropriateInterval(timeSpan, now);
 
@@ -147,8 +123,9 @@ public partial class LineGraph : EnmsOwningComponentBase
       {
         var newMeasurements = args.Measurements
           .Where(x => x.Timestamp >= timestamp)
-          .Where(x => x.LineId == Model.LineId)
-          .Where(x => x.MeterId == Model.MeterId)
+          .Where(x => Lines.Exists(line =>
+            line.Id == x.LineId
+            && line.MeterId == x.MeterId))
           .OrderBy(x => x.Timestamp)
           .ToList();
         var concatenated = _measurements.Items.Concat(newMeasurements).ToList();
@@ -167,8 +144,9 @@ public partial class LineGraph : EnmsOwningComponentBase
         var newAggregates = args.Aggregates
           .Where(x => x.Timestamp >= timestamp)
           .Where(x => x.Interval == appropriateInterval)
-          .Where(x => x.LineId == Model.LineId)
-          .Where(x => x.MeterId == Model.MeterId)
+          .Where(x => Lines.Exists(line =>
+            line.Id == x.LineId
+            && line.MeterId == x.MeterId))
           .OrderBy(x => x.Timestamp)
           .OfType<IAggregate>()
           .ToList();
@@ -194,222 +172,27 @@ public partial class LineGraph : EnmsOwningComponentBase
 
   private ApexChartOptions<IMeasurement> CreateGraphOptions()
   {
-    var measure = $"{Translate(Measure.ToTitle())} ({Measure.ToUnit()})";
     var maxPower = _measurements.Items
-      .OrderByDescending(
-        m => m.ActivePower_W.TariffUnary().DuplexImport().PhaseSum())
-      .FirstOrDefault()
-      ?.ActivePower_W.TariffUnary().DuplexImport().PhaseSum();
+      .Select(x => x.ActivePower_W.TariffUnary().DuplexImport().PhaseSum())
+      .OrderByDescending(x => x)
+      .Cast<decimal?>()
+      .FirstOrDefault();
 
-    var options = SetPowerAnnotationGraphOptions(
-      null,
-      Translate("CONNECTION POWER"),
-      Model.ConnectionPower_W,
-      maxPower
-    );
-
-    if (Breakpoint <= Breakpoint.Sm)
+    var options = _options;
+    foreach (var line in _selectedLines)
     {
-      options = SetSmAndDownGraphOptions(
-        options,
-        measure
-      );
-    }
-    else
-    {
-      options = SetMdAndUpGraphOptions(
-        options,
-        measure
+      options = _options.WithActivePower(
+        $"{line.Id} {Translate("CONNECTION POWER")}",
+        line.ConnectionPower_W,
+        maxPower
       );
     }
 
-    return options;
-  }
-
-  private static ApexChartOptions<IMeasurement> SetPowerAnnotationGraphOptions(
-    ApexChartOptions<IMeasurement>? options,
-    string label,
-    decimal connectionPower,
-    decimal? maxPower)
-  {
-    options ??= NewApexChartOptions<IMeasurement>();
-
-    if (maxPower is null)
-    {
-      options.Yaxis =
-      [
-        new YAxis
-        {
-          Max = maxPower * 1.5M,
-          Labels = new YAxisLabels
-          {
-            Formatter = "function(val, index) { return (val ?? 0).toFixed(0); }"
-          }
-        }
-      ];
-      options.Annotations = new Annotations
-      {
-        Yaxis = [CreateYAxisAnnotations(label, connectionPower)]
-      };
-    }
-    else
-    {
-      options.Annotations = new Annotations();
-      options.Yaxis =
-      [
-        new YAxis
-        {
-          Labels = new YAxisLabels
-          {
-            Formatter = "function(val, index) { return (val ?? 0).toFixed(0); }"
-          }
-        }
-      ];
-    }
+    var measure = $"{Translate(Measure.ToTitle())} ({Measure.ToUnit()})";
+    options = Breakpoint <= Breakpoint.Sm
+      ? options.WithSmAndDown(measure)
+      : options.WithMdAndUp(measure);
 
     return options;
-  }
-
-  private static ApexChartOptions<IMeasurement> SetSmAndDownGraphOptions(
-    ApexChartOptions<IMeasurement>? options,
-    string measure
-  )
-  {
-    options ??= NewApexChartOptions<IMeasurement>();
-    options.Grid = new Grid
-    {
-      BorderColor = "#e7e7e7",
-      Row = new GridRow
-      {
-        Colors = new List<string> { "#ddeeff", "transparent" },
-        Opacity = 0.5d
-      }
-    };
-    options.Tooltip = new Tooltip
-    {
-      X = new TooltipX { Format = @"HH:mm:ss" },
-      Y = new TooltipY
-      {
-        Title = new TooltipYTitle
-        {
-          Formatter = $"function(name) {{ return '{measure} ' + name; }}"
-        }
-      }
-    };
-    options.Yaxis =
-    [
-      new YAxis
-      {
-        Labels = new YAxisLabels
-        {
-          Formatter = "function(val, index) { return (val ?? 0).toFixed(0); }"
-        }
-      }
-    ];
-    options.Xaxis = new XAxis
-    {
-      Labels = new XAxisLabels { Show = false },
-    };
-    options.Chart = new Chart
-    {
-      Toolbar = new Toolbar
-      {
-        Tools = new Tools
-        {
-          Zoomin = false,
-          Zoomout = false,
-          Download = false,
-          Pan = false,
-          Selection = false,
-          Reset = false
-        }
-      }
-    };
-
-    return options;
-  }
-
-  private static ApexChartOptions<IMeasurement> SetMdAndUpGraphOptions(
-    ApexChartOptions<IMeasurement>? options,
-    string measure
-  )
-  {
-    options ??= NewApexChartOptions<IMeasurement>();
-    options.Grid = new Grid
-    {
-      BorderColor = "#e7e7e7",
-      Row = new GridRow
-      {
-        Colors = new List<string> { "#ddeeff", "transparent" },
-        Opacity = 0.5d
-      }
-    };
-    options.Chart = new Chart
-    {
-      Toolbar = new Toolbar
-      {
-        Tools = new Tools
-        {
-          Zoomin = false,
-          Zoomout = false,
-          Zoom = false,
-          Download = false,
-          Pan = false,
-          Selection = false,
-          Reset = false
-        }
-      }
-    };
-    options.Tooltip = new Tooltip
-    {
-      X = new TooltipX { Format = @"HH:mm:ss" },
-      Y = new TooltipY
-      {
-        Title = new TooltipYTitle
-        {
-          Formatter = $"function(name) {{ return '{measure} ' + name; }}"
-        }
-      }
-    };
-    options.Yaxis =
-    [
-      new YAxis
-      {
-        Labels = new YAxisLabels
-        {
-          Formatter = "function(val, index) { return (val ?? 0).toFixed(0); }"
-        }
-      }
-    ];
-    options.Xaxis = new XAxis
-    {
-      Type = XAxisType.Datetime,
-      AxisTicks = new AxisTicks(),
-    };
-
-    return options;
-  }
-
-  private static AnnotationsYAxis CreateYAxisAnnotations(
-    string label,
-    decimal connectionPower
-  )
-  {
-    return new AnnotationsYAxis
-    {
-      Label = new Label
-      {
-        Text = label,
-        Style = new Style
-        {
-          Background = "red",
-          Color = "white",
-          FontSize = "12px"
-        }
-      },
-      Y = connectionPower * 3,
-      BorderColor = "red",
-      StrokeDashArray = 0
-    };
   }
 }

@@ -73,20 +73,6 @@ public abstract class EnmsComponentBase : ComponentBase
     return Localizer.TranslateForCurrentCulture(unlocalized);
   }
 
-  protected static ApexChartOptions<T> NewApexChartOptions<T>()
-    where T : class
-  {
-    var options = new ApexChartOptions<T>
-    {
-      Blazor = new ApexChartsBlazorOptions
-      {
-        JavascriptPath = "/_content/Blazor-ApexCharts/js/blazor-apexcharts.js"
-      }
-    };
-
-    return options;
-  }
-
   protected string NumericString(decimal? number, int places = 2)
   {
     if (number is null)

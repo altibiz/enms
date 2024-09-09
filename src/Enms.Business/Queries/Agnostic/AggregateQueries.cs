@@ -132,20 +132,22 @@ public class AggregateQueries(
       ? queryable
       : queryable.WhereDynamic(whereClause);
 
-    var timeFiltered = whereFiltered
+    var intervalEntity = interval?.ToEntity();
+    var intervalFiltered = intervalEntity is null
+      ? whereFiltered
+      : whereFiltered.Where(aggregate => aggregate.Interval == intervalEntity);
+
+    var timeFiltered = intervalFiltered
       .Where(aggregate => aggregate.Timestamp >= fromDate)
       .Where(aggregate => aggregate.Timestamp < toDate);
 
-    var intervalEntity = interval?.ToEntity();
-    var intervalFiltered = intervalEntity is null
-      ? timeFiltered
-      : timeFiltered.Where(aggregate => aggregate.Interval == intervalEntity);
+    var filtered = lineId is { } nonNullLineId
+      ? timeFiltered.Where(aggregate => aggregate.LineId == nonNullLineId)
+      : timeFiltered;
 
-    var filtered = lineId is null
-      ? intervalFiltered
-      : intervalFiltered.Where(
-        aggregate =>
-          aggregate.LineId == lineId && aggregate.MeterId == meterId);
+    filtered = meterId is { } nonNullMeterId
+      ? filtered.Where(aggregate => aggregate.MeterId == nonNullMeterId)
+      : filtered;
 
     var ordered = filtered
       .OrderByDescending(aggregate => aggregate.Timestamp);
