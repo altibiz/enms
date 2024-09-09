@@ -38,7 +38,7 @@ public class LineGraphQueries(
       ?.ToEntity();
     var isAggregate = appropriateInterval is { };
 
-    var entityTypes = lines
+    var modelTypes = lines
       .GroupBy(line => isAggregate
         ? lineNamingConvention.AggregateTypeForLineAndMeterId(
             meterId: line.MeterId,
@@ -59,24 +59,25 @@ public class LineGraphQueries(
       var futureCounts = new List<QueryDeferred<int>>();
       var futureItems = new List<QueryFutureEnumerable<AggregateEntity>>();
 
-      foreach (var entityTypeLines in entityTypes)
+      foreach (var modelTypeLines in modelTypes)
       {
-        var entityType = entityTypeLines.Key;
-        var lineIds = entityTypeLines
+        var modelType = modelTypeLines.Key;
+        var lineIds = modelTypeLines
           .Select(line => line.Id)
           .ToList();
 
-        var queryable = context.GetQueryable(entityType)
+        var queryable = context
+          .GetQueryable(modelEntityConverter.EntityType(modelType))
           as IQueryable<AggregateEntity>
           ?? throw new InvalidOperationException(
-            $"No DbSet found for {entityType}");
+            $"No DbSet found for {modelType}");
 
         var parameter = Expression.Parameter(typeof(AggregateEntity), "entity");
         var foreignKeyExpression = Expression
           .Lambda<Func<AggregateEntity, bool>>(
             Expression.Invoke(
               context.ForeignKeyIn(
-                entityType,
+                modelType,
                 nameof(AggregateEntity<LineEntity, MeterEntity>.Line),
                 lineIds),
               Expression.Convert(parameter, typeof(object))),
@@ -120,7 +121,7 @@ public class LineGraphQueries(
       var futureCounts = new List<QueryDeferred<int>>();
       var futureItems = new List<QueryFutureEnumerable<MeasurementEntity>>();
 
-      foreach (var entityTypeLines in entityTypes)
+      foreach (var entityTypeLines in modelTypes)
       {
         var entityType = entityTypeLines.Key;
         var lineIds = entityTypeLines

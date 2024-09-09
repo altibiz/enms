@@ -37,7 +37,7 @@ public class DashboardQueries(
 
     return networkUserLines is null
       ? null
-      : (networkUserLines.ToModel(),
+      : new(networkUserLines.ToModel(),
         networkUserLines.Lines
           .Select(modelEntityConverter.ToModel<ILine>)
           .ToList());
