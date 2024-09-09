@@ -1,14 +1,14 @@
 using Enms.Business.Conversion.Agnostic;
 using Enms.Business.Models;
 using Enms.Business.Queries.Abstractions;
-using Enms.Data.Concurrency;
+using Enms.Data.Context;
 using Enms.Data.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace Enms.Business.Queries;
 
 public class EventQueries(
-  DataDbContextMutex mutex,
+  IDbContextFactory<DataDbContext> factory,
   AgnosticModelEntityConverter modelEntityConverter
 ) : IQueries
 {
@@ -19,8 +19,7 @@ public class EventQueries(
       int pageCount = QueryConstants.DefaultPageCount
     )
   {
-    using var @lock = await mutex.LockAsync();
-    var context = @lock.Context;
+    using var context = await factory.CreateDbContextAsync();
 
     var queryable = context.Events;
 

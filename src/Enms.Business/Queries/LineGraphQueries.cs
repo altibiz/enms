@@ -4,7 +4,7 @@ using Enms.Business.Models.Abstractions;
 using Enms.Business.Models.Enums;
 using Enms.Business.Naming.Agnostic;
 using Enms.Business.Queries.Abstractions;
-using Enms.Data.Concurrency;
+using Enms.Data.Context;
 using Enms.Data.Entities.Base;
 using Enms.Data.Extensions;
 using Microsoft.EntityFrameworkCore;
@@ -13,7 +13,7 @@ using Z.EntityFramework.Plus;
 namespace Enms.Business.Queries;
 
 public class LineGraphQueries(
-  DataDbContextMutex mutex,
+  IDbContextFactory<DataDbContext> factory,
   AgnosticModelEntityConverter modelEntityConverter,
   AgnosticLineNamingConvention lineNamingConvention
 ) : IQueries
@@ -49,8 +49,7 @@ public class LineGraphQueries(
             lineId: line.LineId
           ));
 
-    using var @lock = await mutex.LockAsync();
-    var context = @lock.Context;
+    using var context = await factory.CreateDbContextAsync();
 
     List<IMeasurement> items;
     int count;

@@ -1,14 +1,14 @@
 using Enms.Business.Conversion.Abstractions;
 using Enms.Business.Models.Base;
 using Enms.Business.Queries.Abstractions;
-using Enms.Data.Concurrency;
+using Enms.Data.Context;
 using Enms.Data.Context;
 using Microsoft.EntityFrameworkCore;
 
 namespace Enms.Business.Queries;
 
 public class NotificationQueries(
-  DataDbContextMutex mutex,
+  IDbContextFactory<DataDbContext> factory,
   IServiceProvider serviceProvider
 ) : IQueries
 {
@@ -27,8 +27,7 @@ public class NotificationQueries(
       ?? throw new InvalidOperationException(
         $"No model entity converter found for model {typeof(NotificationModel)}");
 
-    using var @lock = await mutex.LockAsync();
-    var context = @lock.Context;
+    using var context = await factory.CreateDbContextAsync();
 
     var filtered = recipientId is null
       ? context.Notifications

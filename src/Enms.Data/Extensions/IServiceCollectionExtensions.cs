@@ -1,5 +1,4 @@
 using System.Reflection;
-using Enms.Data.Concurrency;
 using Enms.Data.Context;
 using Enms.Data.Observers.Abstractions;
 using Enms.Data.Options;
@@ -16,9 +15,6 @@ public static class IServiceCollectionExtensions
   {
     // Entity Framework Core
     services.AddEntityFrameworkCore(builder);
-
-    // Concurrency
-    services.AddScoped<DataDbContextMutex>();
 
     // Observers
     services.AddSingletonAssignableTo(typeof(IPublisher));

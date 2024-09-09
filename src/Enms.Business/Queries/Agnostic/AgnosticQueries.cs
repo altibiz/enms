@@ -3,7 +3,7 @@ using Enms.Business.Conversion.Abstractions;
 using Enms.Business.Conversion.Agnostic;
 using Enms.Business.Models.Abstractions;
 using Enms.Business.Queries.Abstractions;
-using Enms.Data.Concurrency;
+using Enms.Data.Context;
 using Enms.Data.Entities.Abstractions;
 using Enms.Data.Extensions;
 using Microsoft.EntityFrameworkCore;
@@ -14,15 +14,14 @@ namespace Enms.Business.Queries.Agnostic;
 // when ordering by primary key
 
 public class AgnosticQueries(
-  DataDbContextMutex mutex,
+  IDbContextFactory<DataDbContext> factory,
   AgnosticModelEntityConverter modelEntityConverter
 ) : IQueries
 {
   public async Task<T?> ReadSingle<T>(string id)
     where T : IIdentifiable
   {
-    using var @lock = await mutex.LockAsync();
-    var context = @lock.Context;
+    using var context = await factory.CreateDbContextAsync();
 
     var queryable = context.GetQueryable(modelEntityConverter
       .EntityType(typeof(T)))
@@ -47,8 +46,7 @@ public class AgnosticQueries(
         $"{typeof(T)} is not identifiable");
     }
 
-    using var @lock = await mutex.LockAsync();
-    var context = @lock.Context;
+    using var context = await factory.CreateDbContextAsync();
 
     var queryable = context.GetQueryable(modelEntityConverter
       .EntityType(typeof(T)))
@@ -74,8 +72,7 @@ public class AgnosticQueries(
   )
     where T : IModel
   {
-    using var @lock = await mutex.LockAsync();
-    var context = @lock.Context;
+    using var context = await factory.CreateDbContextAsync();
 
     var queryable = context.GetQueryable(modelEntityConverter
       .EntityType(typeof(T)))
@@ -137,8 +134,7 @@ public class AgnosticQueries(
         $"{typeof(T)} is not a model");
     }
 
-    using var @lock = await mutex.LockAsync();
-    var context = @lock.Context;
+    using var context = await factory.CreateDbContextAsync();
 
     var queryable = context.GetQueryable(modelEntityConverter
       .EntityType(typeof(T)))

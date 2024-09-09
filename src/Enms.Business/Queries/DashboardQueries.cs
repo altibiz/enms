@@ -4,20 +4,19 @@ using Enms.Business.Models;
 using Enms.Business.Models.Abstractions;
 using Enms.Business.Models.Composite;
 using Enms.Business.Queries.Abstractions;
-using Enms.Data.Concurrency;
+using Enms.Data.Context;
 using Microsoft.EntityFrameworkCore;
 
 namespace Enms.Business.Queries;
 
 public class DashboardQueries(
-  DataDbContextMutex mutex,
+  IDbContextFactory<DataDbContext> factory,
   AgnosticModelEntityConverter modelEntityConverter
 ) : IQueries
 {
   public async Task<List<ILine>> OperatorLines()
   {
-    using var @lock = await mutex.LockAsync();
-    var context = @lock.Context;
+    using var context = await factory.CreateDbContextAsync();
 
     var lines = await context.Lines.ToListAsync();
 
@@ -27,8 +26,7 @@ public class DashboardQueries(
   public async Task<NetworkUserLines?> NetworkUserLines(
     RepresentativeModel representative)
   {
-    using var @lock = await mutex.LockAsync();
-    var context = @lock.Context;
+    using var context = await factory.CreateDbContextAsync();
 
     var networkUserLines = await context.NetworkUsers
       .Where(networkUser => networkUser.Id == representative.Id)

@@ -2,7 +2,7 @@ using Enms.Business.Conversion.Agnostic;
 using Enms.Business.Models.Abstractions;
 using Enms.Business.Naming.Agnostic;
 using Enms.Business.Queries.Abstractions;
-using Enms.Data.Concurrency;
+using Enms.Data.Context;
 using Enms.Data.Entities.Base;
 using Enms.Data.Extensions;
 using Microsoft.EntityFrameworkCore;
@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore;
 namespace Enms.Business.Queries.Agnostic;
 
 public class MeasurementQueries(
-  DataDbContextMutex mutex,
+  IDbContextFactory<DataDbContext> factory,
   AgnosticModelEntityConverter modelEntityConverter,
   AgnosticLineNamingConvention lineNamingConvention
 ) : IQueries
@@ -105,8 +105,7 @@ public class MeasurementQueries(
     int pageCount = QueryConstants.MeasurementPageCount
   )
   {
-    using var @lock = await mutex.LockAsync();
-    var context = @lock.Context;
+    using var context = await factory.CreateDbContextAsync();
 
     if (measurementType is null)
     {
