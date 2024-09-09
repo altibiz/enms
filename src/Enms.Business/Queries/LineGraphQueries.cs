@@ -65,19 +65,20 @@ public class LineGraphQueries(
         var lineIds = modelTypeLines
           .Select(line => line.Id)
           .ToList();
+        var entityType = modelEntityConverter.EntityType(modelType);
 
         var queryable = context
-          .GetQueryable(modelEntityConverter.EntityType(modelType))
+          .GetQueryable(modelEntityConverter.EntityType(entityType))
           as IQueryable<AggregateEntity>
           ?? throw new InvalidOperationException(
-            $"No DbSet found for {modelType}");
+            $"No DbSet found for {entityType}");
 
         var parameter = Expression.Parameter(typeof(AggregateEntity), "entity");
         var foreignKeyExpression = Expression
           .Lambda<Func<AggregateEntity, bool>>(
             Expression.Invoke(
               context.ForeignKeyIn(
-                modelType,
+                entityType,
                 nameof(AggregateEntity<LineEntity, MeterEntity>.Line),
                 lineIds),
               Expression.Convert(parameter, typeof(object))),
@@ -123,10 +124,11 @@ public class LineGraphQueries(
 
       foreach (var entityTypeLines in modelTypes)
       {
-        var entityType = entityTypeLines.Key;
+        var modelType = entityTypeLines.Key;
         var lineIds = entityTypeLines
           .Select(line => line.Id)
           .ToList();
+        var entityType = modelEntityConverter.EntityType(modelType);
 
         var queryable = context.GetQueryable(entityType)
           as IQueryable<MeasurementEntity>
