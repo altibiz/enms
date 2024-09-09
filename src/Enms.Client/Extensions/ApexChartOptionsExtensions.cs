@@ -24,6 +24,14 @@ public static class ApexChartOptionsExtensions
   )
     where T : class
   {
+    options.Chart.Toolbar.Tools.Zoomin = false;
+    options.Chart.Toolbar.Tools.Zoomout = false;
+    options.Chart.Toolbar.Tools.Zoom = false;
+    options.Chart.Toolbar.Tools.Download = false;
+    options.Chart.Toolbar.Tools.Pan = false;
+    options.Chart.Toolbar.Tools.Selection = false;
+    options.Chart.Toolbar.Tools.Reset = false;
+
     options.Grid = new Grid
     {
       BorderColor = "#e7e7e7",
@@ -33,6 +41,7 @@ public static class ApexChartOptionsExtensions
         Opacity = 0.5d
       }
     };
+
     options.Tooltip = new Tooltip
     {
       X = new TooltipX { Format = @"HH:mm:ss" },
@@ -44,6 +53,7 @@ public static class ApexChartOptionsExtensions
         }
       }
     };
+
     options.Yaxis =
     [
       new YAxis
@@ -54,24 +64,10 @@ public static class ApexChartOptionsExtensions
         }
       }
     ];
+
     options.Xaxis = new XAxis
     {
       Labels = new XAxisLabels { Show = false },
-    };
-    options.Chart = new Chart
-    {
-      Toolbar = new Toolbar
-      {
-        Tools = new Tools
-        {
-          Zoomin = false,
-          Zoomout = false,
-          Download = false,
-          Pan = false,
-          Selection = false,
-          Reset = false
-        }
-      }
     };
 
     return options;
@@ -83,6 +79,14 @@ public static class ApexChartOptionsExtensions
   )
     where T : class
   {
+    options.Chart.Toolbar.Tools.Zoomin = false;
+    options.Chart.Toolbar.Tools.Zoomout = false;
+    options.Chart.Toolbar.Tools.Zoom = false;
+    options.Chart.Toolbar.Tools.Download = false;
+    options.Chart.Toolbar.Tools.Pan = false;
+    options.Chart.Toolbar.Tools.Selection = false;
+    options.Chart.Toolbar.Tools.Reset = false;
+
     options.Grid = new Grid
     {
       BorderColor = "#e7e7e7",
@@ -92,22 +96,7 @@ public static class ApexChartOptionsExtensions
         Opacity = 0.5d
       }
     };
-    options.Chart = new Chart
-    {
-      Toolbar = new Toolbar
-      {
-        Tools = new Tools
-        {
-          Zoomin = false,
-          Zoomout = false,
-          Zoom = false,
-          Download = false,
-          Pan = false,
-          Selection = false,
-          Reset = false
-        }
-      }
-    };
+
     options.Tooltip = new Tooltip
     {
       X = new TooltipX { Format = @"HH:mm:ss" },
@@ -119,6 +108,7 @@ public static class ApexChartOptionsExtensions
         }
       }
     };
+
     options.Yaxis =
     [
       new YAxis
@@ -129,6 +119,7 @@ public static class ApexChartOptionsExtensions
         }
       }
     ];
+
     options.Xaxis = new XAxis
     {
       Type = XAxisType.Datetime,
@@ -159,6 +150,7 @@ public static class ApexChartOptionsExtensions
           }
         }
       ];
+
       options.Annotations = new Annotations
       {
         Yaxis = [
@@ -184,6 +176,7 @@ public static class ApexChartOptionsExtensions
     else
     {
       options.Annotations = new Annotations();
+
       options.Yaxis =
       [
         new YAxis

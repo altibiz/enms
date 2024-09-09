@@ -27,7 +27,10 @@
       @foreach (var selectedLine in _selectedLines)
       {
         <ApexPointSeries
-          Items="@(_measurements.Items.Where(x => x.LineId == selectedLine.Id))"
+          Items="@(_measurements.Items
+            .Where(x =>
+              x.LineId == selectedLine.LineId
+              && x.MeterId == selectedLine.MeterId))"
           Name="@(phase.ToTitle())"
           SeriesType="SeriesType.Line"
           XValue='x => DateTimeChart(x.Timestamp)'

@@ -68,7 +68,7 @@ public partial class LineGraph : EnmsOwningComponentBase
 
     _options = CreateGraphOptions();
 
-    _selectedLines = Lines.Take(3).ToHashSet();
+    _selectedLines = Lines.Take(1).ToHashSet();
   }
 
   protected override void Dispose(bool disposing)
