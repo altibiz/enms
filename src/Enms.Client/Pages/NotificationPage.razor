@@ -47,14 +47,17 @@
   </Edit>
   <Details Context="model">
     <NotificationDetails Model="@model"/>
-    <div class="d-flex flex-row mt-4 justify-end">
-      <MudButton
-        Variant="Variant.Filled"
-        Class="align-self-end"
-        OnClick="() => OnMarkAsSeen(model)">
-        @Translate("Mark as seen")
-      </MudButton>
-    </div>
+    @if (model.Id is not null)
+    {
+      <div class="d-flex flex-row mt-4 justify-end">
+        <MudButton
+          Variant="Variant.Filled"
+          Class="align-self-end"
+          OnClick="() => OnMarkAsSeen(model)">
+          @Translate("Mark as seen")
+        </MudButton>
+      </div>
+    }
   </Details>
 </Mutating>
 

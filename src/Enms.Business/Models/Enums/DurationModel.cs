@@ -30,8 +30,23 @@ public static class DurationModelExtensions
     };
   }
 
-  public static string ToString(this DurationModel duration)
+  public static string ToTitle(this DurationModel duration, bool plural = false)
   {
+    if (plural)
+    {
+      return duration switch
+      {
+        DurationModel.Second => "seconds",
+        DurationModel.Minute => "minutes",
+        DurationModel.Hour => "hours",
+        DurationModel.Day => "days",
+        DurationModel.Week => "weeks",
+        DurationModel.Month => "months",
+        DurationModel.Year => "years",
+        _ => throw new NotImplementedException()
+      };
+    }
+
     return duration switch
     {
       DurationModel.Second => "second",

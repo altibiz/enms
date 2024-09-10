@@ -1,14 +1,15 @@
 @using Enms.Business.Models
+@using Enms.Business.Models.Complex
 @using Enms.Client.Shared.Fields
 @using Enms.Client.Base
 @namespace Enms.Client.Shared.Models
 @inherits EnmsComponentBase
 
 <DetailsField Title="@(Translate("Inactivity period"))">
-  @Model.MaxInactivityPeriod
+  @Model.MaxInactivityPeriod.ToTitle()
 </DetailsField>
 <DetailsField Title="@(Translate("Delay period"))">
-  @Model.PushDelayPeriod
+  @Model.PushDelayPeriod.ToTitle()
 </DetailsField>
 
 @code {

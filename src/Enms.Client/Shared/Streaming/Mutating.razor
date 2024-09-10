@@ -97,6 +97,17 @@
         else
         {
           @Details(model)
+          @if (model is not IReadonly)
+          {
+            <div Class="d-flex flex-row mt-4">
+              <MudButton
+                OnClick="@(() => _mutating = !_mutating)"
+                Variant="Variant.Filled"
+                Color="Color.Warning">
+                @Translate("Edit")
+              </MudButton>
+            </div>
+          }
         }
       </EditForm>
     }

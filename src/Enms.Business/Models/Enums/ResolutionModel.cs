@@ -37,12 +37,12 @@ public static class ChartResolutionExtensions
     {
       return resolution switch
       {
-        ResolutionModel.Minute => "Minute",
-        ResolutionModel.Hour => "Hour",
-        ResolutionModel.Day => "Day",
-        ResolutionModel.Week => "Week",
-        ResolutionModel.Month => "Month",
-        ResolutionModel.Year => "Year",
+        ResolutionModel.Minute => "minute",
+        ResolutionModel.Hour => "hour",
+        ResolutionModel.Day => "day",
+        ResolutionModel.Week => "week",
+        ResolutionModel.Month => "month",
+        ResolutionModel.Year => "year",
         _ => throw new ArgumentOutOfRangeException(
           nameof(resolution),
           resolution,
@@ -52,12 +52,12 @@ public static class ChartResolutionExtensions
 
     return resolution switch
     {
-      ResolutionModel.Minute => "Minutes",
-      ResolutionModel.Hour => "Hours",
-      ResolutionModel.Day => "Days",
-      ResolutionModel.Week => "Weeks",
-      ResolutionModel.Month => "Months",
-      ResolutionModel.Year => "Years",
+      ResolutionModel.Minute => "minutes",
+      ResolutionModel.Hour => "hours",
+      ResolutionModel.Day => "days",
+      ResolutionModel.Week => "weeks",
+      ResolutionModel.Month => "months",
+      ResolutionModel.Year => "years",
       _ => throw new ArgumentOutOfRangeException(
         nameof(resolution),
         resolution,

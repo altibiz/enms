@@ -1,6 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using Enms.Business.Models.Abstractions;
 using Enms.Business.Models.Enums;
+using System.Text;
 
 namespace Enms.Business.Models.Complex;
 
@@ -19,6 +20,24 @@ public class PeriodModel : IModel, IValidatableObject
 
 public static class PeriodModelExtensions
 {
+  public static string ToTitle(this PeriodModel model)
+  {
+    var builder = new StringBuilder();
+
+    if (model.Multiplier > 1)
+    {
+      builder.Append($"{model.Multiplier} ");
+    }
+    else
+    {
+      builder.Append("a ");
+    }
+
+    builder.Append(model.Duration.ToTitle(plural: model.Multiplier > 1));
+
+    return builder.ToString();
+  }
+
   public static TimeSpan ToTimeSpan(this PeriodModel model)
   {
     return model.Duration.ToTimeSpan() * model.Multiplier;
