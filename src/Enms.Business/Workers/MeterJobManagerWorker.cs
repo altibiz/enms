@@ -13,7 +13,8 @@ namespace Enms.Business.Workers;
 
 public class MeterJobManagerWorker(
   IServiceScopeFactory serviceScopeFactory,
-  IEntityChangesSubscriber subscriber
+  IEntityChangesSubscriber subscriber,
+  IHostApplicationLifetime lifetime
 ) : BackgroundService, IWorker
 {
   private readonly Channel<EntitiesChangedEventArgs> channel =
@@ -21,13 +22,30 @@ public class MeterJobManagerWorker(
 
   public override async Task StartAsync(CancellationToken cancellationToken)
   {
+    subscriber.SubscribeEntitiesChanged(OnEntitiesChanged);
+    await base.StartAsync(cancellationToken);
+  }
+
+  public override async Task StopAsync(CancellationToken cancellationToken)
+  {
+    subscriber.UnsubscribeEntitiesChanged(OnEntitiesChanged);
+    await base.StopAsync(cancellationToken);
+  }
+
+  protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+  {
+    if (!await WaitForAppStartup(lifetime, stoppingToken))
+    {
+      return;
+    }
+
     await using (var scope = serviceScopeFactory.CreateAsyncScope())
     {
       var context = scope.ServiceProvider.GetRequiredService<DataDbContext>();
       var manager =
         scope.ServiceProvider.GetRequiredService<IMeterJobManager>();
 
-      var meters = await context.Meters.ToListAsync(cancellationToken);
+      var meters = await context.Meters.ToListAsync(stoppingToken);
       foreach (var meter in meters)
       {
         await manager.EnsureInactivityMonitorJob(
@@ -37,20 +55,6 @@ public class MeterJobManagerWorker(
       }
     }
 
-    subscriber.SubscribeEntitiesChanged(OnEntitiesChanged);
-
-    await base.StartAsync(cancellationToken);
-  }
-
-  public override async Task StopAsync(CancellationToken cancellationToken)
-  {
-    subscriber.UnsubscribeEntitiesChanged(OnEntitiesChanged);
-
-    await base.StopAsync(cancellationToken);
-  }
-
-  protected override async Task ExecuteAsync(CancellationToken stoppingToken)
-  {
     await foreach (var eventArgs in channel.Reader.ReadAllAsync(stoppingToken))
     {
       await using var scope = serviceScopeFactory.CreateAsyncScope();
@@ -99,5 +103,20 @@ public class MeterJobManagerWorker(
         );
       }
     }
+  }
+
+  private static async Task<bool> WaitForAppStartup(
+    IHostApplicationLifetime lifetime,
+    CancellationToken stoppingToken)
+  {
+    var startedSource = new TaskCompletionSource();
+    var cancelledSource = new TaskCompletionSource();
+
+    using var reg1 = lifetime.ApplicationStarted.Register(() => startedSource.SetResult());
+    using var reg2 = stoppingToken.Register(() => cancelledSource.SetResult());
+
+    Task completedTask = await Task.WhenAny(startedSource.Task, cancelledSource.Task);
+
+    return completedTask == startedSource.Task;
   }
 }
