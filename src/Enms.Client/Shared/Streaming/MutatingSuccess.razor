@@ -1,6 +1,7 @@
 @using MudBlazor
 @inherits Enms.Client.Base.EnmsComponentBase
-<MudDialog>
+
+<MudDialog OnBackdropClick="NavigateBack">
   <DialogContent>
     @Translate("Success")
   </DialogContent>
@@ -18,7 +19,7 @@
 
   void Submit()
   {
+    NavigateBack();
     MudDialog.Close(DialogResult.Ok(true));
   }
-
 }

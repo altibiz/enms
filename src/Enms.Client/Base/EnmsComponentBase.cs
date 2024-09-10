@@ -6,6 +6,7 @@ using Enms.Business.Models.Enums;
 using Enms.Business.Time;
 using Enms.Client.Attributes;
 using Microsoft.AspNetCore.Components;
+using Microsoft.JSInterop;
 
 namespace Enms.Client.Base;
 
@@ -18,6 +19,9 @@ public abstract class EnmsComponentBase : ComponentBase
 
   [Inject]
   private NavigationManager NavigationManager { get; set; } = default!;
+
+  [Inject]
+  private IJSRuntime JS { get; set; } = default!;
 
   protected CultureInfo Culture
   {
@@ -66,6 +70,11 @@ public abstract class EnmsComponentBase : ComponentBase
       .FirstOrDefault() ?? throw new InvalidOperationException(
         $"No navigation attribute found for {typeof(T)}");
     NavigationManager.NavigateTo(navigationAttribute.RouteValue, forceLoad);
+  }
+
+  protected void NavigateBack()
+  {
+    JS.InvokeVoidAsync("history.back");
   }
 
   protected string Translate(string unlocalized)
