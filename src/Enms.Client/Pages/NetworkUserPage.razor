@@ -10,11 +10,11 @@
 @inherits Enms.Client.Base.EnmsOwningComponentBase
 
 <Mutating T="NetworkUserModel" Id="@Id">
-  <Edit Context="model">
-    <NetworkUserEdit Model="@model" />
+  <Edit Context="state">
+    <NetworkUserEdit Model="@state.Model" />
   </Edit>
-  <Details Context="model">
-    <NetworkUserDetails Model="@model"/>
+  <Details Context="state">
+    <NetworkUserDetails Model="@state.Model"/>
   </Details>
 </Mutating>
 

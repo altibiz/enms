@@ -1,10 +1,10 @@
-@page "/lines"
+@page "/feeders"
 
 @namespace Enms.Client.Pages
 
 @attribute [Navigation(
-  Title = "Lines",
-  RouteValue = "lines",
+  Title = "Feeders",
+  RouteValue = "feeders",
   Icon = Icons.Material.Filled.ElectricBolt,
   Order = 90
 )]
@@ -24,7 +24,7 @@
 <Paging T="EgaugeLineModel">
   <Summary Context="line">
     @{
-      var href = $"line/{line.Id}";
+      var href = $"feeder/{line.Id}";
 
       <MudLink
         Href="@href"
@@ -40,7 +40,7 @@
 </Paging>
 
 <MudFab
-  Href="line"
+  Href="feeder"
   Size="Size.Medium"
   Color="Color.Tertiary"
   StartIcon="@Icons.Material.Filled.Add"

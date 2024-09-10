@@ -10,11 +10,11 @@
 @inherits Enms.Client.Base.EnmsOwningComponentBase
 
 <Mutating T="EgaugeMeasurementValidatorModel" Id="@Id">
-  <Edit Context="model">
-    <EgaugeMeasurementValidatorEdit Model="@model"/>
+  <Edit Context="state">
+    <EgaugeMeasurementValidatorEdit Model="@state.Model"/>
   </Edit>
-  <Details Context="model">
-    <EgaugeMeasurementValidatorDetails Model="@model"/>
+  <Details Context="state">
+    <EgaugeMeasurementValidatorDetails Model="@state.Model"/>
   </Details>
 </Mutating>
 

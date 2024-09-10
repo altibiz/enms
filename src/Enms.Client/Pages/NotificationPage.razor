@@ -42,18 +42,18 @@
     .GetRequiredService<NotificationMutations>()
     .Create(model))"
   Id="@Id">
-  <Edit Context="model">
-    <NotificationEdit Model="@model"/>
+  <Edit Context="state">
+    <NotificationEdit Model="@state.Model"/>
   </Edit>
-  <Details Context="model">
-    <NotificationDetails Model="@model"/>
-    @if (model.Id is not null)
+  <Details Context="state">
+    <NotificationDetails Model="@state.Model"/>
+    @if (!state.Created)
     {
       <div class="d-flex flex-row mt-4 justify-end">
         <MudButton
           Variant="Variant.Filled"
           Class="align-self-end"
-          OnClick="() => OnMarkAsSeen(model)">
+          OnClick="() => OnMarkAsSeen(state.Model)">
           @Translate("Mark as seen")
         </MudButton>
       </div>

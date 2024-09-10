@@ -6,6 +6,7 @@
 @using Microsoft.AspNetCore.Components.Forms
 @using Microsoft.Extensions.DependencyInjection
 @using Enms.Client.Shared.Fields
+@using Enms.Client.State
 @using MudBlazor
 @inherits Enms.Client.Base.EnmsOwningComponentBase
 
@@ -25,7 +26,7 @@
   <Found Context="model">
     @if (Label is not null)
     {
-      @Label(model)
+      @Label(new MutatingState<T>(model, false))
       <MudDivider Class="mb-4" />
     }
     else if (model is IIdentifiable identifiable)
@@ -58,7 +59,7 @@
 
     @if (model is IReadonly)
     {
-      @Details(model)
+      @Details(new MutatingState<T>(model, false))
     }
     else
     {
@@ -68,7 +69,7 @@
         <DataAnnotationsValidator/>
         @if (_mutating)
         {
-          @Edit(model)
+          @Edit(new MutatingState<T>(model, false))
           <div Class="d-flex flex-column mt-4">
             <div Class="d-flex flex-row">
               <MudButton
@@ -96,7 +97,7 @@
         }
         else
         {
-          @Details(model)
+          @Details(new MutatingState<T>(model, false))
           @if (model is not IReadonly)
           {
             <div Class="d-flex flex-row mt-4">
@@ -115,7 +116,7 @@
   <Created Context="model">
     @if (Label is not null)
     {
-      @Label(model)
+      @Label(new MutatingState<T>(model, false))
     }
     else
     {
@@ -130,7 +131,7 @@
       <DataAnnotationsValidator/>
       @if (!_mutating)
       {
-        @Edit(model)
+        @Edit(new MutatingState<T>(model, false))
         <div Class="d-flex flex-row mt-4">
           <MudButton
             ButtonType="ButtonType.Submit"
@@ -149,7 +150,7 @@
       }
       else
       {
-        @Details(model)
+        @Details(new MutatingState<T>(model, false))
         <div Class="d-flex flex-row mt-4">
           <MudButton
             OnClick="@(() => _mutating = !_mutating)"
@@ -170,9 +171,6 @@
 
   [Parameter]
   public string? Id { get; set; } = default!;
-
-  [Parameter]
-  public RenderFragment<T>? Label { get; set; } = default!;
 
   [Parameter]
   public RenderFragment? Progress { get; set; }
@@ -211,10 +209,13 @@
   public Func<T, Task>? DeleteAsync { get; set; }
 
   [Parameter]
-  public RenderFragment<T> Details { get; set; } = default!;
+  public RenderFragment<MutatingState<T>>? Label { get; set; } = default!;
 
   [Parameter]
-  public RenderFragment<T> Edit { get; set; } = default!;
+  public RenderFragment<MutatingState<T>> Details { get; set; } = default!;
+
+  [Parameter]
+  public RenderFragment<MutatingState<T>> Edit { get; set; } = default!;
 
   private bool _mutating;
 

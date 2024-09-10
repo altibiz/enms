@@ -1,4 +1,4 @@
-@page "/line/{id?}"
+@page "/feeder/{id?}"
 
 @namespace Enms.Client.Pages
 
@@ -14,26 +14,26 @@
 @inherits EnmsOwningComponentBase
 
 <Mutating T="EgaugeLineModel" Id="@Id">
-  <Label Context="model">
+  <Label Context="state">
     <MudText Typo="Typo.h5" Class="mb-2">
-      @(model.Title)
+      @(state.Model.Title)
     </MudText>
     <MudDivider Class="mb-4" />
-    @if (model.CreatedOn is not null)
+    @if (!state.Created)
     {
       <div class="mt-4 mb-4">
-        <LineGraph Lines="@([model])"/>
+        <LineGraph Lines="@([state.Model])"/>
       </div>
     }
     <DetailsField Title="@Translate("Id")">
-      @model.Id
+      @state.Model.Id
     </DetailsField>
   </Label>
-  <Edit Context="model">
-    <EgaugeLineEdit Model="@model"/>
+  <Edit Context="state">
+    <EgaugeLineEdit Model="@state.Model"/>
   </Edit>
-  <Details Context="model">
-    <EgaugeLineDetails Model="@model"/>
+  <Details Context="state">
+    <EgaugeLineDetails Model="@state.Model"/>
   </Details>
 </Mutating>
 

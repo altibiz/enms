@@ -22,11 +22,11 @@
   CreateAsync="@(model => ScopedServices.GetRequiredService<RepresentativeMutations>().Create(model))"
   UpdateAsync="@(model => ScopedServices.GetRequiredService<RepresentativeMutations>().Update(model))"
   DeleteAsync="@(model => ScopedServices.GetRequiredService<RepresentativeMutations>().Delete(model))">
-  <Edit Context="model">
-    <MaybeRepresentingUserEdit Model="@model"/>
+  <Edit Context="state">
+    <MaybeRepresentingUserEdit Model="@state.Model"/>
   </Edit>
-  <Details Context="model">
-    <MaybeRepresentingUserDetails Model="@model"/>
+  <Details Context="state">
+    <MaybeRepresentingUserDetails Model="@state.Model"/>
   </Details>
 </Mutating>
 
