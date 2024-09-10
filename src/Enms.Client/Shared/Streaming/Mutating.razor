@@ -116,7 +116,7 @@
   <Created Context="model">
     @if (Label is not null)
     {
-      @Label(new MutatingState<T>(model, false))
+      @Label(new MutatingState<T>(model, true))
     }
     else
     {
@@ -131,7 +131,7 @@
       <DataAnnotationsValidator/>
       @if (!_mutating)
       {
-        @Edit(new MutatingState<T>(model, false))
+        @Edit(new MutatingState<T>(model, true))
         <div Class="d-flex flex-row mt-4">
           <MudButton
             ButtonType="ButtonType.Submit"
@@ -150,7 +150,7 @@
       }
       else
       {
-        @Details(new MutatingState<T>(model, false))
+        @Details(new MutatingState<T>(model, true))
         <div Class="d-flex flex-row mt-4">
           <MudButton
             OnClick="@(() => _mutating = !_mutating)"
