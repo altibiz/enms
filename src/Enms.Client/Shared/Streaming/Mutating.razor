@@ -285,14 +285,14 @@
     {
       DialogService.Show<MutatingResult>(
         Translate("Failure"),
-        new DialogParameters { { nameof(MutatingResult.Body), $"{Translate("Failed creating")} {Translate(typeof(T).Name)} - {ex.Message}" } },
+        new DialogParameters { { nameof(MutatingResult.Body), $"{Translate("Failed updating")} {Translate(typeof(T).Name)} - {ex.Message}" } },
         new DialogOptions { CloseOnEscapeKey = true });
       return;
     }
 
     DialogService.Show<MutatingResult>(
       Translate("Success"),
-      new DialogParameters { { nameof(MutatingResult.Body), $"{Translate("Successfully created")} {Translate(typeof(T).Name)}" } },
+      new DialogParameters { { nameof(MutatingResult.Body), $"{Translate("Successfully updated")} {Translate(typeof(T).Name)}" } },
       new DialogOptions { CloseOnEscapeKey = true });
   }
 
@@ -324,14 +324,14 @@
     {
       DialogService.Show<MutatingResult>(
         Translate("Failure"),
-        new DialogParameters { { nameof(MutatingResult.Body), $"{Translate("Failed creating")} {Translate(typeof(T).Name)} - {ex.Message}" } },
+        new DialogParameters { { nameof(MutatingResult.Body), $"{Translate("Failed deleting")} {Translate(typeof(T).Name)} - {ex.Message}" } },
         new DialogOptions { CloseOnEscapeKey = true });
       return;
     }
 
     DialogService.Show<MutatingResult>(
       Translate("Success"),
-      new DialogParameters { { nameof(MutatingResult.Body), $"{Translate("Successfully created")} {Translate(typeof(T).Name)}" } },
+      new DialogParameters { { nameof(MutatingResult.Body), $"{Translate("Successfully deleted")} {Translate(typeof(T).Name)}" } },
       new DialogOptions { CloseOnEscapeKey = true });
   }
 

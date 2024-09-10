@@ -19,9 +19,12 @@
       @(model.Title)
     </MudText>
     <MudDivider Class="mb-4" />
-    <div class="mt-4 mb-4">
-      <LineGraph Lines="@([model])"/>
-    </div>
+    @if (model.CreatedOn is not null)
+    {
+      <div class="mt-4 mb-4">
+        <LineGraph Lines="@([model])"/>
+      </div>
+    }
     <DetailsField Title="@Translate("Id")">
       @model.Id
     </DetailsField>

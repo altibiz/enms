@@ -1,7 +1,7 @@
 using System.ComponentModel.DataAnnotations;
+using System.Text;
 using Enms.Business.Models.Abstractions;
 using Enms.Business.Models.Enums;
-using System.Text;
 
 namespace Enms.Business.Models.Complex;
 
