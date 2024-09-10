@@ -20,7 +20,7 @@
 <ApexChart XAxisType="XAxisType.Datetime"
            Options="@_options"
            @ref="_chart">
-  @foreach (var phase in Phases)
+  @foreach (var phase in Phases.OrderBy(x => x))
   {
     @if (Lines.Count > 1)
     {
