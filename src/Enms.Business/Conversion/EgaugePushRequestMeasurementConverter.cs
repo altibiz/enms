@@ -192,20 +192,20 @@ public sealed class
                     CurrentL3AnyT0_A = -decimal.Parse(
                       currentL3AnyT0_A, CultureInfo.InvariantCulture) / 1000M,
                     ActivePowerL1NetT0_W = -decimal.Parse(
-                      activePowerL1NetT0_W, CultureInfo.InvariantCulture) / 1000M,
+                      activePowerL1NetT0_W, CultureInfo.InvariantCulture),
                     ActivePowerL2NetT0_W = -decimal.Parse(
-                      activePowerL2NetT0_W, CultureInfo.InvariantCulture) / 1000M,
+                      activePowerL2NetT0_W, CultureInfo.InvariantCulture),
                     ActivePowerL3NetT0_W = -decimal.Parse(
-                      activePowerL3NetT0_W, CultureInfo.InvariantCulture) / 1000M,
+                      activePowerL3NetT0_W, CultureInfo.InvariantCulture),
                     ApparentPowerL1NetT0_W =
                       -decimal.Parse(
-                        apparentPowerL1NetT0_W, CultureInfo.InvariantCulture) / 1000M,
+                        apparentPowerL1NetT0_W, CultureInfo.InvariantCulture),
                     ApparentPowerL2NetT0_W =
                       -decimal.Parse(
-                        apparentPowerL2NetT0_W, CultureInfo.InvariantCulture) / 1000M,
+                        apparentPowerL2NetT0_W, CultureInfo.InvariantCulture),
                     ApparentPowerL3NetT0_W =
                       -decimal.Parse(
-                        apparentPowerL3NetT0_W, CultureInfo.InvariantCulture) / 1000M
+                        apparentPowerL3NetT0_W, CultureInfo.InvariantCulture)
                   };
                 })
               .Where(x => x is not null)
