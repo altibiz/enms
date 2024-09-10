@@ -63,5 +63,12 @@
   "You are not authorized to view this resource.": "You are not authorized to view this resource.",
   "The resource you were looking for doesn't exist.": "The resource you were looking for doesn't exist.",
   "Dark": "Dark",
-  "Light": "Light"
+  "Light": "Light",
+  "Close": "Close",
+  "Successfully created": "Successfully created",
+  "Failed creating": "Failed creating",
+  "Successfully updated": "Successfully updated",
+  "Failed updating": "Failed updating",
+  "Successfully deleted": "Successfully deleted",
+  "Failed deleting": "Failed deleting"
 }

@@ -63,5 +63,12 @@
   "You are not authorized to view this resource.": "Niste ovlašteni za pregled ovog resursa.",
   "The resource you were looking for doesn't exist.": "Resurs koji ste tražili ne postoji.",
   "Dark": "Tamno",
-  "Light": "Svjetlo"
+  "Light": "Svjetlo",
+  "Close": "Zatvori",
+  "Successfully created": "Uspješno stvoreno",
+  "Failed creating": "Neuspješno stvaranje",
+  "Successfully updated": "Uspješno ažurirano",
+  "Failed updating": "Neuspješno ažuriranje",
+  "Successfully deleted": "Uspješno obrisano",
+  "Failed deleting": "Neuspješno brisanje"
 }

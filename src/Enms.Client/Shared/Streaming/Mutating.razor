@@ -244,14 +244,16 @@
     }
     catch (Exception ex)
     {
-      DialogService.Show<MutatingFailure>(
-        $"Not saved - {ex.Message}",
+      DialogService.Show<MutatingResult>(
+        Translate("Failure"),
+        new DialogParameters { { nameof(MutatingResult.Body), $"{Translate("Failed creating")} {Translate(typeof(T).Name)} - {ex.Message}" } },
         new DialogOptions { CloseOnEscapeKey = true });
       return;
     }
 
-    DialogService.Show<MutatingSuccess>(
-      "Saved",
+    DialogService.Show<MutatingResult>(
+      Translate("Success"),
+      new DialogParameters { { nameof(MutatingResult.Body), $"{Translate("Successfully created")} {Translate(typeof(T).Name)}" } },
       new DialogOptions { CloseOnEscapeKey = true });
   }
 
@@ -281,14 +283,16 @@
     }
     catch (Exception ex)
     {
-      DialogService.Show<MutatingFailure>(
-        $"Not saved - {ex.Message}",
+      DialogService.Show<MutatingResult>(
+        Translate("Failure"),
+        new DialogParameters { { nameof(MutatingResult.Body), $"{Translate("Failed creating")} {Translate(typeof(T).Name)} - {ex.Message}" } },
         new DialogOptions { CloseOnEscapeKey = true });
       return;
     }
 
-    DialogService.Show<MutatingSuccess>(
-      "Saved",
+    DialogService.Show<MutatingResult>(
+      Translate("Success"),
+      new DialogParameters { { nameof(MutatingResult.Body), $"{Translate("Successfully created")} {Translate(typeof(T).Name)}" } },
       new DialogOptions { CloseOnEscapeKey = true });
   }
 
@@ -318,14 +322,16 @@
     }
     catch (Exception ex)
     {
-      DialogService.Show<MutatingFailure>(
-        $"Not saved - {ex.Message}",
+      DialogService.Show<MutatingResult>(
+        Translate("Failure"),
+        new DialogParameters { { nameof(MutatingResult.Body), $"{Translate("Failed creating")} {Translate(typeof(T).Name)} - {ex.Message}" } },
         new DialogOptions { CloseOnEscapeKey = true });
       return;
     }
 
-    DialogService.Show<MutatingSuccess>(
-      "Saved",
+    DialogService.Show<MutatingResult>(
+      Translate("Success"),
+      new DialogParameters { { nameof(MutatingResult.Body), $"{Translate("Successfully created")} {Translate(typeof(T).Name)}" } },
       new DialogOptions { CloseOnEscapeKey = true });
   }
 

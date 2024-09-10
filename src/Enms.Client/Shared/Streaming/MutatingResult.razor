@@ -1,12 +1,15 @@
 @using MudBlazor
 @inherits Enms.Client.Base.EnmsComponentBase
-<MudDialog>
+
+<MudDialog OnBackdropClick="Exit">
   <DialogContent>
-    @Translate("Failure")
+    <MudText Typo="Typo.body1" Style="min-width: 200px;">
+      @Body
+    </MudText>
   </DialogContent>
   <DialogActions>
-    <MudButton Color="Color.Primary" OnClick="Submit">
-      @Translate("Ok")
+    <MudButton FullWidth Color="Color.Primary" OnClick="Exit">
+      @Translate("Close")
     </MudButton>
   </DialogActions>
 </MudDialog>
@@ -16,9 +19,12 @@
   [CascadingParameter]
   MudDialogInstance MudDialog { get; set; } = default!;
 
-  void Submit()
+  [Parameter]
+  public string? Body { get; set; } = default!;
+
+  void Exit()
   {
+    NavigateBack();
     MudDialog.Close(DialogResult.Ok(true));
   }
-
 }
